@@ -1,4 +1,4 @@
-# 🎲 Level UPp – Project Documentation
+# 🎲 Level UP – Project Documentation
 
 ## 0. Team Formation and Role Definition
 - **Initial Meeting**: (Ylan, Théo, Alexandre) We discussed the project and shared our ideas as well as our expectations.
