@@ -36,7 +36,7 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 
 <table>
   <tr>
-    <td><img src="/home/alex/Holberton/Portfolio-Project/template/auth_mockup.png" alt="Logo 1" width="400"/></td>
-    <td><img src="/home/alex/Holberton/Portfolio-Project/template/card_mockup.png" alt="Logo 2" width="400"/></td>
+    <td><img src="./template/auth_mockup.png" alt="Logo 1" width="400"/></td>
+    <td><img src="./template/card_mockup.png" alt="Logo 2" width="400"/></td>
   </tr>
 </table>
