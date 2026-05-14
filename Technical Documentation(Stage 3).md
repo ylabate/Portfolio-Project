@@ -48,7 +48,7 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 # Design System Architecture
 
 ```mermaid
-flowchart TB
+flowchart LR
  subgraph frontend["Frontend"]
         webapp["React WebApp"]
   end
@@ -68,6 +68,4 @@ flowchart TB
     api -- https --> stripe
     Facade --> Models
     Facade -- SQLAlchemy --> sqlite
-
-
 ```
