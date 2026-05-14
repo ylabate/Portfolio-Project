@@ -69,14 +69,8 @@ flowchart TB
     Facade --> Models
     Facade -- SQLAlchemy --> sqlite
 
-    style webapp fill:#C8E6C9
-    style api fill:#FFF9C4
-    style Facade fill:#FFF9C4
-    style Models fill:#FFF9C4
-    style sqlite fill:#BBDEFB
-    style stripe fill:#E1BEE7
     style database fill:#2962FF
     style frontend fill:#00C853
     style backend fill:#FFD600
     style external fill:#AA00FF
-    ```
+```
