@@ -1,6 +1,7 @@
 # LEVELUP - Technical Documentation
 
 This documentation aims to provide a clear and structured vision for the MVP development process. It helps anticipate technical requirements, organize source control and quality assurance practices, reduce risks, improve collaboration, and align all stakeholders on the project’s technical direction.
+
 ## User Stories and mockups
 
 ### Must Have
@@ -16,6 +17,7 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 - As an admin user, I want to add/delete/update product card, so that allow me to perform CRUD operation.
 
 ### Should Have
+
 - As a normal user, I want a user page so that allow me to see my favorite and buying historic once connected.
 - As a normal user, I want a filter so that allow me to get faster the kind of thing i'm looking for.
 - As a normal user, I want a good UI so that allow me to navigate faster and easier.
@@ -24,10 +26,12 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 - As an admin user, I want to check buying historic overall and by id, so that allow me to help a customer if needed.
 
 ### Could Have
+
 - As a normal user, I want to update my profil information so that allow me to update username, profilpicture, user description. 
 - As a normal user, I want to add friend so that allow me to see their own favorite.
 - As a normal user, I want to gamble so that give me a chance to get a better key.
 ### Won't Have
+
 - no promotion code
 - multi language
 - no loyalty points
@@ -40,3 +44,39 @@ This documentation aims to provide a clear and structured vision for the MVP dev
     <td><img src="./template/card_mockup.png" alt="Logo 2" width="400"/></td>
   </tr>
 </table>
+
+# Design System Architecture
+
+```mermaid
+flowchart TB
+ subgraph frontend["Frontend"]
+        webapp["React WebApp"]
+  end
+ subgraph backend["Backend Python flask"]
+        api["API"]
+        Facade["Facade"]
+        Models["Business Models"]
+  end
+ subgraph database["Database"]
+        sqlite[("SQLite database")]
+  end
+ subgraph external["External Services"]
+        stripe["Stripe"]
+  end
+    webapp -- https --> api
+    api --> Facade
+    api -- https --> stripe
+    Facade --> Models
+    Facade -- SQLAlchemy --> sqlite
+
+    style webapp fill:#C8E6C9
+    style api fill:#FFF9C4
+    style Facade fill:#FFF9C4
+    style Models fill:#FFF9C4
+    style sqlite fill:#BBDEFB
+    style stripe fill:#E1BEE7
+    style database fill:#2962FF
+    style frontend fill:#00C853
+    style backend fill:#FFD600
+    style external fill:#AA00FF
+    ```
