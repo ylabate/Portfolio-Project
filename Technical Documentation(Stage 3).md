@@ -54,7 +54,7 @@ flowchart LR
   end
  subgraph backend["Backend Python flask"]
         api["API"]
-        Facade["Facade"]
+        facade["Facade"]
         Models["Business Models"]
   end
  subgraph database["Database"]
@@ -64,8 +64,8 @@ flowchart LR
         stripe["Stripe"]
   end
     webapp -- https --> api
-    api --> Facade
+    api --> facade
     api -- https --> stripe
-    Facade --> Models
-    Facade -- SQLAlchemy --> sqlite
+    facade --> Models
+    facade -- SQLAlchemy --> sqlite
 ```
