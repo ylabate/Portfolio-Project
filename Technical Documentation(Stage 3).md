@@ -2,6 +2,8 @@
 
 This documentation aims to provide a clear and structured vision for the MVP development process. It helps anticipate technical requirements, organize source control and quality assurance practices, reduce risks, improve collaboration, and align all stakeholders on the project’s technical direction.
 
+
+
 ## User Stories and mockups
 
 ### Must Have
@@ -45,7 +47,7 @@ This documentation aims to provide a clear and structured vision for the MVP dev
   </tr>
 </table>
 
-# Design System Architecture
+## Design System Architecture
 
 ```mermaid
 flowchart LR
@@ -69,3 +71,29 @@ flowchart LR
     facade --> Models
     facade -- SQLAlchemy --> sqlite
 ```
+
+## Components, Classes and Database design
+
+### 2.1 Front-end components
+
+| Component / Page   | Type        | Purpose                                                                 |
+|--------------------|-------------|-------------------------------------------------------------------------|
+| `HomePage`         | Page        | Main page with popular game                                            |
+| `Card`             | Page        | Displays card with optional filter                                     |
+| `LoginPage`        | Page        | User login with email and password                                     |
+| `RegisterPage`     | Page        | User can create an account                                             |
+| `AdminDashboard`   | Page        | Panel to manage website                                                |
+| `Cart`             | Page        | Check added game and purchase                                          |
+| `Filter`           | UI Component| Filter game                                                            |
+| `Card`             | UI Component| Game picture with price                                                |
+| `Cart`             | UI Component| Shopping cart                                                          |
+| `AdminPanel`       | UI Component| add/delete/update game card                                            |
+| `Header`           | UI Component| Login, navigation links, Logo                                          |
+
+**Interactions :**
+
+- Register/login -> Use /auth route API from backend
+- Admin add card -> Call "PUT" method from backend API
+- Filter -> Check all item category id and only display the one filter
+
+
