@@ -4,7 +4,7 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 
 
 
-## User Stories and mockups
+## 1 User Stories and mockups
 
 ### Must Have
 
@@ -72,9 +72,11 @@ flowchart LR
     facade -- SQLAlchemy --> sqlite
 ```
 
-## Components, Classes and Database design
+## 2 Components, Classes and Database design
 
 ### 2.1 Front-end components
+
+This table summarizes the pages and components to define the UI scope and clarify major interactions.
 
 | Component / Page   | Type        | Purpose                                                                 |
 |--------------------|-------------|-------------------------------------------------------------------------|
@@ -97,6 +99,8 @@ flowchart LR
 - Filter -> Check all item category id and only display the one filter
 
 ### 2.2 Database diagram (ER)
+
+This ER diagram helps visualize entities and relationships to validate keys and the data structure.
 
 ```mermaid
 erDiagram
@@ -205,6 +209,8 @@ erDiagram
 
 ### 2.3 Back-end classes
 
+This flowchart shows service separation and dependencies to validate flows and responsibilities.
+
 ```mermaid
 graph LR
     subgraph API["Backend API"]
@@ -217,8 +223,7 @@ graph LR
     end
 
     AuthService --> UserDB[("Users Table")]
-    MenuService --> GamesDB[("Games Table")]
-    MenuService --> KeyDB[("Keys Table")]
+    MenuService --> GamesDB[("Product")]
     OrderService --> OrderDB[("Orders Table")]
     PaymentService --> PaymentDB[("Payments Table")]
 ```
