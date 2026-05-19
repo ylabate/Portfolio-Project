@@ -202,3 +202,23 @@ erDiagram
     PRODUCT ||--o{ INVENTORY_ITEM : "contains_stock_of"
     USER_INVENTORY ||--o{ INVENTORY_ITEM : "links_to"
 ```
+
+### 2.3 Back-end classes
+
+```mermaid
+graph LR
+    subgraph API["Backend API"]
+        AuthService["Auth Service"]
+        MenuService["Menu Service"]
+        OrderService["Order Service"]
+        PaymentService["Payment Service"]
+
+        OrderService -->|Calls| PaymentService
+    end
+
+    AuthService --> UserDB[("Users Table")]
+    MenuService --> GamesDB[("Games Table")]
+    MenuService --> KeyDB[("Keys Table")]
+    OrderService --> OrderDB[("Orders Table")]
+    PaymentService --> PaymentDB[("Payments Table")]
+```
