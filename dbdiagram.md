@@ -5,7 +5,7 @@ erDiagram
     USER {
         uuid id PK
         string username
-        string profile_picture_url nullable
+        string profile_picture_url "nullable"
         string email UK
         string password
         boolean is_admin
@@ -17,7 +17,7 @@ erDiagram
         uuid id PK
         uuid user_id FK
         uuid product_id FK
-        string text nullable
+        string text "nullable"
         int rating "1-10"
         timestamp created_at
         timestamp updated_at
@@ -28,7 +28,7 @@ erDiagram
         uuid user_id FK
         int amount_cents
         string type "deposit|product_buy|crate_open"
-        string reference_id nullable "order_id|crate_id"
+        string reference_id "nullable - order_id|crate_id"
         timestamp created_at
     }
 
@@ -36,9 +36,9 @@ erDiagram
         uuid id PK
         string type "key|crate"
         string name
-        string description nullable
+        string description "nullable"
         int price_cents
-        jsonb metadata nullable "steam_appid, cover_url"
+        jsonb metadata "nullable - steam_appid, cover_url"
     }
 
     CART {
@@ -80,10 +80,10 @@ erDiagram
     INVENTORY_ITEM {
         uuid id PK
         uuid product_id FK
-        uuid user_inventory_id FK_nullable
-        string activation_code nullable
+        uuid user_inventory_id FK "nullable"
+        string activation_code "nullable"
         boolean is_used
-        timestamp used_at nullable
+        timestamp used_at "nullable"
     }
 
     USER ||--|| CART : "has"
