@@ -310,10 +310,31 @@ sequenceDiagram
 
 #### AUTH
 - post /register
-
-{
-    "id": "alex",
-    "age": "12"
+```json
+input
+{  
+    "username": "string",  
+    "password": "string"  
 }
 
+output
+{  
+    "id": "int",  
+    "age": "int"  
+}
+```
+
 - post /login 
+```json
+input
+{  
+    "username": "string",  
+    "password": "string"  
+}
+
+output
+{  
+    "id": "int",  
+    "age": "int"  
+}
+```
