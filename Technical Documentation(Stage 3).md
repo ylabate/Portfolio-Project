@@ -227,3 +227,80 @@ graph LR
     OrderService --> OrderDB[("Orders Table")]
     PaymentService --> PaymentDB[("Payments Table")]
 ```
+
+## 3 High-Level Sequence Diagrams
+
+### 3.1 Auth diagram
+
+This sequence diagram summarizes the login flow and how the JWT is issued back to the client.
+
+```mermaid
+sequenceDiagram
+    User->>+Frontend: Enter email and password
+    Frontend->>+Backend: Send login request 
+    Backend->>+Database: Check if found user
+    Database-->>-Backend: User found
+    Backend-->>-Frontend: Return JWT
+    Frontend-->>-User: User is logged
+```
+
+### 3.2 Update card diagram
+
+This sequence diagram outlines the admin update-card flow from listing cards to saving changes.
+
+```mermaid
+sequenceDiagram
+    Admin->>Frontend: Open admin panel
+    Frontend->>Backend: Request card
+    Backend->>Database: Fetch all card
+    Database-->>Backend: return all card
+    Backend-->>Frontend: send all card
+    Frontend-->>Admin: display all card
+    Admin->>Frontend: take a card
+    Frontend->>Backend: Request PUT methods
+    Backend->> Database: Fetch api
+    Database-->>Backend: Send model
+    Backend-->>Frontend: return card settings
+    Frontend-->>Admin: Display card setting
+    Admin->>Frontend: Confirm update
+    Frontend->>Backend: send updated card
+    Backend->>Database: Update chosen card in DB
+    Database-->>Backend: success or failure
+    Backend-->>Frontend: Return updated card
+    Frontend-->> Admin: Display updated card
+```
+
+### 3.3 Purchase diagram
+
+This sequence diagram captures the checkout flow, including Stripe intent creation, webhook updates, and status polling.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Frontend
+    participant Backend
+    participant Stripe API
+
+    User->>Frontend: Validate Cart
+    Frontend->>Backend: POST /api/checkout
+    Backend->>Stripe API: Create Payment Intent
+    Stripe API-->>Backend: Return Client Secret
+    Backend-->>Frontend: Return Client Secret
+
+    User->>Frontend: Enter Payment Details
+    Frontend->>Stripe API: Submit Payment (via Stripe.js)
+    Stripe API-->>Frontend: Return Payment Status
+    Frontend->>User: Display "Processing" Message
+
+    note over Stripe API, Backend: Asynchronous Webhook Flow
+    Stripe API->>Backend: POST Webhook (payment_intent.succeeded)
+    Backend->>Backend: Update Database & Provision Items
+
+    loop Polling Status
+        Frontend->>Backend: GET /api/checkout/:id/status
+        Backend-->>Frontend: Return Status (Pending/Success)
+    end
+
+    Frontend->>User: Display "Success" Message
+```
