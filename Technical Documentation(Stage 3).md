@@ -306,9 +306,9 @@ sequenceDiagram
 ```
 
 
-### 4 API
+## 4 API
 
-#### 4.1 AUTH
+### 4.1 AUTH
 
 - **POST /api/auth/register**
 
@@ -362,7 +362,7 @@ output
 }
 ```
 
-#### 4.2 PRODUCTS
+### 4.2 PRODUCTS
 
 - **GET /api/products**  
 Browse from the store  
@@ -457,7 +457,7 @@ output
 }
 ```
 
-#### 4.3 CART
+### 4.3 CART
 
 - **GET /api/cart** *(JWT required)*  
 
@@ -508,7 +508,7 @@ output
 }
 ```
 
-#### 4.4 ORDERS
+### 4.4 ORDERS
 
 - **POST /api/checkout** *(JWT required)*  
 Initialisation of the payment by stripe  
@@ -566,7 +566,7 @@ output
 }
 ```
 
-#### 4.5 INVENTORY
+### 4.5 INVENTORY
 
 - **GET /api/inventory** *(JWT required)*  
 Get the inventory  
@@ -622,3 +622,33 @@ Activate one item of the inventory
 	"metadata": "json" // example: activation key
 }
 ```
+## 5 Plan SCM and QA Strategies
+
+### 5.1 SCM Processes (Source Control Management)
+
+Git is the version control tool that we are using with the following major branches:
+
+- Main -> for final production
+- dev -> Test all the project before main
+- Developer name -> All feature depending on task allocation
+
+**Commit blueprint:** feat, fix, update, etc...
+
+### 5.2 Quality assurance (QA)
+
+**Testing strategy:**
+
+- Api tests -> Check endpoint
+- Unit tests -> Try different scenarios to see the code's reliability
+
+**Tools:**  
+
+- ESlint -> keep the code formatted
+- Bruno -> Test API
+- pytest -> One the most famous framework for python 
+
+**Deployment pipeline:**
+
+- Development -> Local computer
+- Staging -> test environment in preproduction like API, auth, etc...
+- Production -> Deployment and host on a website, every user can use it
