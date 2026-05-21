@@ -311,6 +311,9 @@ sequenceDiagram
 #### AUTH
 
 - **POST /api/auth/register**
+
+Simple register
+
 ```json
 input
 {
@@ -327,6 +330,9 @@ output
 ```
 
 - **POST /api/auth/login**
+
+Simple login
+
 ```json
 {
 input
@@ -342,7 +348,10 @@ output
 }
 ```
 
-- **POST /api/auth/logout**
+- **POST /api/auth/logout**  
+
+Invalidate the jwt
+
 ```json
 {
 	"token": "jwt_token"
@@ -355,27 +364,34 @@ output
 
 #### PRODUCTS
 
-- **GET /api/products**
+- **GET /api/products**  
+Browse from the store  
 
-?page=**int**  
-?limit=**int**  
-?price_max=**int**  
-?price_min=**int**  
-?sort=**string**  
+*?page=**int***  
+*?limit=**int***  
+*?price_max=**int***  
+*?price_min=**int***  
+*?sort=**string***  
+*?search=**string***
 ```json
 output
 {
 	[
 		{
-			"id": "int" // for the order
+			"id": "int", // for the order
 			"product_name": "string",
 			"product_id": "uuid",
-			"product_thumbnail_link": "string"
+			"product_thumbnail_link": "string",
+			"product_genres": [
+				"uuid"
+			]
 		}
 	]
 }
 ```
-- **GET /api/products/:id**
+- **GET /api/products/:id**  
+
+Get the data from one product
 
 ```json
 output
@@ -395,7 +411,10 @@ output
 	]
 }
 ```
-- **POST /api/products** (Admin Only)
+- **POST /api/products** *(Admin Only)*  
+
+Add a product to the store
+
 ```json
 input
 {
@@ -414,8 +433,11 @@ output
 	"product_id": "int"
 }
 ```
-- **PATCH /api/products/:id** (Admin Only)
-<a href="[https://example.com](https://example.com)"><pre><code>json
+- **PATCH /api/products/:id** *(Admin Only)*  
+
+Update the data from one product
+
+```json
 input
 {
 	"product_name": "string",
@@ -433,26 +455,170 @@ output
 {
 	"message": "Successfully updated"
 }
-</code></pre></a>
+```
 
 #### CART
 
-- **GET /api/cart**
+- **GET /api/cart** *(JWT required)*  
+
+Get all items from the cart
+
 ```json
+output
 {
-	
+	[
+		{
+			"id": "int", // for the order
+			"product_name": "string",
+			"product_id": "uuid",
+			"product_thumbnail_link": "string",
+			"product_genres": [
+				"uuid"
+			]
+		}
+	]
 }
 ```
-- **POST /api/cart/items**
-Adds a product to the cart.
-- **DELETE /api/cart/items/:id**
-Removes an item from the cart.
+
+- **POST /api/cart/items** *(JWT required)*  
+
+Add product to the cart
+
+```json
+input
+{
+	"product_id": "uuid"
+}
+output
+{
+	"message": "string"
+}
+```
+
+- **DELETE /api/cart/items/:id** *(JWT required)*  
+Delete a product from the cart
+```json
+input
+{
+	"product_id": "uuid"
+}
+output
+{
+	"message": "string"
+}
+```
 
 #### ORDERS
 
-- **POST /api/checkout**
-Initializes the payment process (Stripe integration).
-- **GET /api/orders**
-Retrieves order history for the authenticated user.
-- **GET /api/orders/:id**
-Retrieves details for a specific order, including activation codes.
+- **POST /api/checkout** *(JWT required)*  
+Initialisation of the payment by stripe  
+
+```json
+{
+	"success": "bool",
+	"status": "string",
+	"order": {
+		"order_id": "uuid",
+		"total_cents": "int",
+	},
+	"payment_intent": {
+		"id": "stripe_id",
+		"client_secret": "stripe_secret_id
+  }
+}
+```
+
+- **GET /api/checkout/:id/status** *(JWT required)*  
+Get the status of the payment by stripe
+
+```json
+{
+	"success": "bool",
+	"order_id": "string",
+	"payment_status": "string", 
+	"fulfillment": {
+		"items_provisioned": "bool",
+		"items_count": "int",
+		"redirect_url": "string"
+	}
+}
+```
+
+- **GET /api/orders** *(JWT required)*  
+Get the history of orders  
+
+*?page=**int***  
+*?limit=**int***  
+```json
+output
+{
+	[
+		{
+			"id": "int", // for the order
+			"product_name": "string",
+			"product_id": "uuid",
+			"product_thumbnail_link": "string",
+			"product_genres": [
+				"uuid"
+			]
+		}
+	]
+}
+```
+
+#### INVENTORY
+
+- **GET /api/inventory** *(JWT required)*  
+Get the inventory  
+
+?page=**int**  
+?limit=**int**  
+```json
+output
+{
+	[
+		{
+			"id": "int", // for the order
+			"status": "string",
+			"product_name": "string",
+			"product_id": "uuid",
+			"product_thumbnail_link": "string",
+			"product_genres": [
+				"uuid"
+			]
+		}
+	]
+}
+```
+
+- **GET /api/inventory/:id** *(JWT required)*  
+Get the data from one item of the inventory  
+
+```json
+output
+{
+	"status": "string",
+	"product_name": "string",
+	"product_id": "uuid",
+	"product_thumbnail_link": "string",
+	"product_genres": [
+		"uuid"
+	],
+	"product_images": [
+		{
+			"id": "int",
+			"link": "string",
+			"alt": "string"
+		}
+	]
+}
+```
+
+- **GET /api/inventory/:id/activate**
+Activate one item of the inventory  
+
+```json
+{
+	"metadata": "json" // example: activation key
+}
+```
