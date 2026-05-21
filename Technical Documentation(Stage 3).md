@@ -334,7 +334,7 @@ output
 Simple login
 
 ```json
-{
+
 input
 {
     "email": "string",
