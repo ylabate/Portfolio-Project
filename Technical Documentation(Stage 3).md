@@ -309,32 +309,150 @@ sequenceDiagram
 ### 4 API
 
 #### AUTH
-- post /register
+
+- **POST /api/auth/register**
 ```json
 input
-{  
-    "username": "string",  
-    "password": "string"  
+{
+    "username": "string",
+    "email": "string",
+    "password": "string"
 }
-
 output
-{  
-    "id": "int",  
-    "age": "int"  
+{
+	"id": "uuid",
+	"username": "string",
+	"token": "jwt_token"
 }
 ```
 
-- post /login 
+- **POST /api/auth/login**
 ```json
+{
 input
-{  
-    "username": "string",  
-    "password": "string"  
+{
+    "email": "string",
+    "password": "string"
 }
-
 output
-{  
-    "id": "int",  
-    "age": "int"  
+{
+	"id": "uuid",
+	"username": "string",
+	"token": "jwt_token"
 }
 ```
+
+- **POST /api/auth/logout**
+```json
+{
+	"token": "jwt_token"
+}
+output
+{
+	"message": "int"
+}
+```
+
+#### PRODUCTS
+
+- **GET /api/products**
+
+?page=**int**  
+?limit=**int**  
+?price_max=**int**  
+?price_min=**int**  
+?sort=**string**  
+```json
+output
+{
+	[
+		{
+			"id": "int" // for the order
+			"product_name": "string",
+			"product_id": "uuid",
+			"product_thumbnail_link": "string"
+		}
+	]
+}
+```
+- **GET /api/products/:id**
+
+```json
+output
+{
+	"product_name": "string",
+	"product_id": "uuid",
+	"product_thumbnail_link": "string",
+	"product_genres": [
+		"uuid"
+	]
+	"product_images": [
+		{
+			"id": "int",
+			"link": "string",
+			"alt": "string"
+		}
+	]
+}
+```
+- **POST /api/products** (Admin Only)
+```json
+input
+{
+	"product_name": "string",
+	"product_thumbnail_link": "string",
+	"product_images": [
+		{
+			"id": "int",
+			"link": "string",
+			"alt": "string"
+		}
+	]
+}
+output
+{
+	"product_id": "int"
+}
+```
+- **PATCH /api/products/:id** (Admin Only)
+<a href="[https://example.com](https://example.com)"><pre><code>json
+input
+{
+	"product_name": "string",
+	"product_id": "int",
+	"product_thumbnail_link": "string",
+	"product_images": [
+		{
+			"id": "int",
+			"link": "string",
+			"alt": "string"
+		}
+	]
+}
+output
+{
+	"message": "Successfully updated"
+}
+</code></pre></a>
+
+#### CART
+
+- **GET /api/cart**
+```json
+{
+	
+}
+```
+- **POST /api/cart/items**
+Adds a product to the cart.
+- **DELETE /api/cart/items/:id**
+Removes an item from the cart.
+
+#### ORDERS
+
+- **POST /api/checkout**
+Initializes the payment process (Stripe integration).
+- **GET /api/orders**
+Retrieves order history for the authenticated user.
+- **GET /api/orders/:id**
+Retrieves details for a specific order, including activation codes.
