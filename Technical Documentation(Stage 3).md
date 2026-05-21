@@ -308,7 +308,7 @@ sequenceDiagram
 
 ### 4 API
 
-#### AUTH
+#### 4.1 AUTH
 
 - **POST /api/auth/register**
 
@@ -362,7 +362,7 @@ output
 }
 ```
 
-#### PRODUCTS
+#### 4.2 PRODUCTS
 
 - **GET /api/products**  
 Browse from the store  
@@ -457,7 +457,7 @@ output
 }
 ```
 
-#### CART
+#### 4.3 CART
 
 - **GET /api/cart** *(JWT required)*  
 
@@ -508,7 +508,7 @@ output
 }
 ```
 
-#### ORDERS
+#### 4.4 ORDERS
 
 - **POST /api/checkout** *(JWT required)*  
 Initialisation of the payment by stripe  
@@ -566,7 +566,7 @@ output
 }
 ```
 
-#### INVENTORY
+#### 4.5 INVENTORY
 
 - **GET /api/inventory** *(JWT required)*  
 Get the inventory  
