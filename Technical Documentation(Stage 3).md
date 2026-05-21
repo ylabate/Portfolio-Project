@@ -523,7 +523,7 @@ Initialisation of the payment by stripe
 	},
 	"payment_intent": {
 		"id": "stripe_id",
-		"client_secret": "stripe_secret_id
+		"client_secret": "stripe_secret_id"
   }
 }
 ```
