@@ -304,3 +304,16 @@ sequenceDiagram
 
     Frontend->>User: Display "Success" Message
 ```
+
+
+### 4 API
+
+#### AUTH
+- post /register
+
+{
+    "id": "alex",
+    "age": "12"
+}
+
+- post /login 
