@@ -16,6 +16,11 @@ def create_app():
 
     CORS(app)
     db.init_app(app)
+    jwt.init_app(app)
+
+    from app.api.v1 import v1_bp
+
+    app.register_blueprint(v1_bp)
 
     @app.get("/health")
     def health_check():
