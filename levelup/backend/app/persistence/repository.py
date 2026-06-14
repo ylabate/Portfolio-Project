@@ -1,4 +1,5 @@
 from app import db
+from app.models.cart import Cart, CartItem
 
 
 class Repository:
@@ -35,3 +36,8 @@ class Repository:
 
     def get_by_attribute(self, attr_name, attr_value):
         return self.model.query.filter_by(**{attr_name: attr_value}).first()
+
+
+class CartRepository(Repository):
+    def __init__(self):
+        super().__init__(Cart)

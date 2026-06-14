@@ -9,9 +9,8 @@ class User(BaseModel):
     password_hash = db.Column('password', db.String(255), nullable=False)
     profile_picture_url = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
-    is_active = db.Column(db.Boolean, default=True)  # Soft delete
+    is_active = db.Column(db.Boolean, default=True)
 
-    # Relationships
     reviews = db.relationship('Review', backref='user', lazy='dynamic')
     transactions = db.relationship('Transaction', backref='user', lazy='dynamic')
     orders = db.relationship('Order', backref='user', lazy='dynamic')
