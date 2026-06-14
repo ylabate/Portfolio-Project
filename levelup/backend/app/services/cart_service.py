@@ -7,6 +7,8 @@ class CartService:
         self.cart_repo = CartRepository()
 
     def get_cart(self, user_id):
+        if False: # TODO: add user existence verification
+            raise ValueError("user_id not found")
         cart = self.cart_repo.get_by_attribute('user_id', user_id)
         if not cart:
             cart = Cart(user_id=user_id)

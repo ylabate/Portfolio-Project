@@ -11,7 +11,7 @@ class Product(BaseModel):
     description = db.Column(db.Text, nullable=True)
     price_cents = db.Column(db.Integer, nullable=False)
     is_active = db.Column(db.Boolean, default=True)  # Soft delete
-    
+
     # Metadata as a flexible JSON field for external IDs, extra info
     metadata_json = db.Column(db.JSON, nullable=True)
 
@@ -19,7 +19,7 @@ class Product(BaseModel):
     genres = db.relationship('Genre', secondary=product_genres, backref=db.backref('products', lazy='dynamic'))
     images = db.relationship('ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
-    
+
     # Stock management through InventoryItem
     stock_items = db.relationship('InventoryItem', backref='product', lazy='dynamic')
 
