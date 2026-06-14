@@ -20,9 +20,20 @@ def get_cart():
 @v1_bp.route("/cart/items", methods=["POST"])
 @jwt_required()
 def add_cart():
+    data = request.get_json()
+
+    if not data:
+        abort(400, description="No JSON data provided")
+
+    quantity = data.get("quantity", 1)
+    product_id = data.get("product_id")
+
+    if not product_id:
+        abort(400, description="Missing product_id")
+
     user_id = get_jwt_identity()
 
     try:
-        return cart_service.get_cart(user_id).to_dict(), 200
+        return cart_service.add_to_cart(user_id, product_id, quantity).to_dict(), 201
     except ValueError as error:
-       return abort(404, error)
+       return abort(404, description=error)

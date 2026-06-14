@@ -1,5 +1,5 @@
 from app import db
-from app.models.cart import Cart, CartItem
+from app.models.cart import Cart
 
 
 class Repository:

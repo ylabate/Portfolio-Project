@@ -1,22 +1,18 @@
 info:
-  name: health check
+  name: without bearer
   type: http
   seq: 1
 
 http:
   method: GET
-  url: http://127.0.0.1:5000/health
+  url: http://127.0.0.1:5000/api/v1/cart
+  auth: inherit
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "200"
-    - expression: res.body
-      operator: isJson
-    - expression: res.body.status
-      operator: eq
-      value: ok
+      value: "401"
 
 settings:
   encodeUrl: true
