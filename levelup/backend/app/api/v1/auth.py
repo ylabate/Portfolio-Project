@@ -42,11 +42,18 @@ def register():
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
 
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+
     return jsonify({
         "message": "user created successfully",
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
     }), 201
 
 
@@ -77,6 +84,12 @@ def login():
             "email": user.email
         }
     }), 200
+
+
+@v1_bp.route("/auth/logout", methods=["DELETE"])
+@jwt_required()
+def logout():
+    return jsonify({"message": "logged out"}), 200
 
 
 @v1_bp.route("/auth/refresh", methods=["POST"])
