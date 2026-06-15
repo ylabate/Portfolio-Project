@@ -3,6 +3,7 @@ from app import db
 from app.models.BaseModel import BaseModel
 from app.models.genre import product_genres
 
+
 class Product(BaseModel):
     __tablename__ = 'products'
 
@@ -11,7 +12,7 @@ class Product(BaseModel):
     description = db.Column(db.Text, nullable=True)
     price_cents = db.Column(db.Integer, nullable=False)
     is_active = db.Column(db.Boolean, default=True)  # Soft delete
-    
+
     # Metadata as a flexible JSON field for external IDs, extra info
     metadata_json = db.Column(db.JSON, nullable=True)
 
@@ -19,7 +20,7 @@ class Product(BaseModel):
     genres = db.relationship('Genre', secondary=product_genres, backref=db.backref('products', lazy='dynamic'))
     images = db.relationship('ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
-    
+
     # Stock management through InventoryItem
     stock_items = db.relationship('InventoryItem', backref='product', lazy='dynamic')
 
@@ -46,3 +47,17 @@ class Product(BaseModel):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+    def to_dict(self):
+        return {
+            **super().to_dict(),
+            "name": self.name,
+            "type": self.type,
+            "description": self.description,
+            "price": self.price,
+            "is_active": self.is_active,
+            "thumbnail_url": self.thumbnail_url,
+            "genres": [genre.to_dict() for genre in self.genres],
+            "images": [image.to_dict() for image in self.images],
+            "metadata": self.metadata_json,
+        }
