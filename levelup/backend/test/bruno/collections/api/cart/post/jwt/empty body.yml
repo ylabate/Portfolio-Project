@@ -1,0 +1,30 @@
+info:
+  name: empty body
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:5000/api/v1/cart/items
+  body:
+    type: json
+    data: |-
+      {
+        
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.message
+      operator: eq
+      value: No JSON data provided
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
