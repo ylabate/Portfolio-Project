@@ -1,13 +1,14 @@
-from app.persistence.repository import CartRepository
+from app.persistence.repository import CartRepository, ProductRepository
 from app.models.cart import CartItem, Cart
 
 
 class CartService:
     def __init__(self):
         self.cart_repo = CartRepository()
+        self.product_repo = ProductRepository()
 
     def get_cart(self, user_id):
-        if False: # TODO: add user existence verification
+        if False:  # TODO: add user existence verification
             raise ValueError("user_id not found")
         cart = self.cart_repo.get_by_attribute('user_id', user_id)
         if not cart:
@@ -22,7 +23,12 @@ class CartService:
             cart = Cart(user_id=user_id)
             self.cart_repo.add(cart)
 
-        # TODO: add product_id verification and availability
+        product = self.product_repo.get(product_id)
+        if not product:
+            raise ValueError(f"Product with id {product_id} not found")
+
+        if not product.is_active:
+            raise ValueError(f"Product with id {product_id} is not active")
 
         existing_item = next((
             item for item in cart.items

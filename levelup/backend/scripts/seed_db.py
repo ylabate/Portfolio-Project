@@ -43,6 +43,7 @@ def seed_db():
         # 3. Create Sample Products
         products_data = [
             {
+                "id": "00000000-0000-0000-0000-000000000002",
                 "name": "Elden Ring",
                 "type": "key",
                 "price": 59.99,
@@ -51,6 +52,7 @@ def seed_db():
                 "image": "https://shared.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg?t=1748630517"
             },
             {
+                "id": "00000000-0000-0000-0000-000000000003",
                 "name": "Cyberpunk 2077",
                 "type": "key",
                 "price": 29.99,
@@ -59,6 +61,7 @@ def seed_db():
                 "image": "https://shared.steamstatic.com/store_item_assets/steam/apps/1091500/fc7064f4a8ee2960eb51f5872d7990d771f26d2e/library_600x900_2x.jpg?t=1753355535"
             },
             {
+                "id": "00000000-0000-0000-0000-000000000004",
                 "name": "Stardew Valley",
                 "type": "key",
                 "price": 14.99,
@@ -69,9 +72,10 @@ def seed_db():
         ]
 
         for p_data in products_data:
-            product = Product.query.filter_by(name=p_data["name"]).first()
+            product = Product.query.filter_by(id=p_data["id"]).first()
             if not product:
                 product = Product(
+                    id=p_data["id"],
                     name=p_data["name"],
                     type=p_data["type"],
                     price=p_data["price"], # Uses the decimal setter

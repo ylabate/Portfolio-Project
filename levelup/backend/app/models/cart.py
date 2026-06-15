@@ -39,12 +39,13 @@ class CartItem(BaseModel):
                 thumbnail = next((img for img in self.product.images if img.is_thumbnail), self.product.images[0])
             if self.product.genres:
                 genres = [{"id": g.id, "name": g.name} for g in self.product.genres]
+        
         return {
             "id": self.id,
             "product_id": self.product_id,
             "quantity": self.quantity,
-            "product_name": self.product.name,
-            "price": float(self.product.price),
+            "product_name": self.product.name if self.product else "Unknown Product",
+            "price": float(self.product.price) if self.product else 0.0,
             "product_thumbnail_link": thumbnail.link if thumbnail else None,
             "product_thumbnail_alt": thumbnail.alt_text if thumbnail else None,
             "product_genres": genres if genres else None

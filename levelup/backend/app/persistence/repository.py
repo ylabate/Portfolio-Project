@@ -1,5 +1,6 @@
 from app import db
 from app.models.cart import Cart
+from app.models.product import Product
 
 
 class Repository:
@@ -41,3 +42,8 @@ class Repository:
 class CartRepository(Repository):
     def __init__(self):
         super().__init__(Cart)
+
+
+class ProductRepository(Repository):
+    def __init__(self):
+        super().__init__(Product)
