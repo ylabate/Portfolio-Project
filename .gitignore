@@ -228,3 +228,5 @@ node_modules
 # OS files
 .DS_Store
 Thumbs.db
+
+*.gitignore
