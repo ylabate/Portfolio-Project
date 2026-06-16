@@ -1,0 +1,17 @@
+info:
+  name: delete_me
+  type: http
+  seq: 9
+
+http:
+  method: DELETE
+  url: 127.0.0.1:5000/api/v1/users/me
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4MTU1NzcxNCwianRpIjoiOTA4MjVmZmMtMjg1Zi00ODYxLWEyMjQtYWMzMWU0ZjBjZGU3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImExMzI3Mjc0LWVlMmMtNDViZi04NzA5LTgxNzU2NGI3NzUwYSIsIm5iZiI6MTc4MTU1NzcxNCwiY3NyZiI6ImUwMDIyNDk3LWFmNjgtNDIwMS1hZDg2LTA1ZWVkZjY5YWI1ZSIsImV4cCI6MTc4MTU1ODYxNH0.LMKl7rBDS9CUqvrkICNilopCX0MFQuAs4vxqcKJYTKA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -25,7 +25,15 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
 
+    import app.models as models
+
+    with app.app_context():
+        _ = models
+        db.create_all()
+
     from app.api.v1 import v1_bp
+    from app.api.v1 import auth  # noqa: F401
+    from app.api.v1 import users  # noqa: F401
 
     app.register_blueprint(v1_bp)
 
