@@ -32,8 +32,6 @@ def create_app():
         db.create_all()
 
     from app.api.v1 import v1_bp
-    from app.api.v1 import auth  # noqa: F401
-    from app.api.v1 import users  # noqa: F401
 
     app.register_blueprint(v1_bp)
 
