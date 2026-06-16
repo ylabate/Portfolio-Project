@@ -1,0 +1,42 @@
+info:
+  name: checkout completed
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:5000/api/v1/payments/webhook
+  body:
+    type: json
+    data: |-
+      {
+        "id": "evt_test_webhook",
+        "type": "checkout.session.completed",
+        "data": {
+          "object": {
+            "id": "cs_test_a1b2c3",
+            "amount_total": 2000,
+            "currency": "eur",
+            "metadata": {
+              "user_id": "00000000-0000-0000-0000-000000000001",
+              "order_id": "00000000-0000-0000-0000-000000000001"
+            }
+          }
+        }
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: true
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
