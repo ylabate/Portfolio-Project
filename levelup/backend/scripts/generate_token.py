@@ -1,8 +1,8 @@
 import sys
 import os
 
-# Ajoute le dossier courant au path pour pouvoir importer app
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# Ajoute le dossier parent au path pour pouvoir importer app
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app
 from flask_jwt_extended import create_access_token

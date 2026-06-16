@@ -1,7 +1,0 @@
-info:
-  name: webhook
-  type: folder
-  seq: 2
-
-request:
-  auth: none

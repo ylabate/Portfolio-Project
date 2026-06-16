@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from . import v1_bp
 from app.services.cart_service import CartService
+from app.services.payment_service import PaymentService
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import abort
 
@@ -16,6 +17,23 @@ def get_cart():
         return cart_service.get_cart(user_id).to_dict(), 200
     except ValueError as error:
         return abort(404, description=str(error))
+
+
+@v1_bp.route("/cart/checkout", methods=["POST"])
+@jwt_required()
+def checkout():
+    payment_service = PaymentService()
+    user_id = get_jwt_identity()
+
+    try:
+        session = payment_service.prepare_checkout(user_id)
+
+        return jsonify({
+            "checkout_url": session.url,
+            "session_id": session.id
+        }), 200
+    except ValueError as error:
+        abort(400, description=error)
 
 
 @v1_bp.route("/cart/items", methods=["POST"])
@@ -48,13 +66,15 @@ def add_cart():
 @jwt_required()
 def remove_from_cart(product_id):
     user_id = get_jwt_identity()
-    
-    # Optional quantity parameter in query string
+
     quantity_str = request.args.get('quantity')
-    quantity = int(quantity_str) if quantity_str and quantity_str.isdigit() else None
+    quantity = (
+        int(quantity_str)
+        if quantity_str and quantity_str.isdigit()
+        else None
+    )
 
     cart = cart_service.remove_from_cart(user_id, product_id, quantity)
-    
     if cart is None:
         abort(404, description="Product not found in cart")
 

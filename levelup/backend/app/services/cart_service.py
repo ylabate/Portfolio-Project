@@ -1,4 +1,4 @@
-from app.persistence.repository import CartRepository, ProductRepository
+from app.persistence.repository import CartRepository, ProductRepository, UserRepository
 from app.models.cart import CartItem, Cart
 
 
@@ -6,10 +6,12 @@ class CartService:
     def __init__(self):
         self.cart_repo = CartRepository()
         self.product_repo = ProductRepository()
+        self.user_repo = UserRepository()
 
     def get_cart(self, user_id):
-        if False:  # TODO: add user existence verification
+        if not self.user_repo.get(user_id):
             raise ValueError("user_id not found")
+
         cart = self.cart_repo.get_by_attribute('user_id', user_id)
         if not cart:
             cart = Cart(user_id=user_id)
@@ -67,3 +69,4 @@ class CartService:
 
         self.cart_repo.save()
         return cart
+
