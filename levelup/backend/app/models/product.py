@@ -3,6 +3,7 @@ from app import db
 from app.models.BaseModel import BaseModel
 from app.models.genre import product_genres
 
+
 class Product(BaseModel):
     __tablename__ = 'products'
 
@@ -46,3 +47,17 @@ class Product(BaseModel):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+    def to_dict(self):
+        return {
+            **super().to_dict(),
+            "name": self.name,
+            "type": self.type,
+            "description": self.description,
+            "price": self.price,
+            "is_active": self.is_active,
+            "thumbnail_url": self.thumbnail_url,
+            "genres": [genre.to_dict() for genre in self.genres],
+            "images": [image.to_dict() for image in self.images],
+            "metadata": self.metadata_json,
+        }
