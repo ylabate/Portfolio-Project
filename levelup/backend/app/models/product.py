@@ -48,16 +48,27 @@ class Product(BaseModel):
     def __repr__(self):
         return f'<Product {self.name}>'
 
+    def to_dict_list(self):
+        return {
+            "id": self.id,
+            "product_name": self.name,
+            "product_id": self.id,
+            "product_thumbnail_link": self.thumbnail_url,
+            "product_genres": [genre.id for genre in self.genres],
+        }
+
     def to_dict(self):
         return {
-            **super().to_dict(),
-            "name": self.name,
-            "type": self.type,
-            "description": self.description,
-            "price": self.price,
-            "is_active": self.is_active,
-            "thumbnail_url": self.thumbnail_url,
-            "genres": [genre.to_dict() for genre in self.genres],
-            "images": [image.to_dict() for image in self.images],
-            "metadata": self.metadata_json,
+            "product_name": self.name,
+            "product_id": self.id,
+            "product_thumbnail_link": self.thumbnail_url,
+            "product_genres": [genre.id for genre in self.genres],
+            "product_images": [
+                {
+                    "id": image.id,
+                    "link": image.link,
+                    "alt": image.alt_text,
+                }
+                for image in self.images
+            ]
         }

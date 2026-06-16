@@ -9,6 +9,13 @@ from app import db
 def get_products():
     genre_filter = request.args.get("genre")
     type_filter = request.args.get("type")
+    price_min = request.args.get("price_min", type=float)
+    price_max = request.args.get("price_max", type=float)
+    search = request.args.get("search")
+    sort = request.args.get("sort")
+    page = request.args.get("page", 1, type=int)
+    limit = request.args.get("limit", 20, type=int)
+    offset = (page - 1) * limit
 
     query = Product.query.filter(Product.is_active.is_(True))
 
@@ -17,12 +24,26 @@ def get_products():
     if type_filter:
         query = query.filter(Product.type == type_filter)
 
+    if price_min:
+        query = query.filter(Product.price_cents >= price_min * 100)
+    if price_max:
+        query = query.filter(Product.price_cents <= price_max * 100)
+    if search:
+        query = query.filter(Product.name.ilike(f"%{search}%"))
+    if sort == "price_asc":
+        query = query.order_by(Product.price_cents.asc())
+    elif sort == "price_desc":
+        query = query.order_by(Product.price_cents.desc())
+    elif sort == "name":
+        query = query.order_by(Product.name.asc())
+    query = query.limit(limit).offset(offset)
+
     products = query.all()
-    return jsonify({"products": [product.to_dict() for product in products]})
+    return jsonify({"products": [product.to_dict_list() for product in products]})
 
 
 # Retrieve a single product by its ID
-@v1_bp.route("/products/<int:product_id>", methods=["GET"])
+@v1_bp.route("/products/<string:product_id>", methods=["GET"])
 def get_product(product_id):
     product = Product.query.get_or_404(product_id)
     return jsonify({"product": product.to_dict()})
@@ -36,7 +57,7 @@ def get_genres():
 
 
 # Retrieve all reviews for a specific product
-@v1_bp.route("/products/<int:product_id>/reviews", methods=["GET"])
+@v1_bp.route("/products/<string:product_id>/reviews", methods=["GET"])
 def get_product_reviews(product_id):
     product = Product.query.get_or_404(product_id)
     reviews = product.reviews.all()
@@ -50,7 +71,7 @@ def create_product():
     if not data:
         return jsonify({"error": "Invalid input"}), 400
     product = Product(
-        name=data.get("name"),
+        name=data.get("product_name"),
         description=data.get("description"),
         genres=Genre.query.filter(
             Genre.name.in_(data.get("genres", []))).all(),
@@ -59,18 +80,35 @@ def create_product():
         is_active=data.get("is_active", True),
     )
     db.session.add(product)
+
+    thumbnail_link = data.get("product_thumbnail_link")
+    if thumbnail_link:
+        thumbnail = ProductImage(
+            link=thumbnail_link,
+            is_thumbnail=True,
+            product=product
+        )
+        db.session.add(thumbnail)
+
+    for image_data in data.get("product_images", []):
+        image = ProductImage(
+            link=image_data.get("link"),
+            alt_text=image_data.get("alt"),
+            product=product
+        )
+        db.session.add(image)
     db.session.commit()
-    return jsonify({"product": product.to_dict()}), 201
+    return jsonify({"product_id": product.id}), 201
 
 
 # Update an existing product with new details
-@v1_bp.route("/products/<int:product_id>", methods=["PUT"])
+@v1_bp.route("/products/<string:product_id>", methods=["PATCH"])
 def update_product(product_id):
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"error": "Product not found"}), 404
     data = request.get_json()
-    product.name = data.get("name", product.name)
+    product.name = data.get("product_name", product.name)
     product.description = data.get("description", product.description)
     if "genres" in data:
         product.genres = Genre.query.filter(
@@ -78,12 +116,24 @@ def update_product(product_id):
     product.price = data.get("price", product.price)
     product.type = data.get("type", product.type)
     product.is_active = data.get("is_active", product.is_active)
+
+    if "product_thumbnail_link" in data:
+        thumbnail = next((image for image in product.images
+                          if image.is_thumbnail), None)
+        if thumbnail:
+            thumbnail.link = data["product_thumbnail_link"]
+        else:
+            db.session.add(ProductImage(
+                link=data["product_thumbnail_link"],
+                is_thumbnail=True,
+                product=product
+            ))
     db.session.commit()
-    return jsonify(product.to_dict())
+    return jsonify({"message": "Successfully updated"})
 
 
 # Soft delete a product by marking it as inactive
-@v1_bp.route("/products/<int:product_id>", methods=["DELETE"])
+@v1_bp.route("/products/<string:product_id>", methods=["DELETE"])
 def delete_product(product_id):
     product = Product.query.get(product_id)
     if not product:
@@ -94,7 +144,7 @@ def delete_product(product_id):
 
 
 # Add a new image to a product
-@v1_bp.route("/products/<int:product_id>/images", methods=["POST"])
+@v1_bp.route("/products/<string:product_id>/images", methods=["POST"])
 def add_product_image(product_id):
     product = Product.query.get(product_id)
     if not product:
@@ -110,7 +160,7 @@ def add_product_image(product_id):
 
 
 # Delete a specific image from a product
-@v1_bp.route("/products/<int:product_id>/images/<int:image_id>",
+@v1_bp.route("/products/<string:product_id>/images/<string:image_id>",
              methods=["DELETE"])
 def delete_product_image(product_id, image_id):
     image = (
