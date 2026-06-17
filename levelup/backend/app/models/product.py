@@ -59,3 +59,19 @@ class Product(BaseModel):
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
         }
+
+    def to_dict(self):
+        return {
+            "product_name": self.name,
+            "product_id": self.id,
+            "product_thumbnail_link": self.thumbnail_url,
+            "product_genres": [genre.id for genre in self.genres],
+            "product_images": [
+                {
+                    "id": image.id,
+                    "link": image.link,
+                    "alt": image.alt_text,
+                }
+                for image in self.images
+            ]
+        }
