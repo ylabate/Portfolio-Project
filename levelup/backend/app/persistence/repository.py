@@ -1,6 +1,9 @@
 from app import db
 from app.models.cart import Cart
 from app.models.product import Product
+from app.models.transaction import Transaction
+from app.models.order import Order
+from app.models.user import User
 
 
 class Repository:
@@ -18,7 +21,9 @@ class Repository:
         return self.model.query.all()
 
     def get_page(self, page_id, page_limit):
-        return self.model.query.paginate(page=page_id, per_page=page_limit).items
+        return self.model.query.paginate(
+            page=page_id,
+            per_page=page_limit).items
 
     def update(self, obj, data):
         for key, value in data.items():
@@ -47,3 +52,18 @@ class CartRepository(Repository):
 class ProductRepository(Repository):
     def __init__(self):
         super().__init__(Product)
+
+
+class TransactionRepository(Repository):
+    def __init__(self):
+        super().__init__(Transaction)
+
+
+class OrderRepository(Repository):
+    def __init__(self):
+        super().__init__(Order)
+
+
+class UserRepository(Repository):
+    def __init__(self):
+        super().__init__(User)

@@ -1,6 +1,7 @@
 from app import db, bcrypt
 from app.models.BaseModel import BaseModel
 
+
 class User(BaseModel):
     __tablename__ = 'users'
 
@@ -31,6 +32,18 @@ class User(BaseModel):
         if not self.is_active:
             return False
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    def to_dict(self, include_inventory=False):
+        data = {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "profile_picture_url": self.profile_picture_url,
+            "is_admin": self.is_admin
+        }
+        if include_inventory:
+            data["inventory"] = [item.to_dict() for item in self.inventory_items]
+        return data
 
     def __repr__(self):
         return f'<User {self.username}>'
