@@ -34,6 +34,7 @@ function CatalogPage() {
                     {products.map((product) => (
                         <ProductCard
                             key={product.product_id}
+                            product_id={product.product_id}
                             product_name={product.product_name}
                             product_thumbnail_link={product.product_thumbnail_link}
                         />
