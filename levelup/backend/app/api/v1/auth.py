@@ -1,6 +1,6 @@
 import re
 
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -21,18 +21,16 @@ def register():
     password = data.get("password")
 
     if not username or not email or not password:
-        return jsonify(
-            {"error": "username, email and password are required"}
-        ), 400
+        abort(400, description="username, email and password are required")
 
     if User.query.filter_by(username=username).first():
-        return jsonify({"error": "username already exists"}), 409
+        abort(409, description="username already exists")
 
     if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
-        return jsonify({"error": "invalid email format"}), 400
+        abort(400, description="invalid email format")
 
     if User.query.filter_by(email=email).first():
-        return jsonify({"error": "email already exists"}), 409
+        abort(409, description="email already exists")
 
     try:
         user = User(username=username, email=email)
@@ -40,7 +38,7 @@ def register():
         db.session.add(user)
         db.session.commit()
     except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+        abort(400, description=str(exc))
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
@@ -65,11 +63,11 @@ def login():
     password = data.get("password", "")
 
     if not email or not password:
-        return jsonify({"error": "email and password are required"}), 400
+        abort(400, description="email and password are required")
 
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
-        return jsonify({"error": "invalid credentials"}), 401
+        abort(401, description="invalid credentials")
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
