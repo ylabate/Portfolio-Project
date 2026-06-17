@@ -3,6 +3,7 @@ from app import db
 from app.models.BaseModel import BaseModel
 from app.models.genre import product_genres
 
+
 class Product(BaseModel):
     __tablename__ = 'products'
 
@@ -11,17 +12,20 @@ class Product(BaseModel):
     description = db.Column(db.Text, nullable=True)
     price_cents = db.Column(db.Integer, nullable=False)
     is_active = db.Column(db.Boolean, default=True)  # Soft delete
-    
+
     # Metadata as a flexible JSON field for external IDs, extra info
     metadata_json = db.Column(db.JSON, nullable=True)
 
     # Relationships
-    genres = db.relationship('Genre', secondary=product_genres, backref=db.backref('products', lazy='dynamic'))
-    images = db.relationship('ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
+    genres = db.relationship('Genre', secondary=product_genres, backref=db.backref(
+        'products', lazy='dynamic'))
+    images = db.relationship(
+        'ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
-    
+
     # Stock management through InventoryItem
-    stock_items = db.relationship('InventoryItem', backref='product', lazy='dynamic')
+    stock_items = db.relationship(
+        'InventoryItem', backref='product', lazy='dynamic')
 
     @property
     def price(self):
@@ -46,3 +50,12 @@ class Product(BaseModel):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+    def to_dict_list(self):
+        return {
+            "id": self.id,
+            "product_name": self.name,
+            "product_id": self.id,
+            "product_thumbnail_link": self.thumbnail_url,
+            "product_genres": [genre.id for genre in self.genres],
+        }
