@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timezone
 
 from flask import request, jsonify, abort
 from flask_jwt_extended import (
@@ -8,9 +9,11 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
-from app import db
+from flask_mail import Message
+from app import db, mail
 from app.models.user import User
 from app.models.token_blocklist import TokenBlocklist
+from app.models.password_reset import PasswordReset
 from . import v1_bp
 
 
@@ -107,3 +110,70 @@ def refresh():
     identity = get_jwt_identity()
     new_access_token = create_access_token(identity=identity)
     return jsonify({"access_token": new_access_token}), 200
+
+
+@v1_bp.route("/auth/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+
+    if not email:
+        abort(400, description="email is required")
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({
+            "message": "if this email exists, a reset link has been sent"
+            }), 200
+
+    reset = PasswordReset(user_id=user.id)
+    db.session.add(reset)
+    db.session.commit()
+
+    reset_url = f"http://localhost:3000/reset-password?token={reset.token}"
+    message = Message(
+        subject="Reset your password",
+        recipients=[user.email],
+        html=(
+            f"<p>Click <a href='{reset_url}'>here</a> to reset your "
+            "password. This link expires in 30 minutes.</p>"
+        )
+    )
+    mail.send(message)
+
+    return jsonify({
+        "message": "if this email exists, a reset link has been sent"
+        }), 200
+
+
+@v1_bp.route("/auth/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json() or {}
+    token = data.get("token")
+    new_password = data.get("password")
+
+    if not token or not new_password:
+        abort(400, description="token and password are required")
+
+    reset = PasswordReset.query.filter_by(token=token, used=False).first()
+
+    if not reset:
+        abort(400, description="invalid or expired token")
+
+    if reset.expires_at < datetime.utcnow():
+        abort(400, description="invalid or expired token")
+
+    user = User.query.get(reset.user_id)
+    if not user:
+        abort(400, description="invalid or expired token")
+
+    try:
+        user.password = new_password
+    except ValueError as exc:
+        abort(400, description=str(exc))
+
+    reset.used = True
+    db.session.commit()
+
+    return jsonify({"message": "password reset successfully"}), 200
