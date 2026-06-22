@@ -10,10 +10,10 @@ http:
     type: json
     data: |-
       {
-          "product_name": "The Witcher 3",
-          "product_thumbnail_link": "https://cdn.cloudflare.steamstatic.com/steam/apps/292030/header.jpg",
+          "product_name": "Death Stranding",
+          "product_thumbnail_link": "https://cdn.cloudflare.steamstatic.com/steam/apps/1190460/header.jpg",
           "type": "key",
-          "price": 19.99
+          "price": 29.99
       }
   auth: inherit
 
