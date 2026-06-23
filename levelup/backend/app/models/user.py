@@ -1,6 +1,7 @@
 from app import db, bcrypt
 from app.models.BaseModel import BaseModel
 
+
 class User(BaseModel):
     __tablename__ = 'users'
 
@@ -9,9 +10,8 @@ class User(BaseModel):
     password_hash = db.Column('password', db.String(255), nullable=False)
     profile_picture_url = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
-    is_active = db.Column(db.Boolean, default=True)  # Soft delete
+    is_active = db.Column(db.Boolean, default=True)
 
-    # Relationships
     reviews = db.relationship('Review', backref='user', lazy='dynamic')
     transactions = db.relationship('Transaction', backref='user', lazy='dynamic')
     orders = db.relationship('Order', backref='user', lazy='dynamic')
@@ -32,6 +32,19 @@ class User(BaseModel):
         if not self.is_active:
             return False
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    def to_dict(self, include_inventory=False):
+        data = {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "profile_picture_url": self.profile_picture_url,
+            "is_admin": self.is_admin,
+            "is_active": self.is_active
+        }
+        if include_inventory:
+            data["inventory"] = [item.to_dict() for item in self.inventory_items]
+        return data
 
     def __repr__(self):
         return f'<User {self.username}>'

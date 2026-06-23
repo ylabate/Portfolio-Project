@@ -1,0 +1,23 @@
+info:
+  name: remove full item
+  type: http
+  seq: 1
+
+http:
+  method: DELETE
+  url: http://127.0.0.1:5000/api/v1/cart/items/00000000-0000-0000-0000-000000000002
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.items
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

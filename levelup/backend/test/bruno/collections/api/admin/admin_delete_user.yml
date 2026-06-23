@@ -1,0 +1,26 @@
+info:
+  name: admin_delete_user
+  type: http
+  seq: 13
+
+http:
+  method: DELETE
+  url: 127.0.0.1:5000/api/v1/admin/users/{{user_id}}
+  params:
+    - name: ""
+      value: ""
+      type: query
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4MTczMzQ5MSwianRpIjoiNjY1ZWQxYjctOGRlYi00MGVkLWExOGYtOWUzYmJiNzU5Zjc2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsIm5iZiI6MTc4MTczMzQ5MSwiY3NyZiI6IjA4ZGQ3MTlkLTM2N2EtNGRkZi04ZWQ1LTBjYTE0MzMxYjM0OCIsImV4cCI6MTc4MTczNDM5MX0.aQL6DO4yo5tpsYMAacbZ2MLwc2VPQU_PBe5fp7auTYk
+
+runtime:
+  variables:
+    - name: user_id
+      value: dfd22303-4138-47ee-9061-6cea89607fec
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -459,52 +459,64 @@ output
 
 ### 4.3 CART
 
-- **GET /api/cart** *(JWT required)*  
+- **GET /api/v1/cart** *(JWT required)*  
 
 Get all items from the cart
 
 ```json
 output
 {
-	[
+	"id": "uuid",
+	"user_id": "uuid",
+	"items": [
 		{
-			"id": "int", // for the order
+			"id": "uuid",
 			"product_name": "string",
-			"product_id": "uuid",
+			"product_id": "string",
+			"quantity": "int",
+			"price": "float",
 			"product_thumbnail_link": "string",
 			"product_genres": [
-				"uuid"
+				{
+					"id": "uuid",
+					"name": "string"
+				}
 			]
 		}
 	]
 }
 ```
 
-- **POST /api/cart/items** *(JWT required)*  
+- **POST /api/v1/cart/items** *(JWT required)*  
 
 Add product to the cart
 
 ```json
 input
 {
-	"product_id": "uuid"
+	"product_id": "string",
+	"quantity": "int"
 }
 output
 {
-	"message": "string"
+	"id": "uuid",
+	"user_id": "uuid",
+	"items": "Array"
 }
 ```
 
-- **DELETE /api/cart/items/:id** *(JWT required)*  
+- **DELETE /api/v1/cart/items/:product_id** *(JWT required)*  
 Delete a product from the cart
 ```json
 input
 {
-	"product_id": "uuid"
+	"quantity": "int" // optional query param
 }
 output
 {
-	"message": "string"
+	"id": "uuid",
+	"user_id": "uuid",
+	"items": "Array"
 }
 ```
 
