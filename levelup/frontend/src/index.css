@@ -554,4 +554,178 @@ body {
   justify-content: center;
 }
 
+/* ─── Expandable Inventory Key & Modals ─── */
+.inventory-card-wrapper {
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.inventory-card-wrapper:hover {
+  border-color: var(--border-hover);
+}
+.inventory-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: transparent;
+  transition: var(--transition);
+}
+.inventory-card.activated {
+  border-bottom: 1px solid rgba(139, 92, 246, 0.05);
+}
+.inventory-card-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.inventory-card-info {
+  flex: 1;
+}
+.inventory-card-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+.inventory-card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Key box styling */
+.activation-key-box {
+  background: rgba(8, 8, 15, 0.5);
+  border-top: 1px solid rgba(139, 92, 246, 0.1);
+  padding: 16px 20px;
+  animation: keySlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.key-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+.key-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.key-instructions {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.key-code-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.key-code {
+  flex: 1;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+.copy-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Overlay and modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(4, 4, 8, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease forwards;
+}
+.modal-card {
+  max-width: 480px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.modal-card.warning-glow {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.15), 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4));
+}
+.modal-card h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+.modal-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.modal-game-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  display: inline-block;
+}
+.modal-warning-text {
+  color: #fca5a5 !important;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+@keyframes keySlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalScaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
 

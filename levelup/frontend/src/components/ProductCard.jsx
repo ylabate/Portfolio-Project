@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, genresMap = {} }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { success } = useToast();
@@ -39,7 +39,7 @@ export default function ProductCard({ product }) {
         {genres.length > 0 && (
           <div className="card-genres">
             {genres.slice(0, 2).map((g) => (
-              <span key={g.id ?? g} className="genre-badge">{g.name ?? g}</span>
+              <span key={g} className="genre-badge">{genresMap[g] ?? g}</span>
             ))}
           </div>
         )}

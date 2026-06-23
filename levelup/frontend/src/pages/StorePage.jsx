@@ -8,6 +8,17 @@ export default function StorePage() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('');
   const [page, setPage] = useState(1);
+  const [genresMap, setGenresMap] = useState({});
+
+  useEffect(() => {
+    api.get('/genres', { _skipToast: true }).then(({ data }) => {
+      const mapping = {};
+      (data.genres ?? []).forEach((g) => {
+        mapping[g.id] = g.name;
+      });
+      setGenresMap(mapping);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -80,7 +91,7 @@ export default function StorePage() {
           ) : (
             <div className="products-grid">
               {products.map((p) => (
-                <ProductCard key={p.product_id} product={p} />
+                <ProductCard key={p.product_id} product={p} genresMap={genresMap} />
               ))}
             </div>
           )}
