@@ -71,4 +71,5 @@ class OrderItem(BaseModel):
             "price_at_purchase": self.price_at_purchase,
             "product_thumbnail_link": thumbnail.link if thumbnail else None,
             "product_genres": genres,
+            "steam_appid": self.product.metadata_json.get("steam_appid") if (self.product and self.product.metadata_json) else None
         }

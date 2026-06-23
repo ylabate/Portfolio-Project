@@ -52,5 +52,6 @@ class CartItem(BaseModel):
             "product_thumbnail_link": thumbnail.link if thumbnail else None,
             "product_thumbnail_alt": thumbnail.alt_text if thumbnail else None,
             "product_genres": genres if genres else None,
-            "stock": stock
+            "stock": stock,
+            "steam_appid": self.product.metadata_json.get("steam_appid") if (self.product and self.product.metadata_json) else None
         }
