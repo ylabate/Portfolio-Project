@@ -1,39 +1,32 @@
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useToast } from '../context/ToastContext';
+import { Gamepad2 } from 'lucide-react';
+import { getProductThumbnail } from '../utils/assets';
 
 export default function ProductCard({ product, genresMap = {} }) {
-  const { addToCart } = useCart();
-  const { user } = useAuth();
-  const { success } = useToast();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [added, setAdded] = useState(false);
 
-  const handleAdd = async (e) => {
-    e.stopPropagation();
-    if (!user) { navigate('/login'); return; }
-    setLoading(true);
-    try {
-      await addToCart(product.product_id);
-      setAdded(true);
-      success(`${product.product_name} added to cart!`);
-      setTimeout(() => setAdded(false), 1500);
-    } catch {}
-    setLoading(false);
-  };
-
-  const thumbnail = product.product_thumbnail_link;
+  const thumbnail = getProductThumbnail(product);
   const genres = product.product_genres || [];
 
   return (
     <div className="product-card" onClick={() => navigate(`/products/${product.product_id}`)}>
       {thumbnail ? (
-        <img className="card-thumbnail" src={thumbnail} alt={product.product_name} onError={(e) => { e.target.style.display = 'none'; }} />
+        <img 
+          className="card-thumbnail" 
+          src={thumbnail} 
+          alt={product.product_name} 
+          onError={(e) => { 
+            if (product.steam_appid && product.product_thumbnail_link && e.target.src !== product.product_thumbnail_link) {
+              e.target.src = product.product_thumbnail_link;
+            } else {
+              e.target.style.display = 'none';
+            }
+          }} 
+        />
       ) : (
-        <div className="card-thumbnail-placeholder">🎮</div>
+        <div className="card-thumbnail-placeholder">
+          <Gamepad2 size={40} style={{ color: 'var(--text-muted)' }} />
+        </div>
       )}
       <div className="card-body">
         {genres.length > 0 && (
@@ -52,13 +45,9 @@ export default function ProductCard({ product, genresMap = {} }) {
               ? `€${Number(product.price).toFixed(2)}`
               : '—'}
           </span>
-          <button
-            className="add-to-cart-btn"
-            onClick={handleAdd}
-            disabled={loading}
-          >
-            {added ? '✓ Added' : loading ? '...' : '+ Cart'}
-          </button>
+          <span className={`card-stock-badge ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}>
+            {product.stock === 0 ? 'Rupture' : product.stock > 9 ? 'En stock' : `${product.stock} en stock`}
+          </span>
         </div>
       </div>
     </div>
