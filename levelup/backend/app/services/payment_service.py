@@ -121,7 +121,7 @@ class PaymentService:
         frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         return stripe_service.create_checkout_session(
             line_items,
-            f"{frontend_url}/success?order_id={new_order.id}",
+            f"{frontend_url}/success?session_id={{CHECKOUT_SESSION_ID}}",
             f"{frontend_url}/cart",
             {
                 "user_id": str(user_id),
