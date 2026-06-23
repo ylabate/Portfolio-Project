@@ -1,0 +1,20 @@
+info:
+  name: refresh
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: 127.0.0.1:5000/api/v1/auth/refresh
+  body:
+    type: json
+    data: ""
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4MTUxMzM5OSwianRpIjoiZDc3YTc2NTItYWQxNC00NjQ3LTk2MDgtOTc0NmYwYTVhMDJhIiwidHlwZSI6InJlZnJlc2giLCJzdWIiOiJjNDZhMzY1NS1kZjc3LTRjMmMtOGY5Yi01MjRiOWUxOTlmY2MiLCJuYmYiOjE3ODE1MTMzOTksImNzcmYiOiJlMWMwYTg3NC1jODAwLTRiNmUtYWZmOS1hY2RhOGEzY2E4NWQiLCJleHAiOjE3ODQxMDUzOTl9.xCnymISC4IL6S3pf_s7TXrDo8Sv2tAcyM04O6RhY26M
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

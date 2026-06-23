@@ -2,6 +2,7 @@ from sqlalchemy.orm import validates
 from app import db
 from app.models.BaseModel import BaseModel
 
+
 class Order(BaseModel):
     __tablename__ = 'orders'
 
@@ -16,6 +17,7 @@ class Order(BaseModel):
     @total.setter
     def total(self, value):
         self.total_cents = int(round(value * 100))
+
 
 class OrderItem(BaseModel):
     __tablename__ = 'order_items'

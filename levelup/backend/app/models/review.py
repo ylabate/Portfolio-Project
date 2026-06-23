@@ -2,6 +2,7 @@ from sqlalchemy.orm import validates
 from app import db
 from app.models.BaseModel import BaseModel
 
+
 class Review(BaseModel):
     __tablename__ = 'reviews'
 
@@ -15,3 +16,12 @@ class Review(BaseModel):
         if not (1 <= value <= 10):
             raise ValueError("Rating must be between 1 and 10")
         return value
+
+    def to_dict(self):
+        return {
+            **super().to_dict(),
+            "user_id": self.user_id,
+            "product_id": self.product_id,
+            "text": self.text,
+            "rating": self.rating,
+        }

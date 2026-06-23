@@ -1,0 +1,30 @@
+info:
+  name: add with wrong id
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://127.0.0.1:5000/api/v1/cart/items
+  body:
+    type: json
+    data: |-
+      {
+        "product_id": "10"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+    - expression: res.body.message
+      operator: eq
+      value: Product with id 10 not found
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
