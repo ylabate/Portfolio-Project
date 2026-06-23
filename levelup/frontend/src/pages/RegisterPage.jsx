@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Zap } from 'lucide-react';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -24,7 +25,9 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">⚡</div>
+        <div className="auth-logo" style={{ color: 'var(--cyan)' }}>
+          <Zap size={32} fill="currentColor" style={{ stroke: 'none' }} />
+        </div>
         <h1 className="auth-title">Create account</h1>
         <p className="auth-sub">Join LevelUp and start gaming</p>
         {error && <div className="alert alert-error">{error}</div>}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Loader2, AlertTriangle, PartyPopper } from 'lucide-react';
 import api from '../api';
 
 export default function SuccessPage() {
@@ -25,7 +26,9 @@ export default function SuccessPage() {
   if (status === 'polling') return (
     <div className="success-page">
       <div>
-        <div className="success-icon">⏳</div>
+        <div className="success-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <Loader2 size={64} style={{ color: 'var(--purple-light)', animation: 'spin 1.2s linear infinite' }} />
+        </div>
         <h2>Processing your order...</h2>
         <p>We're confirming your payment with Stripe. This takes just a moment.</p>
         <div className="polling-dots">
@@ -38,7 +41,9 @@ export default function SuccessPage() {
   if (status === 'error') return (
     <div className="success-page">
       <div>
-        <div className="success-icon">⚠️</div>
+        <div className="success-icon" style={{ display: 'flex', justifyContent: 'center', color: 'var(--warning)', marginBottom: 20 }}>
+          <AlertTriangle size={64} />
+        </div>
         <h2>Something went wrong</h2>
         <p>Your payment may still be processing. Check your inventory in a few minutes.</p>
         <Link to="/inventory" className="btn btn-primary">Go to Inventory</Link>
@@ -49,7 +54,9 @@ export default function SuccessPage() {
   return (
     <div className="success-page">
       <div>
-        <div className="success-icon">🎉</div>
+        <div className="success-icon" style={{ display: 'flex', justifyContent: 'center', color: 'var(--success)', marginBottom: 20 }}>
+          <PartyPopper size={64} />
+        </div>
         <h2>Payment successful!</h2>
         <p>Your game keys have been added to your inventory. Ready to play!</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>

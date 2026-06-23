@@ -29,7 +29,7 @@ export default function ProductCard({ product, genresMap = {} }) {
   const genres = product.product_genres || [];
 
   return (
-    <div className="product-card" onClick={() => {}}>
+    <div className="product-card" onClick={() => navigate(`/products/${product.product_id}`)}>
       {thumbnail ? (
         <img className="card-thumbnail" src={thumbnail} alt={product.product_name} onError={(e) => { e.target.style.display = 'none'; }} />
       ) : (

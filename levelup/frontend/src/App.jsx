@@ -11,6 +11,7 @@ import CartPage from './pages/CartPage';
 import InventoryPage from './pages/InventoryPage';
 import OrdersPage from './pages/OrdersPage';
 import SuccessPage from './pages/SuccessPage';
+import GameDetailsPage from './pages/GameDetailsPage';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -23,6 +24,7 @@ function AppRoutes() {
       <Navbar />
       <Routes>
         <Route path="/" element={<StorePage />} />
+        <Route path="/products/:id" element={<GameDetailsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />

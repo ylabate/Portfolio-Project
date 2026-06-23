@@ -2,6 +2,7 @@ import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { ShoppingCart, Lock, Gamepad2 } from 'lucide-react';
 
 export default function CartPage() {
   const { cart, addToCart, removeFromCart, checkout } = useCart();
@@ -50,7 +51,7 @@ export default function CartPage() {
       <div className="page">
         <div className="container">
           <div className="empty-state" style={{ paddingTop: 120 }}>
-            <div className="icon">🛒</div>
+            <ShoppingCart size={48} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
             <h3>Your cart is empty</h3>
             <p>Add some games to get started!</p>
             <Link to="/" className="btn btn-primary">Browse Store</Link>
@@ -75,7 +76,9 @@ export default function CartPage() {
                 {item.product_thumbnail_link ? (
                   <img className="cart-item-img" src={item.product_thumbnail_link} alt={item.product_name} />
                 ) : (
-                  <div className="cart-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>🎮</div>
+                  <div className="cart-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Gamepad2 size={24} style={{ color: 'var(--text-muted)' }} />
+                  </div>
                 )}
                 <div className="cart-item-info">
                   <div className="cart-item-name">{item.product_name}</div>
@@ -105,7 +108,13 @@ export default function CartPage() {
               <span>€{total.toFixed(2)}</span>
             </div>
             <button className="checkout-btn" onClick={handleCheckout} disabled={loading}>
-              {loading ? 'Redirecting...' : '🔒 Checkout with Stripe'}
+              {loading ? (
+                'Redirecting...'
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                  <Lock size={16} /> Checkout with Stripe
+                </span>
+              )}
             </button>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: 12 }}>
               Secured by Stripe · Keys delivered instantly

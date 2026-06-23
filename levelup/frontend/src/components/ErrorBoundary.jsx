@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertOctagon, RefreshCw, Trash2 } from 'lucide-react';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -19,7 +20,9 @@ export default class ErrorBoundary extends React.Component {
       return (
         <div className="error-boundary-page">
           <div className="error-boundary-card">
-            <div className="error-boundary-icon">☠️</div>
+            <div className="error-boundary-icon" style={{ display: 'flex', justifyContent: 'center', color: 'var(--error)', marginBottom: 20 }}>
+              <AlertOctagon size={64} />
+            </div>
             <h2>Application Crash</h2>
             <p>An unexpected error occurred in the interface. We caught the crash safely.</p>
             {this.state.error && (
@@ -31,13 +34,17 @@ export default class ErrorBoundary extends React.Component {
             )}
             <div className="error-boundary-actions">
               <button className="btn btn-primary" onClick={() => window.location.reload()}>
-                🔄 Reload Page
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <RefreshCw size={14} style={{ animation: 'spin 3s linear infinite' }} /> Reload Page
+                </span>
               </button>
               <button className="btn btn-secondary" onClick={() => {
                 localStorage.clear();
                 window.location.href = '/';
               }}>
-                🗑 Clear Data &amp; Home
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Trash2 size={14} /> Clear Data &amp; Home
+                </span>
               </button>
             </div>
           </div>

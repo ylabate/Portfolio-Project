@@ -52,14 +52,23 @@ class Product(BaseModel):
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
+            "price_cents": self.price_cents,
+            "price": self.price,
+            "description": self.description,
+            "type": self.type,
         }
 
     def to_dict(self):
         return {
+            "id": self.id,
             "product_name": self.name,
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
+            "price_cents": self.price_cents,
+            "price": self.price,
+            "description": self.description,
+            "type": self.type,
             "product_images": [
                 {
                     "id": image.id,

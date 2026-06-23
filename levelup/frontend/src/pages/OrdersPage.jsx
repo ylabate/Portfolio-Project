@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ShoppingBag } from 'lucide-react';
 import api from '../api';
 
 export default function OrdersPage() {
@@ -22,7 +23,7 @@ export default function OrdersPage() {
 
         {orders.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">📦</div>
+            <ShoppingBag size={48} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
             <h3>No orders yet</h3>
             <p>Your purchase history will appear here</p>
           </div>

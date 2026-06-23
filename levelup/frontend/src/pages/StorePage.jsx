@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Zap, Gamepad2, Search } from 'lucide-react';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
 
@@ -43,13 +44,17 @@ export default function StorePage() {
       {/* Hero */}
       <section className="hero">
         <div className="container">
-          <span className="hero-eyebrow">⚡ Game Key Store</span>
+          <span className="hero-eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Zap size={12} fill="currentColor" style={{ stroke: 'none' }} /> Game Key Store
+          </span>
           <h1>
             <span className="gradient-text">Level Up</span> Your Gaming
           </h1>
           <p>Discover, buy &amp; activate thousands of game keys instantly. Best prices guaranteed.</p>
           <div className="hero-cta">
-            <a href="#store" className="btn btn-primary">🎮 Explore Games</a>
+            <a href="#store" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <Gamepad2 size={16} /> Explore Games
+            </a>
             <a href="#store" className="btn btn-secondary">View All</a>
           </div>
         </div>
@@ -68,7 +73,7 @@ export default function StorePage() {
           <div className="filters">
             <input
               className="search-input"
-              placeholder="🔍  Search games..."
+              placeholder="Search games..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             />
@@ -84,7 +89,7 @@ export default function StorePage() {
             <div className="loading-center"><div className="spinner" /></div>
           ) : products.length === 0 ? (
             <div className="empty-state">
-              <div className="icon">🔍</div>
+              <Search size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
               <h3>No games found</h3>
               <p>Try a different search or filter</p>
             </div>

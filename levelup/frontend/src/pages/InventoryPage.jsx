@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Gamepad2, Key, Eye, EyeOff, AlertTriangle, Copy } from 'lucide-react';
 import api from '../api';
 import { useToast } from '../context/ToastContext';
 
@@ -47,7 +48,7 @@ export default function InventoryPage() {
 
         {items.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">🎒</div>
+            <Gamepad2 size={48} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
             <h3>Your inventory is empty</h3>
             <p>Purchase games from the store to see your keys here</p>
           </div>
@@ -66,7 +67,9 @@ export default function InventoryPage() {
                     {thumbnail ? (
                       <img className="inventory-card-img" src={thumbnail} alt={product?.product_name} />
                     ) : (
-                      <div className="inventory-card-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>🎮</div>
+                      <div className="inventory-card-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Gamepad2 size={24} style={{ color: 'var(--text-muted)' }} />
+                      </div>
                     )}
                     <div className="inventory-card-info">
                       <div className="inventory-card-name">{product?.product_name ?? 'Unknown Game'}</div>
@@ -81,7 +84,13 @@ export default function InventoryPage() {
                           onClick={() => setConfirmingActivation(item)}
                           disabled={activating === item.id}
                         >
-                          {activating === item.id ? '...' : '🔑 Activate'}
+                          {activating === item.id ? (
+                            '...'
+                          ) : (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                              <Key size={14} /> Activate
+                            </span>
+                          )}
                         </button>
                       )}
                       {item.state === 'activated' && (
@@ -89,7 +98,11 @@ export default function InventoryPage() {
                           className="btn btn-secondary btn-sm"
                           onClick={() => toggleKeyVisibility(item.id)}
                         >
-                          {visibleKeys[item.id] ? '🙈 Hide Key' : '👁 Show Key'}
+                          {visibleKeys[item.id] ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><EyeOff size={14} /> Hide Key</span>
+                          ) : (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Eye size={14} /> Show Key</span>
+                          )}
                         </button>
                       )}
                     </div>
@@ -98,7 +111,9 @@ export default function InventoryPage() {
                   {item.state === 'activated' && visibleKeys[item.id] && (
                     <div className="activation-key-box">
                       <div className="key-header">
-                        <span className="key-label">🔑 Game Activation Key</span>
+                        <span className="key-label" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <Key size={14} /> Game Activation Key
+                        </span>
                         <span className="key-instructions">Redeem this code on your game launcher (Steam, Epic, GOG, etc.)</span>
                       </div>
                       <div className="key-code-wrapper">
@@ -113,7 +128,7 @@ export default function InventoryPage() {
                             }
                           }}
                         >
-                          📋 Copy
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Copy size={12} /> Copy</span>
                         </button>
                       </div>
                     </div>
@@ -129,7 +144,9 @@ export default function InventoryPage() {
       {confirmingActivation && (
         <div className="modal-overlay">
           <div className="modal-card warning-glow">
-            <div className="modal-icon">⚠️</div>
+            <div className="modal-icon" style={{ color: 'var(--warning)', display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+              <AlertTriangle size={48} />
+            </div>
             <h2>Confirm Key Activation</h2>
             <p>You are about to activate the game key for:</p>
             <div className="modal-game-title">
@@ -153,7 +170,9 @@ export default function InventoryPage() {
                   handleActivate(item);
                 }}
               >
-                Yes, Activate Key
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Key size={14} /> Yes, Activate Key
+                </span>
               </button>
             </div>
           </div>

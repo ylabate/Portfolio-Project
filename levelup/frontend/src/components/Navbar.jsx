@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { Zap, ShoppingCart } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -16,7 +17,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="container">
         <Link to="/" className="nav-logo">
-          <span className="nav-logo-icon">⚡</span>
+          <Zap size={20} className="nav-logo-icon" fill="currentColor" style={{ stroke: 'none' }} />
           LevelUp
         </Link>
 
@@ -29,7 +30,7 @@ export default function Navbar() {
         <div className="nav-actions">
           {user && (
             <Link to="/cart" className="cart-btn">
-              🛒 Cart
+              <ShoppingCart size={18} /> Cart
               {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
             </Link>
           )}
