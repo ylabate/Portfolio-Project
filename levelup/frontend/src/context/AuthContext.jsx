@@ -12,6 +12,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password }, { _skipToast: true });
     localStorage.setItem('token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
     localStorage.setItem('user', JSON.stringify({ id: data.user.id, username: data.user.username }));
     setUser({ id: data.user.id, username: data.user.username });
     return data;
@@ -20,6 +21,7 @@ export function AuthProvider({ children }) {
   const register = async (username, email, password) => {
     const { data } = await api.post('/auth/register', { username, email, password }, { _skipToast: true });
     localStorage.setItem('token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
     localStorage.setItem('user', JSON.stringify({ id: data.user.id, username: data.user.username }));
     setUser({ id: data.user.id, username: data.user.username });
     return data;
@@ -27,6 +29,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     setUser(null);
   };

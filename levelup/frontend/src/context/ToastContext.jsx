@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { CheckCircle, AlertOctagon, AlertTriangle, Info } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
@@ -87,9 +88,9 @@ function ToastContainer({ toasts, removeToast }) {
 
 function getIcon(type) {
   switch (type) {
-    case 'success': return '✓';
-    case 'error': return '⚠️';
-    case 'warning': return '⚡';
-    default: return 'ℹ️';
+    case 'success': return <CheckCircle size={16} />;
+    case 'error': return <AlertOctagon size={16} />;
+    case 'warning': return <AlertTriangle size={16} />;
+    default: return <Info size={16} />;
   }
 }
