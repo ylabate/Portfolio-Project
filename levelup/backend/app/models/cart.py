@@ -34,11 +34,14 @@ class CartItem(BaseModel):
     def to_dict(self):
         thumbnail = None
         genres = None
+        stock = 0
         if self.product:
             if self.product.images:
                 thumbnail = next((img for img in self.product.images if img.is_thumbnail), self.product.images[0])
             if self.product.genres:
                 genres = [{"id": g.id, "name": g.name} for g in self.product.genres]
+            from app.models.inventory import InventoryItem
+            stock = InventoryItem.query.filter_by(product_id=self.product.id, is_used=False).count()
         
         return {
             "id": self.id,
@@ -48,5 +51,6 @@ class CartItem(BaseModel):
             "price": float(self.product.price) if self.product else 0.0,
             "product_thumbnail_link": thumbnail.link if thumbnail else None,
             "product_thumbnail_alt": thumbnail.alt_text if thumbnail else None,
-            "product_genres": genres if genres else None
+            "product_genres": genres if genres else None,
+            "stock": stock
         }

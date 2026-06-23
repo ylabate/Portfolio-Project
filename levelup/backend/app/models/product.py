@@ -46,6 +46,8 @@ class Product(BaseModel):
         return f'<Product {self.name}>'
 
     def to_dict_list(self):
+        from app.models.inventory import InventoryItem
+        stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
             "id": self.id,
             "product_name": self.name,
@@ -56,9 +58,13 @@ class Product(BaseModel):
             "price": self.price,
             "description": self.description,
             "type": self.type,
+            "stock": stock,
+            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None
         }
 
     def to_dict(self):
+        from app.models.inventory import InventoryItem
+        stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
             "id": self.id,
             "product_name": self.name,
@@ -69,6 +75,8 @@ class Product(BaseModel):
             "price": self.price,
             "description": self.description,
             "type": self.type,
+            "stock": stock,
+            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None,
             "product_images": [
                 {
                     "id": image.id,

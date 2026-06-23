@@ -17,11 +17,11 @@ def test_get_inventory(app, db_session):
     db_session.commit()
 
     service = InventoryService()
-    user = service.get_inventory(test_user.id)
+    inventory = service.get_inventory(test_user.id)
     
-    assert user.id == test_user.id
-    assert len(list(user.inventory_items)) == 1
-    assert user.inventory_items[0].product_id == test_product.id
+    assert len(inventory) == 1
+    assert inventory[0].user_id == test_user.id
+    assert inventory[0].product_id == test_product.id
 
 def test_get_inventory_invalid_user(app, db_session):
     service = InventoryService()
