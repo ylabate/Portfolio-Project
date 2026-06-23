@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Gamepad2, Key, Eye, EyeOff, AlertTriangle, Copy } from 'lucide-react';
 import api from '../api';
 import { useToast } from '../context/ToastContext';
@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 export default function InventoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [activating, setActivating] = useState(null);
   const [keys, setKeys] = useState({});
   const [visibleKeys, setVisibleKeys] = useState({});
@@ -13,8 +14,10 @@ export default function InventoryPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const { success } = useToast();
+  const loaderRef = useRef(null);
 
   useEffect(() => {
+    if (page > 1) setLoadingMore(true);
     api.get(`/inventory?page=${page}&limit=10`).then(({ data }) => {
       const newItems = Array.isArray(data) ? data : [];
       if (page === 1) {
@@ -24,8 +27,35 @@ export default function InventoryPage() {
       }
       setHasMore(newItems.length === 10);
       setLoading(false);
-    }).catch(() => setLoading(false));
+      setLoadingMore(false);
+    }).catch(() => {
+      setLoading(false);
+      setLoadingMore(false);
+    });
   }, [page]);
+
+  useEffect(() => {
+    if (!hasMore || loadingMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [hasMore, loadingMore, loading]);
 
   const handleActivate = async (item) => {
     setActivating(item.id);
@@ -148,10 +178,8 @@ export default function InventoryPage() {
         )}
 
         {hasMore && (
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <button className="btn btn-secondary" onClick={() => setPage((p) => p + 1)}>
-              Load More
-            </button>
+          <div ref={loaderRef} style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+            <div className="spinner" style={{ width: 24, height: 24, margin: 0 }} />
           </div>
         )}
       </div>
