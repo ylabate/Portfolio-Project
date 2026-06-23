@@ -12,7 +12,7 @@ export default function SuccessPage() {
     let attempts = 0;
     const poll = async () => {
       try {
-        const { data } = await api.get(`/checkout/${sessionId}/status`);
+        const { data } = await api.get(`/checkout/${sessionId}/status`, { _skipToast: true });
         if (data.success) { setStatus('success'); return; }
       } catch {}
       attempts++;

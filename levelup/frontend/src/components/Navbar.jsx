@@ -35,7 +35,7 @@ export default function Navbar() {
           )}
           {user ? (
             <div className="user-menu">
-              <div className="user-avatar">{user.username[0].toUpperCase()}</div>
+              <div className="user-avatar">{user.username?.[0]?.toUpperCase() ?? '?'}</div>
               <span className="user-name">{user.username}</span>
               <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </div>

@@ -10,18 +10,18 @@ export function AuthProvider({ children }) {
   });
 
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ id: data.id, username: data.username }));
-    setUser({ id: data.id, username: data.username });
+    const { data } = await api.post('/auth/login', { email, password }, { _skipToast: true });
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('user', JSON.stringify({ id: data.user.id, username: data.user.username }));
+    setUser({ id: data.user.id, username: data.user.username });
     return data;
   };
 
   const register = async (username, email, password) => {
-    const { data } = await api.post('/auth/register', { username, email, password });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ id: data.id, username: data.username }));
-    setUser({ id: data.id, username: data.username });
+    const { data } = await api.post('/auth/register', { username, email, password }, { _skipToast: true });
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('user', JSON.stringify({ id: data.user.id, username: data.user.username }));
+    setUser({ id: data.user.id, username: data.user.username });
     return data;
   };
 

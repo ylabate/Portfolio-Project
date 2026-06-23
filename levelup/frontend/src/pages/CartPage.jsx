@@ -1,10 +1,12 @@
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 
 export default function CartPage() {
-  const { cart, removeFromCart, checkout } = useCart();
+  const { cart, addToCart, removeFromCart, checkout } = useCart();
   const navigate = useNavigate();
+  const { success } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,6 +22,27 @@ export default function CartPage() {
       setError(err.response?.data?.description ?? 'Checkout failed. Try again.');
     }
     setLoading(false);
+  };
+
+  const handleRemoveItem = async (productId, productName) => {
+    try {
+      await removeFromCart(productId);
+      success(`${productName} removed from cart`);
+    } catch {}
+  };
+
+  const handleDecreaseQty = async (productId, productName) => {
+    try {
+      await removeFromCart(productId, 1);
+      success(`Decreased quantity of ${productName}`);
+    } catch {}
+  };
+
+  const handleIncreaseQty = async (productId, productName) => {
+    try {
+      await addToCart(productId, 1);
+      success(`Increased quantity of ${productName}`);
+    } catch {}
   };
 
   if (items.length === 0) {
@@ -59,12 +82,12 @@ export default function CartPage() {
                   <div className="cart-item-price">€{((item.price ?? 0) * item.quantity).toFixed(2)}</div>
                 </div>
                 <div className="cart-item-qty">
-                  <button className="qty-btn" onClick={() => removeFromCart(item.product_id, 1)}>−</button>
+                  <button className="qty-btn" onClick={() => handleDecreaseQty(item.product_id, item.product_name)}>−</button>
                   <span className="qty-value">{item.quantity}</span>
                   <button className="qty-btn" style={{ color: 'var(--purple-light)' }}
-                    onClick={() => {/* add 1 */ }}>+</button>
+                    onClick={() => handleIncreaseQty(item.product_id, item.product_name)}>+</button>
                 </div>
-                <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(item.product_id)}>Remove</button>
+                <button className="btn btn-sm btn-danger" onClick={() => handleRemoveItem(item.product_id, item.product_name)}>Remove</button>
               </div>
             ))}
           </div>

@@ -2,10 +2,12 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useToast } from '../context/ToastContext';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { success } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
@@ -17,6 +19,7 @@ export default function ProductCard({ product }) {
     try {
       await addToCart(product.product_id);
       setAdded(true);
+      success(`${product.product_name} added to cart!`);
       setTimeout(() => setAdded(false), 1500);
     } catch {}
     setLoading(false);

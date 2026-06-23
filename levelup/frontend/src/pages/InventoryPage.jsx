@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
+import { useToast } from '../context/ToastContext';
 
 export default function InventoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(null);
   const [keys, setKeys] = useState({});
+  const { success } = useToast();
 
   useEffect(() => {
     api.get('/inventory').then(({ data }) => {
@@ -20,8 +22,9 @@ export default function InventoryPage() {
       const { data } = await api.get(`/inventory/${item.id}/activate`);
       setKeys((k) => ({ ...k, [item.id]: data.metadata?.activation_code }));
       setItems((prev) => prev.map((i) => i.id === item.id ? { ...i, state: 'activated' } : i));
+      success(`Key activated successfully for ${item.product_details?.product_name ?? 'game'}!`);
     } catch (err) {
-      alert(err.response?.data?.description ?? 'Activation failed');
+      // Handled by global interceptor toast
     }
     setActivating(null);
   };
