@@ -77,10 +77,19 @@ export default function GameDetailsPage() {
     </div>
   );
 
-  const images = [
-    ...(product.product_thumbnail_link ? [{ link: product.product_thumbnail_link, alt: 'thumbnail' }] : []),
-    ...(product.product_images ?? [])
-  ];
+  // Filter out duplicate image links (since thumbnail is also returned inside product_images)
+  const images = [];
+  const seenLinks = new Set();
+  if (product.product_thumbnail_link) {
+    images.push({ link: product.product_thumbnail_link, alt: 'thumbnail' });
+    seenLinks.add(product.product_thumbnail_link);
+  }
+  (product.product_images ?? []).forEach((img) => {
+    if (img.link && !seenLinks.has(img.link)) {
+      images.push(img);
+      seenLinks.add(img.link);
+    }
+  });
 
   return (
     <div className="page">

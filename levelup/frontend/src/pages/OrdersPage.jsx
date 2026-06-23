@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShoppingBag, ChevronDown, ChevronUp, Calendar, ExternalLink, Gamepad2 } from 'lucide-react';
 import api from '../api';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrders, setExpandedOrders] = useState({});
 
   useEffect(() => {
     api.get('/orders').then(({ data }) => {
@@ -12,6 +14,13 @@ export default function OrdersPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const toggleOrder = (orderId) => {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId]
+    }));
+  };
 
   if (loading) return <div className="page"><div className="loading-center"><div className="spinner" /></div></div>;
 
@@ -29,26 +38,74 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="items-list">
-            {orders.map((order) => (
-              <div key={order.id} className="order-card">
-                <div className="order-header">
-                  <div>
-                    <div className="order-id">#{order.id}</div>
-                    <div className="order-date">{order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</div>
-                  </div>
-                  <div className="order-total">€{(order.total ?? order.total_cents / 100).toFixed(2)}</div>
-                </div>
-                <div className="order-items-list">
-                  {(order.items ?? []).map((item) => (
-                    <div key={item.id} className="order-item-row">
-                      <span className="order-item-name">{item.product_name}</span>
-                      <span className="order-item-qty">× {item.quantity}</span>
-                      <span className="order-item-price">€{(item.price_at_purchase * item.quantity).toFixed(2)}</span>
+            {orders.map((order) => {
+              const totalItems = order.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+              const isExpanded = expandedOrders[order.id];
+              return (
+                <div key={order.id} className="order-card-wrapper">
+                  <div 
+                    className={`order-header-clickable ${isExpanded ? 'active' : ''}`}
+                    onClick={() => toggleOrder(order.id)}
+                  >
+                    <div className="order-meta-info">
+                      <div className="order-meta-title">Order #{order.id.slice(0, 8)}...</div>
+                      <div className="order-meta-sub">
+                        <span className="meta-sub-item">
+                          <Calendar size={12} /> {order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
+                        </span>
+                        <span className="meta-sub-item">• {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+                      </div>
                     </div>
-                  ))}
+                    <div className="order-total-block">
+                      <span className="order-total-price">€{(order.total ?? order.total_cents / 100).toFixed(2)}</span>
+                      <span className="order-chevron-icon">
+                        {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      </span>
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="order-details-dropdown">
+                      <div className="order-full-id">Full Order ID: <code>{order.id}</code></div>
+                      <div className="order-items-list-detailed">
+                        {(order.items ?? []).map((item) => (
+                          <div key={item.id} className="order-detail-item-row">
+                            {item.product_thumbnail_link ? (
+                              <img className="order-item-thumb" src={item.product_thumbnail_link} alt={item.product_name} />
+                            ) : (
+                              <div className="order-item-thumb-placeholder">
+                                <Gamepad2 size={16} />
+                              </div>
+                            )}
+                            <div className="order-item-main-details">
+                              <Link 
+                                to={`/products/${item.product_id}`} 
+                                className="order-item-game-name"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {item.product_name} <ExternalLink size={12} className="external-icon" />
+                              </Link>
+                              {item.product_genres?.length > 0 && (
+                                <div className="order-item-genres">
+                                  {item.product_genres.slice(0, 2).map((g) => (
+                                    <span key={g.id ?? g} className="genre-pill-sm">{g.name ?? g}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="order-item-pricing">
+                              <div className="item-price-unit">€{item.price_at_purchase.toFixed(2)} each</div>
+                              <div className="item-price-qty">Qty: {item.quantity}</div>
+                              <div className="item-price-total">€{(item.price_at_purchase * item.quantity).toFixed(2)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

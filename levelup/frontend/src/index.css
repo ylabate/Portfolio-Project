@@ -965,6 +965,181 @@ body {
   gap: 6px;
 }
 
+/* ─── Collapsible Order History Details ─── */
+.order-card-wrapper {
+  margin-bottom: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.order-card-wrapper:hover {
+  border-color: var(--border-hover);
+}
+.order-header-clickable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  background: transparent;
+  transition: var(--transition);
+}
+.order-header-clickable:hover {
+  background: rgba(139, 92, 246, 0.04);
+}
+.order-header-clickable.active {
+  background: rgba(139, 92, 246, 0.04);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+.order-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.order-meta-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+.order-meta-sub {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  align-items: center;
+}
+.meta-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.order-total-block {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.order-total-price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.order-chevron-icon {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+.order-details-dropdown {
+  background: rgba(8, 8, 15, 0.4);
+  padding: 22px 24px;
+  animation: keySlideDown 0.3s ease forwards;
+}
+.order-full-id {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+.order-full-id code {
+  color: var(--cyan-light);
+  font-family: monospace;
+}
+.order-items-list-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.order-detail-item-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.order-detail-item-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.order-item-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.order-item-thumb-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+.order-item-main-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.order-item-game-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+.order-item-game-name:hover {
+  color: var(--cyan-light);
+}
+.order-item-game-name .external-icon {
+  opacity: 0.4;
+  transition: var(--transition);
+}
+.order-item-game-name:hover .external-icon {
+  opacity: 1;
+  color: var(--cyan-light);
+}
+.order-item-genres {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.genre-pill-sm {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  color: var(--purple-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.order-item-pricing {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.item-price-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.item-price-qty {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.item-price-total {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+
 
 
 
