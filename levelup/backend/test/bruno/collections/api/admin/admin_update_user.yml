@@ -1,0 +1,28 @@
+info:
+  name: admin_update_user
+  type: http
+  seq: 12
+
+http:
+  method: PUT
+  url: 127.0.0.1:5000/api/v1/admin/users/{{user_id}}
+  body:
+    type: json
+    data: |-
+      {
+        "is_active": false
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4MTczNDA2NiwianRpIjoiODUxNTIzY2YtYzQ0OS00OGRiLTk1ZDAtMTlhNzBjZTVlZjcxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsIm5iZiI6MTc4MTczNDA2NiwiY3NyZiI6ImJhYmFmYjZhLWY1ODgtNDU1OC04ZWZkLTM5NDExODBiNWUwMCIsImV4cCI6MTc4MTczNDk2Nn0.0ykaSwzafOQFGV-K8X5cycPjI_d04GdBvT3LjK9jL9E
+
+runtime:
+  variables:
+    - name: user_id
+      value: dfd22303-4138-47ee-9061-6cea89607fec
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

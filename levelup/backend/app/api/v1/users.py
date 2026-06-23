@@ -1,5 +1,5 @@
 import re
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.user import User
@@ -11,6 +11,8 @@ from . import v1_bp
 def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
+    if not user:
+        abort(404, description="user not found")
     return jsonify({
         "id": user.id,
         "username": user.username,
@@ -30,14 +32,14 @@ def update_me():
 
     if username:
         if User.query.filter_by(username=username).first():
-            return jsonify({"error": "username already exists"}), 409
+            abort(409, description="username already exists")
         user.username = username
 
     if email:
         if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"error": "invalid email format"}), 400
+            abort(400, description="invalid email format")
         if User.query.filter_by(email=email).first():
-            return jsonify({"error": "email already exists"}), 409
+            abort(409, description="email already exists")
         user.email = email
 
     db.session.commit()
@@ -53,6 +55,8 @@ def update_me():
 def delete_me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
+    if not user:
+        abort(404, description="user not found")
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": "user deleted"}), 200

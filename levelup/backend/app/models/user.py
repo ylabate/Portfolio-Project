@@ -39,7 +39,8 @@ class User(BaseModel):
             "username": self.username,
             "email": self.email,
             "profile_picture_url": self.profile_picture_url,
-            "is_admin": self.is_admin
+            "is_admin": self.is_admin,
+            "is_active": self.is_active
         }
         if include_inventory:
             data["inventory"] = [item.to_dict() for item in self.inventory_items]
