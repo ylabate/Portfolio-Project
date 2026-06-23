@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, ChevronDown, ChevronUp, Calendar, ExternalLink, Gamepad2 } from 'lucide-react';
 import api from '../api';
+import { getProductThumbnail } from '../utils/assets';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -68,11 +69,13 @@ export default function OrdersPage() {
                     <div className="order-details-dropdown">
                       <div className="order-full-id">Full Order ID: <code>{order.id}</code></div>
                       <div className="order-items-list-detailed">
-                        {(order.items ?? []).map((item) => (
-                          <div key={item.id} className="order-detail-item-row">
-                            {item.product_thumbnail_link ? (
-                              <img className="order-item-thumb" src={item.product_thumbnail_link} alt={item.product_name} />
-                            ) : (
+                        {(order.items ?? []).map((item) => {
+                          const thumbnail = getProductThumbnail(item);
+                          return (
+                            <div key={item.id} className="order-detail-item-row">
+                              {thumbnail ? (
+                                <img className="order-item-thumb" src={thumbnail} alt={item.product_name} />
+                              ) : (
                               <div className="order-item-thumb-placeholder">
                                 <Gamepad2 size={16} />
                               </div>
@@ -99,7 +102,8 @@ export default function OrdersPage() {
                               <div className="item-price-total">€{(item.price_at_purchase * item.quantity).toFixed(2)}</div>
                             </div>
                           </div>
-                        ))}
+                        );
+                        })}
                       </div>
                     </div>
                   )}

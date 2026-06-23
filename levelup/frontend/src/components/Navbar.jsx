@@ -2,12 +2,21 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Zap, ShoppingCart } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (itemCount === 0) return;
+    setBump(true);
+    const timer = setTimeout(() => setBump(false), 300);
+    return () => clearTimeout(timer);
+  }, [itemCount]);
 
   const isActive = (path) => location.pathname === path ? 'nav-link active' : 'nav-link';
 
@@ -31,7 +40,7 @@ export default function Navbar() {
           {user && (
             <Link to="/cart" className="cart-btn">
               <ShoppingCart size={18} /> Cart
-              {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+              {itemCount > 0 && <span className={`cart-badge ${bump ? 'bump' : ''}`}>{itemCount}</span>}
             </Link>
           )}
           {user ? (

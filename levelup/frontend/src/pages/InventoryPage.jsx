@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Gamepad2, Key, Eye, EyeOff, AlertTriangle, Copy } from 'lucide-react';
 import api from '../api';
 import { useToast } from '../context/ToastContext';
+import { getProductThumbnail } from '../utils/assets';
 
 export default function InventoryPage() {
   const [items, setItems] = useState([]);
@@ -94,7 +95,7 @@ export default function InventoryPage() {
           <div className="items-list">
             {items.map((item) => {
               const product = item.product_details;
-              const thumbnail = product?.product_thumbnail_link;
+              const thumbnail = getProductThumbnail(product);
               return (
                 <div key={item.id} className="inventory-card-wrapper">
                   <div 
