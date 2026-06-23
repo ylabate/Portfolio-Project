@@ -10,14 +10,22 @@ export default function InventoryPage() {
   const [keys, setKeys] = useState({});
   const [visibleKeys, setVisibleKeys] = useState({});
   const [confirmingActivation, setConfirmingActivation] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const { success } = useToast();
 
   useEffect(() => {
-    api.get('/inventory').then(({ data }) => {
-      setItems(Array.isArray(data) ? data : []);
+    api.get(`/inventory?page=${page}&limit=10`).then(({ data }) => {
+      const newItems = Array.isArray(data) ? data : [];
+      if (page === 1) {
+        setItems(newItems);
+      } else {
+        setItems((prev) => [...prev, ...newItems]);
+      }
+      setHasMore(newItems.length === 10);
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   const handleActivate = async (item) => {
     setActivating(item.id);
@@ -136,6 +144,14 @@ export default function InventoryPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {hasMore && (
+          <div style={{ textAlign: 'center', marginTop: 32 }}>
+            <button className="btn btn-secondary" onClick={() => setPage((p) => p + 1)}>
+              Load More
+            </button>
           </div>
         )}
       </div>
