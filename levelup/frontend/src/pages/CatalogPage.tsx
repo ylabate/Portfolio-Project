@@ -8,6 +8,7 @@ interface Product {
     product_name: string;
     product_thumbnail_link: string;
     price?: number;
+    rating?: number;
 }
 
 function CatalogPage() {
@@ -17,80 +18,42 @@ function CatalogPage() {
     const [selectedGenre, setSelectedGenre] = useState("all");
     const [sortBy, setSortBy] = useState("popular");
     const [searchQuery, setSearchQuery] = useState("");
+    const [genres, setGenres] = useState<{ id: string, name: string }[]>([]);
 
-    const genres = ["all", "Action", "RPG", "Strategy", "Sports", "Indie", "Simulation"];
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const response = await api.get("/genres")
+                setGenres(response.data.genres)
+            } catch (error) {
+                console.error("Error fetching genres:", error)
+            }
+        }
+        fetchGenres()
+    }, [])
 
     useEffect(() => {
         const fetchProducts = async () => {
-            setLoading(true);
+            setLoading(true)
             try {
-                const response = await api.get("/products");
-                // Mock data with prices and discounts
-                const mockProducts = (response.data.products || []).map((p: Product, idx: number) => ({
-                    ...p,
-                    price: 9.99 + (idx * 2.5),
-                    discount: Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0,
-                    genre: genres[Math.floor(Math.random() * (genres.length - 1)) + 1],
-                }));
-                setProducts(mockProducts);
-                setFilteredProducts(mockProducts);
+                const params: any = {}
+                if (selectedGenre !== "all") params.genre = selectedGenre
+                if (searchQuery) params.search = searchQuery
+                if (sortBy === "priceLow") params.sort = "price_asc"
+                if (sortBy === "priceHigh") params.sort = "price_desc"
+                if (sortBy === "name") params.sort = "name"
+                const response = await api.get("/products", { params })
+                setProducts(response.data.products || [])
+                setFilteredProducts(response.data.products || [])
             } catch (error) {
-                console.error("Error fetching products:", error);
-                // Mock data for testing
-                const mockData = [
-                    { product_id: "1", product_name: "The Witcher 3", product_thumbnail_link: "https://via.placeholder.com/200x150?text=Witcher3", price: 29.99, discount: 30, genre: "RPG" },
-                    { product_id: "2", product_name: "Cyberpunk 2077", product_thumbnail_link: "https://via.placeholder.com/200x150?text=Cyberpunk", price: 49.99, discount: 50, genre: "Action" },
-                    { product_id: "3", product_name: "Elden Ring", product_thumbnail_link: "https://via.placeholder.com/200x150?text=EldenRing", price: 39.99, discount: 20, genre: "RPG" },
-                    { product_id: "4", product_name: "Starfield", product_thumbnail_link: "https://via.placeholder.com/200x150?text=Starfield", price: 69.99, discount: 0, genre: "Action" },
-                    { product_id: "5", product_name: "Baldur's Gate 3", product_thumbnail_link: "https://via.placeholder.com/200x150?text=BG3", price: 59.99, discount: 15, genre: "RPG" },
-                    { product_id: "6", product_name: "Total War: Warhammer", product_thumbnail_link: "https://via.placeholder.com/200x150?text=TotalWar", price: 44.99, discount: 25, genre: "Strategy" },
-                    { product_id: "7", product_name: "Hogwarts Legacy", product_thumbnail_link: "https://via.placeholder.com/200x150?text=Hogwarts", price: 34.99, discount: 40, genre: "RPG" },
-                    { product_id: "8", product_name: "Palworld", product_thumbnail_link: "https://via.placeholder.com/200x150?text=Palworld", price: 29.99, discount: 10, genre: "Indie" },
-                ];
-                setProducts(mockData);
-                setFilteredProducts(mockData);
+                console.error("Error fetching products:", error)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
-
-        fetchProducts();
-    }, []);
-
-    // Filter and sort products
-    useEffect(() => {
-        let result = [...products];
-
-        // Genre filter
-        if (selectedGenre !== "all") {
-            result = result.filter((p: any) => p.genre === selectedGenre);
         }
+        fetchProducts()
+    }, [selectedGenre, searchQuery, sortBy])
 
-        // Search filter
-        if (searchQuery) {
-            result = result.filter((p) =>
-                p.product_name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        }
-
-        // Sorting
-        switch (sortBy) {
-            case "priceLow":
-                result.sort((a: any, b: any) => (a.price || 0) - (b.price || 0));
-                break;
-            case "priceHigh":
-                result.sort((a: any, b: any) => (b.price || 0) - (a.price || 0));
-                break;
-            case "discount":
-                result.sort((a: any, b: any) => (b.discount || 0) - (a.discount || 0));
-                break;
-            default:
-                // popular (default order)
-                break;
-        }
-
-        setFilteredProducts(result);
-    }, [products, selectedGenre, sortBy, searchQuery]);
 
     return (
         <>
@@ -125,13 +88,15 @@ function CatalogPage() {
                                 onChange={(e) => setSelectedGenre(e.target.value)}
                                 className="w-full px-4 py-2 bg-gray-800 border border-cyan-500/50 rounded-lg focus:outline-none focus:border-cyan-300 transition"
                             >
+                                <option value="all">Tous les genres</option>
                                 {genres.map((genre) => (
-                                    <option key={genre} value={genre}>
-                                        {genre === "all" ? "Tous les genres" : genre}
+                                    <option key={genre.id} value={genre.id}>
+                                        {genre.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
+                            
 
                         {/* Sort */}
                         <div>
@@ -169,7 +134,7 @@ function CatalogPage() {
                                     product_thumbnail_link={product.product_thumbnail_link}
                                     price={product.price}
                                     discount={product.discount}
-                                    rating={3.5 + Math.random() * 1.5}
+                                    rating={product.rating}
                                 />
                             ))}
                         </div>

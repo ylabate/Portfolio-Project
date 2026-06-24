@@ -24,7 +24,7 @@ function ProductCard({ product_id, product_name, product_thumbnail_link, price =
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/200x150?text=Game')}
                     />
-                    
+
                     {/* Discount Badge */}
                     {discount > 0 && (
                         <div className="absolute top-2 right-2 badge badge-discount">
@@ -55,7 +55,11 @@ function ProductCard({ product_id, product_name, product_thumbnail_link, price =
 
                     {/* Rating */}
                     <div className="flex items-center gap-1 mb-3 text-xs">
-                        <span className="text-yellow-400">{'⭐'.repeat(Math.floor(rating))}</span>
+                        <span className="text-yellow-400">
+                            {'★'.repeat(Math.floor(rating))}
+                            {rating % 1 >= 0.5 ? '½' : ''}
+                            {'☆'.repeat(5 - Math.floor(rating) - (rating % 1 >= 0.5 ? 1 : 0))}
+                        </span>
                         <span className="text-gray-500">({rating})</span>
                     </div>
 

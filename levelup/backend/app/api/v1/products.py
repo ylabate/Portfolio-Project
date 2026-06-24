@@ -159,6 +159,18 @@ def add_product_image(product_id):
     return jsonify({"image": image.to_dict()}), 201
 
 
+# Create a new genre with the provided name
+@v1_bp.route("/genres", methods=["POST"])
+def create_genre():
+    data = request.get_json()
+    if not data or "name" not in data:
+        return jsonify({"error": "Name is required"}), 400
+    genre = Genre(name=data["name"])
+    db.session.add(genre)
+    db.session.commit()
+    return jsonify({"genre": genre.to_dict()}), 201
+
+
 # Delete a specific image from a product
 @v1_bp.route("/products/<string:product_id>/images/<string:image_id>",
              methods=["DELETE"])

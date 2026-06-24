@@ -78,6 +78,18 @@ function ProductDetailPage() {
 
     const finalPrice = (product.price || 0) * (1 - (product.discount || 0) / 100);
 
+    const renderStars = (rating: number) => {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating - fullStars >= 0.5;
+        const emptyStars = 5 -fullStars - (halfStar ? 1 : 0);
+        return (
+            <span className="text-yellow-400">
+                {'★'.repeat(fullStars)}
+                {halfStar ? '½' : ''}
+                {'☆'.repeat(emptyStars)}
+            </span>
+        )
+    }
     return (
         <>
             <Navbar />
@@ -125,10 +137,8 @@ function ProductDetailPage() {
 
                             {/* Rating */}
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="text-yellow-400">
-                                    {product.rating ? '★'.repeat(Math.floor(product.rating)) : '★★★★'}
-                                </div>
-                                <span className="text-gray-400">({product.rating || 4.5})</span>
+                                {product.rating ? renderStars(product.rating) : <span className="text-gray-400">No ratings yet</span>}
+                                {product.rating && <span className="text-gray-400">({product.rating})</span>}
                             </div>
 
                             {/* Price */}
