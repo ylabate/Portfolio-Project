@@ -90,7 +90,7 @@ function CatalogPage() {
                             >
                                 <option value="all">Tous les genres</option>
                                 {genres.map((genre) => (
-                                    <option key={genre.id} value={genre.id}>
+                                    <option key={genre.id} value={genre.name}>
                                         {genre.name}
                                     </option>
                                 ))}
