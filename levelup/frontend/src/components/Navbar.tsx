@@ -5,6 +5,7 @@ function Navbar() {
     const [searchQuery, setSearchQuery] = useState("");
     const [cartCount, setCartCount] = useState(0);
     const [showCart, setShowCart] = useState(false);
+    const [token, setToken] = useState(localStorage.getItem("access_token"))
 
     return (
         <nav className="bg-gradient-to-r from-gray-950 to-gray-900 text-white p-4 border-b border-cyan-500 sticky top-0 z-50 shadow-lg shadow-cyan-500/20">
@@ -13,17 +14,6 @@ function Navbar() {
                 <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:from-cyan-300 hover:to-blue-400 transition">
                     ◆ LevelUp
                 </Link>
-
-                {/* Search Bar */}
-                <div className="flex-1 max-w-md">
-                    <input
-                        type="text"
-                        placeholder="Chercher un jeu..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-4 py-2 bg-gray-800 text-white placeholder-gray-500 border border-cyan-500 rounded-lg focus:outline-none focus:border-cyan-300 transition"
-                    />
-                </div>
 
                 {/* Right Menu */}
                 <div className="flex items-center gap-4">
@@ -52,9 +42,24 @@ function Navbar() {
                     >
                         Admin
                     </Link>
-                    <Link to="/login" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition text-sm">
-                        Login
-                    </Link>
+                    {token ? (
+                        <div className="flex items-center gap-2">
+                            <span className="text-cyan-400 text-sm">theo2</span>
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem("access_token")
+                                    setToken(null)
+                                }}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg transition text-sm"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition text-sm">
+                            Login
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
