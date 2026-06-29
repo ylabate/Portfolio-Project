@@ -8,6 +8,7 @@ from app.models.transaction import Transaction
 from app.models.cart import Cart, CartItem
 from app.models.order import Order, OrderItem
 from app.models.inventory import UserInventory, InventoryItem
+from app.models.token_blocklist import TokenBlocklist
 
 __all__ = [
     'BaseModel',
@@ -22,5 +23,6 @@ __all__ = [
     'Order',
     'OrderItem',
     'UserInventory',
-    'InventoryItem'
+    'InventoryItem',
+    'TokenBlocklist'
 ]

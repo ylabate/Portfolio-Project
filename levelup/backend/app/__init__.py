@@ -25,6 +25,13 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
 
+    from app.models.token_blocklist import TokenBlocklist
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        return TokenBlocklist.query.filter_by(jti=jti).first() is not None
+
     import app.models as models
 
     with app.app_context():
