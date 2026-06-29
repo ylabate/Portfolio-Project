@@ -97,6 +97,25 @@ function ProductDetailPage() {
             </span>
         )
     }
+    const handleAddToCart = async () => {
+        const token = localStorage.getItem("access_token")
+        if (!token) {
+            navigate("/login")
+            return
+        }
+        try {
+            await api.post("/cart/items", {
+                product_id: product?.product_id,
+                quantity: quantity
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            alert("Jeu ajouté au panier !")
+        } catch (error) {
+            console.error("Erreur ajout panier:", error)
+            alert("Erreur lors de l'ajout au panier")
+        }
+    }
     return (
         <>
             <Navbar />
@@ -188,7 +207,10 @@ function ProductDetailPage() {
                                         +
                                     </button>
                                 </div>
-                                <button className="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 rounded-lg transition transform hover:scale-105">
+                                <button
+                                    onClick={handleAddToCart}
+                                    className="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 rounded-lg transition transform hover:scale-105"
+                                >
                                     🛒 Ajouter au panier
                                 </button>
                             </div>

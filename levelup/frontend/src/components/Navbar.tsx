@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Navbar() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [cartCount, setCartCount] = useState(0);
-    const [showCart, setShowCart] = useState(false);
     const [token, setToken] = useState(localStorage.getItem("access_token"))
 
     return (
@@ -17,25 +14,12 @@ function Navbar() {
 
                 {/* Right Menu */}
                 <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowCart(!showCart)}
-                            className="relative p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition border border-cyan-500/50"
-                        >
-                            🛒
-                            {cartCount > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </button>
-                        {showCart && (
-                            <div className="absolute right-0 mt-2 w-80 bg-gray-900 border border-cyan-500 rounded-lg p-4 shadow-lg slide-in-left">
-                                <h3 className="font-bold mb-3">Panier</h3>
-                                <p className="text-gray-400 text-sm">Panier vide</p>
-                            </div>
-                        )}
-                    </div>
+                    <Link
+                        to="/cart"
+                        className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition border border-cyan-500/50"
+                    >
+                        🛒
+                    </Link>
                     <Link
                         to="/admin"
                         className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg border border-cyan-500/50 transition text-sm"
