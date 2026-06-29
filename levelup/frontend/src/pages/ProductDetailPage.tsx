@@ -12,6 +12,11 @@ interface Product {
     discount?: number;
     rating?: number;
     description?: string;
+    metadata?: {
+        steam_appid?: number;
+        pc_requirements_min?: string;
+        pc_requirements_rec?: string;
+    };
 }
 
 function ProductDetailPage() {
@@ -81,7 +86,7 @@ function ProductDetailPage() {
     const renderStars = (rating: number) => {
         const fullStars = Math.floor(rating);
         const halfStar = rating - fullStars >= 0.5;
-        const emptyStars = 5 -fullStars - (halfStar ? 1 : 0);
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
         return (
             <span className="text-yellow-400">
                 {'★'.repeat(fullStars)}
@@ -120,9 +125,8 @@ function ProductDetailPage() {
                                         <button
                                             key={img.id}
                                             onClick={() => setSelectedImage(idx)}
-                                            className={`border-2 rounded-lg overflow-hidden transition ${
-                                                selectedImage === idx ? 'border-cyan-500' : 'border-gray-600 hover:border-cyan-500'
-                                            }`}
+                                            className={`border-2 rounded-lg overflow-hidden transition ${selectedImage === idx ? 'border-cyan-500' : 'border-gray-600 hover:border-cyan-500'
+                                                }`}
                                         >
                                             <img src={img.link} alt={img.alt} className="w-full h-20 object-cover" />
                                         </button>
@@ -208,28 +212,26 @@ function ProductDetailPage() {
                     </div>
 
                     {/* System Requirements */}
-                    <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500/30">
-                            <h3 className="text-xl font-bold mb-4 text-cyan-400">Configuration minimale</h3>
-                            <ul className="space-y-2 text-sm text-gray-300">
-                                <li>OS: Windows 7/8/10 64-bit</li>
-                                <li>Processeur: Intel Core i5-2600K</li>
-                                <li>Mémoire: 8 GB RAM</li>
-                                <li>Graphiques: Nvidia GeForce GTX 960</li>
-                                <li>Disque: 150 GB d'espace disque</li>
-                            </ul>
+                    {product.metadata?.pc_requirements_min && (
+                        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500/30">
+                                <h3 className="text-xl font-bold mb-4 text-cyan-400">Configuration minimale</h3>
+                                <div
+                                    className="text-sm text-gray-300"
+                                    dangerouslySetInnerHTML={{ __html: product.metadata.pc_requirements_min }}
+                                />
+                            </div>
+                            {product.metadata?.pc_requirements_rec && (
+                                <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500/30">
+                                    <h3 className="text-xl font-bold mb-4 text-cyan-400">Configuration recommandée</h3>
+                                    <div
+                                        className="text-sm text-gray-300"
+                                        dangerouslySetInnerHTML={{ __html: product.metadata.pc_requirements_rec }}
+                                    />
+                                </div>
+                            )}
                         </div>
-                        <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500/30">
-                            <h3 className="text-xl font-bold mb-4 text-cyan-400">Configuration recommandée</h3>
-                            <ul className="space-y-2 text-sm text-gray-300">
-                                <li>OS: Windows 10/11 64-bit</li>
-                                <li>Processeur: Intel Core i7-8700K</li>
-                                <li>Mémoire: 16 GB RAM</li>
-                                <li>Graphiques: Nvidia GeForce RTX 2080</li>
-                                <li>Disque: 150 GB SSD</li>
-                            </ul>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </>

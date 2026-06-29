@@ -79,5 +79,6 @@ class Product(BaseModel):
                     "alt": image.alt_text,
                 }
                 for image in self.images
-            ]
+            ],
+            "metadata": self.metadata_json,
         }

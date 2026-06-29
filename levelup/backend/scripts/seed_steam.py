@@ -70,6 +70,9 @@ def seed_steam():
             # Image header
             thumbnail = steam_data.get("header_image", "")
 
+            # Configurations système
+            pc_requirements = steam_data.get("pc_requirements", {})
+
             # Créer le produit
             product = Product(
                 name=game["name"],
@@ -77,6 +80,11 @@ def seed_steam():
                 price=price,
                 description=description,
                 is_active=True,
+                metadata_json={
+                    "steam_appid": appid,
+                    "pc_requirements_min": pc_requirements.get("minimum", ""),
+                    "pc_requirements_rec": pc_requirements.get("recommended", "")
+                }
             )
 
             # Genres
