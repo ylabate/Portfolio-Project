@@ -8,6 +8,8 @@ interface Product {
     product_name: string;
     product_thumbnail_link: string;
     price?: number;
+    discount_percent?: number;
+    initial_price?: number;
     rating?: number;
 }
 
@@ -133,7 +135,8 @@ function CatalogPage() {
                                     product_name={product.product_name}
                                     product_thumbnail_link={product.product_thumbnail_link}
                                     price={product.price}
-                                    discount={product.discount}
+                                    discount_percent={product.discount_percent}
+                                    initial_price={product.initial_price}
                                     rating={product.rating}
                                 />
                             ))}

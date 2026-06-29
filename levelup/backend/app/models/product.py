@@ -52,6 +52,10 @@ class Product(BaseModel):
         reviews = self.reviews.all()
         average_rating = round(sum(review.rating for review in reviews)
                                / len(reviews), 1) if reviews else None
+        discount = self.metadata_json.get(
+            "discount_percent", 0) if self.metadata_json else 0
+        initial_price = self.metadata_json.get(
+            "initial_price", self.price) if self.metadata_json else self.price
         return {
             "id": self.id,
             "product_name": self.name,
@@ -60,6 +64,8 @@ class Product(BaseModel):
             "product_genres": [genre.id for genre in self.genres],
             "rating": average_rating,
             "price": self.price,
+            "discount_percent": discount,
+            "initial_price": initial_price,
         }
 
     def to_dict(self):

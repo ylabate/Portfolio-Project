@@ -5,12 +5,12 @@ interface Props {
     product_name: string
     product_thumbnail_link: string
     price?: number
-    discount?: number
+    discount_percent?: number
+    initial_price?: number
     rating?: number
 }
 
-function ProductCard({ product_id, product_name, product_thumbnail_link, price = 19.99, discount = 0, rating = 4.5 }: Props) {
-    const finalPrice = price * (1 - discount / 100);
+function ProductCard({ product_id, product_name, product_thumbnail_link, price = 19.99, discount_percent = 0, initial_price, rating }: Props) {
     const isFeatured = Math.random() > 0.7;
 
     return (
@@ -26,9 +26,9 @@ function ProductCard({ product_id, product_name, product_thumbnail_link, price =
                     />
 
                     {/* Discount Badge */}
-                    {discount > 0 && (
-                        <div className="absolute top-2 right-2 badge badge-discount">
-                            -{discount}%
+                    {discount_percent > 0 && (
+                        <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            -{discount_percent}%
                         </div>
                     )}
 
@@ -73,11 +73,11 @@ function ProductCard({ product_id, product_name, product_thumbnail_link, price =
                     <div className="flex items-baseline gap-2 justify-between">
                         <div>
                             <span className="text-cyan-400 font-bold text-lg">
-                                €{finalPrice.toFixed(2)}
+                                €{price.toFixed(2)}
                             </span>
-                            {discount > 0 && (
+                            {discount_percent > 0 && initial_price && (
                                 <span className="text-gray-500 text-sm line-through ml-2">
-                                    €{price.toFixed(2)}
+                                    €{initial_price.toFixed(2)}
                                 </span>
                             )}
                         </div>
