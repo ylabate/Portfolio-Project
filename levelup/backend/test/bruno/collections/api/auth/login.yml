@@ -8,11 +8,11 @@ http:
   url: 127.0.0.1:5000/api/v1/auth/login
   body:
     type: json
-    data: |2-
-            {
-              "email": "admin@levelup.com",
-              "password": "adminpassword123"
-            }
+    data: |-
+      {
+        "email": "test1user@example.com",
+        "password": "azerty2115"
+      }
   auth: inherit
 
 settings:

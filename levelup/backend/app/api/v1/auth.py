@@ -5,10 +5,12 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
-    get_jwt_identity
+    get_jwt_identity,
+    get_jwt
 )
 from app import db
 from app.models.user import User
+from app.models.token_blocklist import TokenBlocklist
 from . import v1_bp
 
 
@@ -93,6 +95,9 @@ def login():
 @v1_bp.route("/auth/logout", methods=["DELETE"])
 @jwt_required()
 def logout():
+    jti = get_jwt()["jti"]
+    db.session.add(TokenBlocklist(jti=jti))
+    db.session.commit()
     return jsonify({"message": "logged out"}), 200
 
 
