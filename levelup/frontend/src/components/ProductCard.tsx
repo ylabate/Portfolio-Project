@@ -55,12 +55,18 @@ function ProductCard({ product_id, product_name, product_thumbnail_link, price =
 
                     {/* Rating */}
                     <div className="flex items-center gap-1 mb-3 text-xs">
-                        <span className="text-yellow-400">
-                            {'★'.repeat(Math.floor(rating))}
-                            {rating % 1 >= 0.5 ? '½' : ''}
-                            {'☆'.repeat(5 - Math.floor(rating) - (rating % 1 >= 0.5 ? 1 : 0))}
-                        </span>
-                        <span className="text-gray-500">({rating})</span>
+                        {rating ? (
+                            <>
+                                <span className="text-yellow-400">
+                                    {'★'.repeat(Math.floor(rating / 2))}
+                                    {(rating / 2) % 1 >= 0.5 ? '½' : ''}
+                                    {'☆'.repeat(5 - Math.floor(rating / 2) - ((rating / 2) % 1 >= 0.5 ? 1 : 0))}
+                                </span>
+                                <span className="text-gray-500">({rating}/10)</span>
+                            </>
+                        ) : (
+                            <span className="text-gray-500">Pas encore de note</span>
+                        )}
                     </div>
 
                     {/* Price */}
