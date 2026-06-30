@@ -15,11 +15,14 @@ class Product(BaseModel):
 
     metadata_json = db.Column(db.JSON, nullable=True)
 
-    genres = db.relationship('Genre', secondary=product_genres, backref=db.backref('products', lazy='dynamic'))
-    images = db.relationship('ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
+    genres = db.relationship('Genre', secondary=product_genres, backref=db.backref(
+        'products', lazy='dynamic'))
+    images = db.relationship(
+        'ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
 
-    stock_items = db.relationship('InventoryItem', backref='product', lazy='dynamic')
+    stock_items = db.relationship(
+        'InventoryItem', backref='product', lazy='dynamic')
 
     @property
     def price(self):
@@ -46,20 +49,35 @@ class Product(BaseModel):
         return f'<Product {self.name}>'
 
     def to_dict_list(self):
+        reviews = self.reviews.all()
+        average_rating = round(sum(review.rating for review in reviews)
+                               / len(reviews), 1) if reviews else None
+        discount = self.metadata_json.get(
+            "discount_percent", 0) if self.metadata_json else 0
+        initial_price = self.metadata_json.get(
+            "initial_price", self.price) if self.metadata_json else self.price
         return {
             "id": self.id,
             "product_name": self.name,
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
+            "rating": average_rating,
+            "price": self.price,
+            "discount_percent": discount,
+            "initial_price": initial_price,
         }
 
     def to_dict(self):
+        reviews = self.reviews.all()
+        average_rating = round(sum(review.rating for review in reviews)
+                               / len(reviews), 1) if reviews else None
         return {
             "product_name": self.name,
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
+            "rating": average_rating,
             "product_images": [
                 {
                     "id": image.id,
@@ -67,5 +85,6 @@ class Product(BaseModel):
                     "alt": image.alt_text,
                 }
                 for image in self.images
-            ]
+            ],
+            "metadata": self.metadata_json,
         }

@@ -5,7 +5,10 @@ info:
 
 http:
   method: PATCH
-  url: http://127.0.0.1:5000/api/v1/products/445df059-62ac-4e32-97f1-53c412d12b5d
+  url: http://127.0.0.1:5000/api/v1/products/f59513cc-2f73-44fc-9216-8c77fc8b0301
+  body:
+    type: json
+    data: '{ "genres": ["Action", "Indie"] }'
   auth: inherit
 
 settings:
