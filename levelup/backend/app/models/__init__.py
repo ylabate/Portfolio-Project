@@ -9,6 +9,7 @@ from app.models.cart import Cart, CartItem
 from app.models.order import Order, OrderItem
 from app.models.inventory import UserInventory, InventoryItem
 from app.models.token_blocklist import TokenBlocklist
+from app.models.password_reset import PasswordReset
 
 __all__ = [
     'BaseModel',
@@ -24,5 +25,6 @@ __all__ = [
     'OrderItem',
     'UserInventory',
     'InventoryItem',
-    'TokenBlocklist'
+    'TokenBlocklist',
+    'PasswordReset'
 ]
