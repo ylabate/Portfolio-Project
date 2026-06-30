@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://127.0.0.1:5000/api/v1/products/445df059-62ac-4e32-97f1-53c412d12b5d
+  url: http://localhost:5000/api/v1/products/4ad65afa-c459-42d8-931f-8815b2b91552
   auth: inherit
 
 settings:
