@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { triggerToast } from './context/ToastContext.jsx';
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:5000/api/v1',
@@ -58,16 +59,12 @@ api.interceptors.response.use(
     if (!isSilent) {
       let errMsg = 'An unexpected error occurred';
       if (err.response?.data) {
-        errMsg = err.response.data.description ?? err.response.data.msg ?? err.response.data.error ?? errMsg;
+        errMsg = err.response.data.description ?? err.response.data.msg ?? err.response.data.error ?? err.response.data.message ?? errMsg;
       } else if (err.message) {
         errMsg = err.message;
       }
       
-      window.dispatchEvent(
-        new CustomEvent('app-toast', {
-          detail: { message: errMsg, type: 'error' },
-        })
-      );
+      triggerToast(errMsg, 'error');
     }
 
     return Promise.reject(err);

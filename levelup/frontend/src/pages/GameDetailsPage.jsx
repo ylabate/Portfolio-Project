@@ -19,7 +19,6 @@ export default function GameDetailsPage() {
   const { success } = useToast();
 
   const [product, setProduct] = useState(null);
-  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
   const [galleryImagesList, setGalleryImagesList] = useState([]);
@@ -591,44 +590,6 @@ export default function GameDetailsPage() {
             </div>
           </div>
         </div>
-
-        {/* Reviews Section */}
-        <section className="reviews-section">
-          <h2>
-            <MessageSquare size={20} /> User Reviews ({reviews.length})
-          </h2>
-
-          {reviews.length === 0 ? (
-            <div className="empty-reviews">
-              <Star size={36} style={{ color: 'var(--text-muted)', marginBottom: 8 }} />
-              <p>No reviews yet. Be the first to buy and share your opinion!</p>
-            </div>
-          ) : (
-            <div className="reviews-list">
-              {reviews.map((rev) => (
-                <div key={rev.id} className="review-card">
-                  <div className="review-header">
-                    <span className="reviewer-name">{rev.user_username || 'Anonymous User'}</span>
-                    <div className="review-stars">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i} 
-                          size={14} 
-                          fill={i < rev.rating ? 'var(--cyan)' : 'none'} 
-                          color={i < rev.rating ? 'var(--cyan)' : 'var(--text-muted)'} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="review-content">{rev.comment || 'No comment provided.'}</p>
-                  <span className="review-date">
-                    <Calendar size={12} /> {new Date(rev.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );
