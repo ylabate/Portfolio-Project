@@ -1,0 +1,26 @@
+info:
+  name: create_key
+  type: http
+  seq: 15
+
+http:
+  method: POST
+  url: 127.0.0.1:5000/api/v1/admin/products/activation-keys
+  body:
+    type: json
+    data: |-
+      {
+        "product_name": "Test Game",
+        "description": "Un jeu de test",
+        "price": 9.99,
+        "type": "key"
+      }
+  auth:
+    type: bearer
+    token: {{admin_token}}
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

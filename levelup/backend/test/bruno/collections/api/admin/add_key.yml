@@ -1,0 +1,28 @@
+info:
+  name: add_key
+  type: http
+  seq: 16
+
+http:
+  method: POST
+  url: 127.0.0.1:5000/api/v1/admin/products/{{product_id}}/activation-keys
+  body:
+    type: json
+    data: |-
+      {
+        "activation_code": "ABCD-EFGH-IJKL-MNOP"
+      }
+  auth:
+    type: bearer
+    token: {{admin_token}}
+
+runtime:
+  variables:
+    - name: product_id
+      value: 00000000-0000-0000-0000-000000000002
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
