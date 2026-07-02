@@ -49,12 +49,30 @@ class PaymentService:
         order = order_repo.get(order_id)
         if order:
             from app import db
+            from app.models.inventory import InventoryItem
+            from datetime import datetime, timezone
+            
             for item in order.items:
                 for _ in range(item.quantity):
+                    stock = (
+                        InventoryItem.query
+                        .filter_by(product_id=item.product_id, is_used=False)
+                        .first()
+                    )
+                    
+                    stock_id = None
+                    if stock:
+                        stock.is_used = True
+                        stock.used_at = datetime.now(timezone.utc)
+                        stock_id = stock.id
+                    else:
+                        print(f"WARNING: No keys available for product {item.product_id} upon payment confirmation! Needs manual resolution.")
+                    
                     user_inv = UserInventory(
                         user_id=user_id,
                         product_id=item.product_id,
-                        state='in_inventory'
+                        state='in_inventory',
+                        inventory_item_id=stock_id
                     )
                     db.session.add(user_inv)
 

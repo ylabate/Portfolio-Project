@@ -32,19 +32,24 @@ class InventoryService:
         if item.state != 'in_inventory':
             raise ValueError(f"Item is already '{item.state}', cannot activate")
 
-        stock = (
-            InventoryItem.query
-            .filter_by(product_id=item.product_id, is_used=False)
-            .first()
-        )
+        # The key was already bound during purchase/payment success
+        stock = InventoryItem.query.get(item.inventory_item_id) if item.inventory_item_id else None
         if not stock:
-            raise ValueError("No activation key available for this product")
+            # Fallback if no key was linked (e.g. legacy items or resolved stock issues)
+            stock = (
+                InventoryItem.query
+                .filter_by(product_id=item.product_id, is_used=False)
+                .first()
+            )
+            if not stock:
+                raise ValueError("No activation key available for this product")
 
-        stock.is_used = True
-        from datetime import datetime, timezone
-        stock.used_at = datetime.now(timezone.utc)
+            stock.is_used = True
+            from datetime import datetime, timezone
+            stock.used_at = datetime.now(timezone.utc)
+            item.inventory_item_id = stock.id
+
         item.state = 'activated'
-        item.inventory_item_id = stock.id
         db.session.commit()
 
         return stock
