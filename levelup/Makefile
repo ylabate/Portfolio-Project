@@ -1,6 +1,8 @@
+COMPOSE := $(shell docker compose version >/dev/null 2>&1 && printf 'docker compose' || printf 'docker-compose')
+
 dev:
-	docker compose up --build
+	$(COMPOSE) up --build
 showcase:
-	docker compose -f docker-compose-showcase.yml up --build
+	$(COMPOSE) -f docker-compose-showcase.yml up --build
 kill:
-	docker compose down -v
+	$(COMPOSE) down -v
