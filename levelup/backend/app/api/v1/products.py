@@ -82,7 +82,7 @@ def create_product():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid input"}), 400
-        
+
     steam_appid = data.get("steam_appid")
     metadata_json = data.get("metadata_json") or {}
     if steam_appid is not None:
@@ -116,7 +116,7 @@ def create_product():
             product=product
         )
         db.session.add(image)
-            
+
     db.session.commit()
     return jsonify({"product_id": product.id}), 201
 
