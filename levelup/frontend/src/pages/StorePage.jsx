@@ -9,6 +9,7 @@ export default function StorePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('');
+  const [genre, setGenre] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [genresMap, setGenresMap] = useState({});
@@ -35,6 +36,7 @@ export default function StorePage() {
         const params = new URLSearchParams({ page, limit: 20 });
         if (search) params.set('search', search);
         if (sort) params.set('sort', sort);
+        if (genre) params.set('genre', genre);
         const { data } = await api.get(`/products?${params}`);
         const list = Array.isArray(data) ? data : data.products ?? [];
         if (page === 1) {
@@ -51,7 +53,7 @@ export default function StorePage() {
     };
     const timer = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timer);
-  }, [search, sort, page]);
+  }, [search, sort, genre, page]);
 
   useEffect(() => {
     if (!hasMore || loadingMore || loading) return;
@@ -118,7 +120,13 @@ export default function StorePage() {
               <option value="">Sort: Default</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
-              <option value="name_asc">Name: A–Z</option>
+              <option value="name">Name: A–Z</option>
+            </select>
+            <select className="filter-select" value={genre} onChange={(e) => { setGenre(e.target.value); setPage(1); }}>
+              <option value="">All Genres</option>
+              {Object.entries(genresMap).map(([id, name]) => (
+                <option key={id} value={String(name)}>{String(name)}</option>
+              ))}
             </select>
           </div>
 
