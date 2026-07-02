@@ -95,6 +95,13 @@ class PaymentService:
             product = product_repo.get(item_data['product_id'])
             if product:
                 quantity = item_data['quantity']
+                
+                # Verify stock
+                from app.models.inventory import InventoryItem
+                available_stock = InventoryItem.query.filter_by(product_id=product.id, is_used=False).count()
+                if quantity > available_stock:
+                    raise ValueError(f"Insufficient stock for {product.name}. Only {available_stock} keys left.")
+
                 line_items.append({
                     'price_data': {
                         'currency': 'eur',
@@ -121,7 +128,7 @@ class PaymentService:
         frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         return stripe_service.create_checkout_session(
             line_items,
-            f"{frontend_url}/success?order_id={new_order.id}",
+            f"{frontend_url}/success?session_id={{CHECKOUT_SESSION_ID}}",
             f"{frontend_url}/cart",
             {
                 "user_id": str(user_id),

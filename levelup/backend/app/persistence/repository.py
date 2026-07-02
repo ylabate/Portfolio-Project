@@ -4,6 +4,7 @@ from app.models.product import Product
 from app.models.transaction import Transaction
 from app.models.order import Order
 from app.models.user import User
+from app.models.inventory import UserInventory
 
 
 class Repository:
@@ -67,3 +68,8 @@ class OrderRepository(Repository):
 class UserRepository(Repository):
     def __init__(self):
         super().__init__(User)
+
+
+class UserInventoryRepository(Repository):
+    def __init__(self):
+        super().__init__(UserInventory)

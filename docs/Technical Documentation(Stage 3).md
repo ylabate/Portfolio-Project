@@ -272,7 +272,7 @@ sequenceDiagram
 
 ### 3.3 Purchase diagram
 
-This sequence diagram captures the checkout flow, including Stripe intent creation, webhook updates, and status polling.
+This sequence diagram captures the checkout flow, including the Stripe Checkout Session redirect, webhook processing, and status polling.
 
 ```mermaid
 sequenceDiagram
@@ -283,26 +283,26 @@ sequenceDiagram
     participant Stripe API
 
     User->>Frontend: Validate Cart
-    Frontend->>Backend: POST /api/checkout
-    Backend->>Stripe API: Create Payment Intent
-    Stripe API-->>Backend: Return Client Secret
-    Backend-->>Frontend: Return Client Secret
+    Frontend->>Backend: POST /api/v1/cart/checkout
+    Backend->>Stripe API: Create Checkout Session
+    Stripe API-->>Backend: Return Session (URL & ID)
+    Backend-->>Frontend: Return checkout_url & session_id
 
-    User->>Frontend: Enter Payment Details
-    Frontend->>Stripe API: Submit Payment (via Stripe.js)
-    Stripe API-->>Frontend: Return Payment Status
-    Frontend->>User: Display "Processing" Message
+    User->>Frontend: Click Pay (Redirect)
+    Frontend->>Stripe API: Redirect to Stripe Checkout Page
+    User->>Stripe API: Enter Payment Details & Confirm
+    Stripe API->>Frontend: Redirect to /success?session_id={CHECKOUT_SESSION_ID}
 
     note over Stripe API, Backend: Asynchronous Webhook Flow
-    Stripe API->>Backend: POST Webhook (payment_intent.succeeded)
-    Backend->>Backend: Update Database & Provision Items
+    Stripe API->>Backend: POST Webhook (checkout.session.completed)
+    Backend->>Backend: Create Transaction & Provision Items in DB
 
     loop Polling Status
-        Frontend->>Backend: GET /api/checkout/:id/status
+        Frontend->>Backend: GET /api/v1/checkout/:session_id/status
         Backend-->>Frontend: Return Status (Pending/Success)
     end
 
-    Frontend->>User: Display "Success" Message
+    Frontend->>User: Display "Success" Message & Purchased Keys
 ```
 
 
@@ -522,36 +522,27 @@ output
 
 ### 4.4 ORDERS
 
-- **POST /api/checkout** *(JWT required)*  
-Initialisation of the payment by stripe  
+- **POST /api/v1/cart/checkout** *(JWT required)*  
+Initialization of the Stripe Checkout Session.
 
 ```json
+output
 {
-	"success": "bool",
-	"status": "string",
-	"order": {
-		"order_id": "uuid",
-		"total_cents": "int",
-	},
-	"payment_intent": {
-		"id": "stripe_id",
-		"client_secret": "stripe_secret_id"
-  }
+	"checkout_url": "string",
+	"session_id": "string"
 }
 ```
 
-- **GET /api/checkout/:id/status** *(JWT required)*  
-Get the status of the payment by stripe
+- **GET /api/checkout/:session_id/status** *(JWT required)*  
+Get the status of the Stripe Checkout session payment.
 
 ```json
+output
 {
 	"success": "bool",
-	"order_id": "string",
 	"payment_status": "string", 
 	"fulfillment": {
-		"items_provisioned": "bool",
-		"items_count": "int",
-		"redirect_url": "string"
+		"items_provisioned": "bool"
 	}
 }
 ```

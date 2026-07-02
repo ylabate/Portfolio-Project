@@ -1,13 +1,23 @@
 from app.services.cart_service import CartService
 from factories.product_factory import ProductFactory
 from factories.user_factory import UserFactory
+from app.models.inventory import InventoryItem
+
+
+def add_stock(db_session, product_id, quantity=5):
+    for _ in range(quantity):
+        item = InventoryItem(product_id=product_id)
+        db_session.add(item)
+    db_session.commit()
 
 
 def test_add_one_to_card(app, db_session):
     test_user = UserFactory()
     test_product = ProductFactory()
     db_session.add(test_user)
+    db_session.add(test_product)
     db_session.commit()
+    add_stock(db_session, test_product.id, 5)
 
     service = CartService()
     cart = service.add_to_cart(test_user.id, test_product.id, 1)
@@ -21,7 +31,9 @@ def test_multiple_add_and_partial_remove(app, db_session):
     test_user = UserFactory()
     test_product = ProductFactory()
     db_session.add(test_user)
+    db_session.add(test_product)
     db_session.commit()
+    add_stock(db_session, test_product.id, 5)
 
     service = CartService()
 
@@ -61,6 +73,7 @@ def test_add_inactive_product_to_cart(app, db_session):
     db_session.add(test_user)
     db_session.add(test_product)
     db_session.commit()
+    add_stock(db_session, test_product.id, 5)
 
     service = CartService()
     import pytest
@@ -74,6 +87,7 @@ def test_remove_from_cart_service(app, db_session):
     db_session.add(test_user)
     db_session.add(test_product)
     db_session.commit()
+    add_stock(db_session, test_product.id, 5)
 
     service = CartService()
     service.add_to_cart(test_user.id, test_product.id, 2)

@@ -32,13 +32,24 @@ class CartService:
         if not product.is_active:
             raise ValueError(f"Product with id {product_id} is not active")
 
+        # Check available stock
+        from app.models.inventory import InventoryItem
+        available_stock = InventoryItem.query.filter_by(product_id=product_id, is_used=False).count()
+
         existing_item = next((
             item for item in cart.items
             if item.product_id == product_id
         ), None)
 
+        target_quantity = quantity
         if existing_item:
-            existing_item.quantity += quantity
+            target_quantity += existing_item.quantity
+
+        if target_quantity > available_stock:
+            raise ValueError(f"Not enough keys in stock. Only {available_stock} keys left.")
+
+        if existing_item:
+            existing_item.quantity = target_quantity
         else:
             new_item = CartItem(product_id=product_id, quantity=quantity)
             cart.items.append(new_item)

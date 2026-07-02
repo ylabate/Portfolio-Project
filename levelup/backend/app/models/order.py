@@ -18,6 +18,15 @@ class Order(BaseModel):
     def total(self, value):
         self.total_cents = int(round(value * 100))
 
+    def to_dict(self):
+        return {
+            **super().to_dict(),
+            "user_id": self.user_id,
+            "total_cents": self.total_cents,
+            "total": self.total,
+            "items": [item.to_dict() for item in self.items],
+        }
+
 
 class OrderItem(BaseModel):
     __tablename__ = 'order_items'
@@ -26,6 +35,7 @@ class OrderItem(BaseModel):
     product_id = db.Column(db.String(36), db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price_at_purchase_cents = db.Column(db.Integer, nullable=False)
+    product = db.relationship('Product', lazy='joined')
 
     @property
     def price_at_purchase(self):
@@ -40,3 +50,26 @@ class OrderItem(BaseModel):
         if value <= 0:
             raise ValueError("Quantity must be greater than 0")
         return value
+
+    def to_dict(self):
+        thumbnail = None
+        genres = None
+        if self.product:
+            if self.product.images:
+                thumbnail = next(
+                    (img for img in self.product.images if img.is_thumbnail),
+                    self.product.images[0]
+                )
+            if self.product.genres:
+                genres = [{"id": g.id, "name": g.name} for g in self.product.genres]
+
+        return {
+            "id": self.id,
+            "product_id": self.product_id,
+            "product_name": self.product.name if self.product else "Unknown Product",
+            "quantity": self.quantity,
+            "price_at_purchase": self.price_at_purchase,
+            "product_thumbnail_link": thumbnail.link if thumbnail else None,
+            "product_genres": genres,
+            "steam_appid": self.product.metadata_json.get("steam_appid") if (self.product and self.product.metadata_json) else None
+        }

@@ -70,6 +70,12 @@ def test_prepare_checkout_from_cart(app, db_session):
     cart_item = CartItem(product_id=test_product.id, quantity=2)
     cart.items.append(cart_item)
     db_session.add(cart)
+    
+    # Add stock
+    from app.models.inventory import InventoryItem
+    for _ in range(5):
+        db_session.add(InventoryItem(product_id=test_product.id))
+        
     db_session.commit()
 
     with patch('app.services.stripe_service.StripeService.create_checkout_session') as mock_stripe:

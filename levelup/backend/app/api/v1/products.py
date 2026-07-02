@@ -49,6 +49,18 @@ def get_product(product_id):
     return jsonify({"product": product.to_dict()})
 
 
+# Proxy endpoint to fetch live steam assets by steam_appid bypassing CORS
+@v1_bp.route("/products/steam-proxy/<int:steam_appid>", methods=["GET"])
+def get_steam_assets_proxy(steam_appid):
+    import requests
+    url = f"https://store.steampowered.com/api/appdetails?appids={steam_appid}&l=french"
+    try:
+        response = requests.get(url, timeout=10)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"error": f"Failed to connect to Steam API: {str(e)}"}), 500
+
+
 # Retrieve all available genres
 @v1_bp.route("/genres", methods=["GET"])
 def get_genres():
@@ -70,6 +82,12 @@ def create_product():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid input"}), 400
+        
+    steam_appid = data.get("steam_appid")
+    metadata_json = data.get("metadata_json") or {}
+    if steam_appid is not None:
+        metadata_json["steam_appid"] = steam_appid
+
     product = Product(
         name=data.get("product_name"),
         description=data.get("description"),
@@ -78,6 +96,7 @@ def create_product():
         price=data.get("price"),
         type=data.get("type"),
         is_active=data.get("is_active", True),
+        metadata_json=metadata_json if metadata_json else None
     )
     db.session.add(product)
 
@@ -97,6 +116,7 @@ def create_product():
             product=product
         )
         db.session.add(image)
+            
     db.session.commit()
     return jsonify({"product_id": product.id}), 201
 
@@ -116,6 +136,17 @@ def update_product(product_id):
     product.price = data.get("price", product.price)
     product.type = data.get("type", product.type)
     product.is_active = data.get("is_active", product.is_active)
+
+    # Handle metadata_json update
+    if "steam_appid" in data or "metadata_json" in data:
+        metadata = dict(product.metadata_json) if product.metadata_json else {}
+        if "metadata_json" in data:
+            metadata.update(data["metadata_json"] or {})
+        if "steam_appid" in data:
+            metadata["steam_appid"] = data["steam_appid"]
+        product.metadata_json = metadata
+        from sqlalchemy.orm.attributes import flag_modified
+        flag_modified(product, "metadata_json")
 
     if "product_thumbnail_link" in data:
         thumbnail = next((image for image in product.images

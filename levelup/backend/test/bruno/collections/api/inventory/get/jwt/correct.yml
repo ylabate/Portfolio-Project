@@ -5,7 +5,14 @@ info:
 
 http:
   method: GET
-  url: http://127.0.0.1:5000/api/v1/inventory
+  url: http://127.0.0.1:5000/api/v1/inventory?limit=1&page=7
+  params:
+    - name: limit
+      value: "1"
+      type: query
+    - name: page
+      value: "7"
+      type: query
   auth: inherit
 
 settings:

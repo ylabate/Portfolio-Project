@@ -49,52 +49,37 @@ class Product(BaseModel):
         return f'<Product {self.name}>'
 
     def to_dict_list(self):
-        reviews = self.reviews.all()
-        average_rating = round(sum(review.rating for review in reviews)
-                               / len(reviews), 1) if reviews else None
-        discount = self.metadata_json.get(
-            "discount_percent", 0) if self.metadata_json else 0
-        initial_price = self.metadata_json.get(
-            "initial_price", self.price) if self.metadata_json else self.price
+        from app.models.inventory import InventoryItem
+        stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
             "id": self.id,
             "product_name": self.name,
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
-            "rating": average_rating,
+            "price_cents": self.price_cents,
             "price": self.price,
-            "discount_percent": discount,
-            "initial_price": initial_price,
+            "description": self.description,
+            "type": self.type,
+            "stock": stock,
+            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None
         }
 
     def to_dict(self):
-        reviews = self.reviews.all()
-        average_rating = round(sum(review.rating for review in reviews)
-                               / len(reviews), 1) if reviews else None
+        from app.models.inventory import InventoryItem
+        stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
+            "id": self.id,
             "product_name": self.name,
             "product_id": self.id,
             "product_thumbnail_link": self.thumbnail_url,
             "product_genres": [genre.id for genre in self.genres],
-            "rating": average_rating,
-            "product_images": [
-                {
-                    "id": image.id,
-                    "link": image.link,
-                    "alt": image.alt_text,
-                }
-                for image in self.images
-            ],
-            "metadata": self.metadata_json,
-        }
-
-    def to_dict(self):
-        return {
-            "product_name": self.name,
-            "product_id": self.id,
-            "product_thumbnail_link": self.thumbnail_url,
-            "product_genres": [genre.id for genre in self.genres],
+            "price_cents": self.price_cents,
+            "price": self.price,
+            "description": self.description,
+            "type": self.type,
+            "stock": stock,
+            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None,
             "product_images": [
                 {
                     "id": image.id,

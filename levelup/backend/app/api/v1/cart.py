@@ -33,7 +33,7 @@ def checkout():
             "session_id": session.id
         }), 200
     except ValueError as error:
-        abort(400, description=error)
+        abort(400, description=str(error))
 
 
 @v1_bp.route("/cart/items", methods=["POST"])
@@ -59,7 +59,7 @@ def add_cart():
             quantity
         ).to_dict(), 201
     except ValueError as error:
-        return abort(404, description=str(error))
+        return abort(400, description=str(error))
 
 
 @v1_bp.route("/cart/items/<string:product_id>", methods=["DELETE"])
