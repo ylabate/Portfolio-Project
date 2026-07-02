@@ -1,8 +1,11 @@
-from flask import request, abort
+from flask import request, abort, jsonify
 from flask_jwt_extended import jwt_required
 from app import db
+import secrets
 from app.models.user import User
 from app.utils.decorators import admin_required
+from app.models.inventory import InventoryItem
+from app.models.product import Product
 from . import v1_bp
 
 
@@ -76,3 +79,38 @@ def get_stats():
         "total_active": User.query.filter_by(is_active=True).count(),
         "total_inactive:": User.query.filter_by(is_active=False).count()
     }, 200
+
+@v1_bp.route("/admin/products/<uuid:product_id>/activation-keys",
+             methods=["POST"])
+@jwt_required()
+@admin_required
+def add_activation_key_to_product(product_id):
+    product = Product.query.get(str(product_id))
+    if not product:
+        abort(404, description="product not found")
+
+    data = request.get_json() or {}
+    activation_code = data.get("activation_code")
+
+    if activation_code:
+        if InventoryItem.query.filter_by(
+            activation_code=activation_code
+        ).first():
+            abort(409, description="activation_code already exists")
+    else:
+        while True:
+            activation_code = secrets.token_urlsafe(16)
+            if not InventoryItem.query.filter_by(
+                activation_code=activation_code
+            ).first():
+                break
+
+    activation_item = InventoryItem(
+        product_id=product.id,
+        activation_code=activation_code,
+        is_used=False
+    )
+    db.session.add(activation_item)
+    db.session.commit()
+
+    return jsonify({"activation_item": activation_item.to_dict()}), 201

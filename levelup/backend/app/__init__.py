@@ -17,11 +17,14 @@ mail = Mail()
 def create_app():
     load_dotenv()
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///levelup.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "SQLALCHEMY_DATABASE_URI", "sqlite:///levelup.db"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY",
-                                             "dev-jwt-secret-key")
+    app.config["JWT_SECRET_KEY"] = os.getenv(
+        "JWT_SECRET_KEY", "dev-jwt-secret-key"
+    )
 
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 587
@@ -35,13 +38,6 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
-
-    from app.models.token_blocklist import TokenBlocklist
-
-    @jwt.token_in_blocklist_loader
-    def check_if_token_revoked(jwt_header, jwt_payload):
-        jti = jwt_payload["jti"]
-        return TokenBlocklist.query.filter_by(jti=jti).first() is not None
 
     from app.models.token_blocklist import TokenBlocklist
 

@@ -1,0 +1,25 @@
+info:
+  name: admin_add_key
+  type: http
+  seq: 17
+
+http:
+  method: POST
+  url: 127.0.0.1:5000/api/v1/admin/products/{{product_id}}/activation-keys
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4Mjk5MjQ5OCwianRpIjoiZmI1ODM4OTgtY2Q3OS00NjRkLWJmNjEtNDRkODE5YjY2OTVjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsIm5iZiI6MTc4Mjk5MjQ5OCwiY3NyZiI6ImU2OTRlYzE1LWRkZGYtNDU4OS04Mjg2LTA2ODBhY2M3NWJjMSIsImV4cCI6MTc4Mjk5MzM5OCwiaXNfYWRtaW4iOnRydWV9.pHVilzBuKJOoCt1dnGb_jEsUxknhDOtWWer13GpOL-4
+
+runtime:
+  variables:
+    - name: product_id
+      value: 00000000-0000-0000-0000-000000000002
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
