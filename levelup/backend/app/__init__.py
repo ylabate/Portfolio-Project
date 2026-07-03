@@ -15,16 +15,14 @@ mail = Mail()
 
 
 def create_app():
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         "SQLALCHEMY_DATABASE_URI", "sqlite:///levelup.db"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
-    app.config["JWT_SECRET_KEY"] = os.getenv(
-        "JWT_SECRET_KEY", "dev-jwt-secret-key"
-    )
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key")
 
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 587
@@ -62,8 +60,6 @@ def create_app():
 
     @app.errorhandler(HTTPException)
     def handle_exception(e):
-        return jsonify({
-            "message": e.description
-        }), e.code
+        return jsonify({"message": e.description}), e.code
 
     return app

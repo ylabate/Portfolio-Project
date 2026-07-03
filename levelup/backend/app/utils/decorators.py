@@ -10,4 +10,5 @@ def admin_required(f):
         if not claims.get("is_admin"):
             abort(403, description="admin access required")
         return f(*args, **kwargs)
+
     return decorated

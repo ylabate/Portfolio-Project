@@ -22,9 +22,7 @@ class Repository:
         return self.model.query.all()
 
     def get_page(self, page_id, page_limit):
-        return self.model.query.paginate(
-            page=page_id,
-            per_page=page_limit).items
+        return self.model.query.paginate(page=page_id, per_page=page_limit).items
 
     def update(self, obj, data):
         for key, value in data.items():

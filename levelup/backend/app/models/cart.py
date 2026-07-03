@@ -4,28 +4,30 @@ from app.models.BaseModel import BaseModel
 
 
 class Cart(BaseModel):
-    __tablename__ = 'carts'
+    __tablename__ = "carts"
 
-    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-    items = db.relationship('CartItem', backref='cart', lazy=True, cascade="all, delete-orphan")
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    items = db.relationship(
+        "CartItem", backref="cart", lazy=True, cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "items": [item.to_dict() for item in self.items], #type: ignore
+            "items": [item.to_dict() for item in self.items],  # type: ignore
         }
 
 
 class CartItem(BaseModel):
-    __tablename__ = 'cart_items'
+    __tablename__ = "cart_items"
 
-    cart_id = db.Column(db.String(36), db.ForeignKey('carts.id'), nullable=False)
-    product_id = db.Column(db.String(36), db.ForeignKey('products.id'), nullable=False)
+    cart_id = db.Column(db.String(36), db.ForeignKey("carts.id"), nullable=False)
+    product_id = db.Column(db.String(36), db.ForeignKey("products.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    product = db.relationship('Product', lazy='joined')
+    product = db.relationship("Product", lazy="joined")
 
-    @validates('quantity')
+    @validates("quantity")
     def validate_quantity(self, key, value):
         if value <= 0:
             raise ValueError("Quantity must be greater than 0")
@@ -37,12 +39,18 @@ class CartItem(BaseModel):
         stock = 0
         if self.product:
             if self.product.images:
-                thumbnail = next((img for img in self.product.images if img.is_thumbnail), self.product.images[0])
+                thumbnail = next(
+                    (img for img in self.product.images if img.is_thumbnail),
+                    self.product.images[0],
+                )
             if self.product.genres:
                 genres = [{"id": g.id, "name": g.name} for g in self.product.genres]
             from app.models.inventory import InventoryItem
-            stock = InventoryItem.query.filter_by(product_id=self.product.id, is_used=False).count()
-        
+
+            stock = InventoryItem.query.filter_by(
+                product_id=self.product.id, is_used=False
+            ).count()
+
         return {
             "id": self.id,
             "product_id": self.product_id,
@@ -53,5 +61,9 @@ class CartItem(BaseModel):
             "product_thumbnail_alt": thumbnail.alt_text if thumbnail else None,
             "product_genres": genres if genres else None,
             "stock": stock,
-            "steam_appid": self.product.metadata_json.get("steam_appid") if (self.product and self.product.metadata_json) else None
+            "steam_appid": (
+                self.product.metadata_json.get("steam_appid")
+                if (self.product and self.product.metadata_json)
+                else None
+            ),
         }

@@ -7,7 +7,6 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = User
         sqlalchemy_session = None
 
-    username = factory.Faker('user_name')
-    email = factory.Faker('email')
-    password = 'password123'  # Solid password for testing
-
+    username = factory.Faker("user_name")
+    email = factory.Faker("email")
+    password = "password123"  # Solid password for testing

@@ -10,8 +10,8 @@ inventory_service = InventoryService()
 @jwt_required()
 def get_inventory():
     user_id = get_jwt_identity()
-    page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 10, type=int)
+    page = request.args.get("page", 1, type=int)
+    limit = request.args.get("limit", 10, type=int)
 
     try:
         items = inventory_service.get_inventory(user_id, page=page, limit=limit)

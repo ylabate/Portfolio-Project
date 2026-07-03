@@ -33,6 +33,8 @@ export default function GameDetailsPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [clickFeedback, setClickFeedback] = useState(null);
+  const [keyQuantity, setKeyQuantity] = useState(1);
+  const [generatingKeys, setGeneratingKeys] = useState(false);
 
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -236,6 +238,45 @@ export default function GameDetailsPage() {
   };
 
   // Load hls.js library for cross-browser HLS stream support (.m3u8)
+
+  const handleGenerateKeys = async () => {
+    if (!user?.is_admin) return;
+    const quantity = Number(keyQuantity);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      success('Please choose a valid quantity greater than 0.');
+      return;
+    }
+
+    setGeneratingKeys(true);
+    try {
+      const { data } = await api.post(`/admin/products/${product.product_id}/activation-keys`, {
+        quantity,
+      });
+      const generated = data?.activation_items?.length ?? 0;
+      success(`${generated} activation key${generated > 1 ? 's' : ''} generated.`);
+    } catch (err) {
+      // Global interceptor handles the toast.
+    }
+    setGeneratingKeys(false);
+  };
+
+  const handleEditProduct = () => {
+    if (!user?.is_admin) return;
+    navigate(`/admin?section=products&product=${product.product_id}`);
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!user?.is_admin) return;
+    if (!window.confirm(`Delete ${product.product_name} from the store?`)) return;
+
+    try {
+      await api.delete(`/products/${product.product_id}`);
+      success(`${product.product_name} deleted.`);
+      navigate('/');
+    } catch (err) {
+      // Global interceptor handles the toast.
+    }
+  };
   useEffect(() => {
     if (window.Hls) {
       setHlsLoaded(true);
@@ -566,28 +607,72 @@ export default function GameDetailsPage() {
             <div style={{ marginBottom: 16 }}>
               <span style={{ fontSize: '0.9rem', color: product.stock === 0 ? 'var(--text-danger)' : 'var(--text-secondary)' }}>
                 {product.stock === 0 ? (
-                  <strong>En rupture de stock</strong>
+                  <strong>Out of stock</strong>
                 ) : product.stock > 9 ? (
-                  <strong>En stock</strong>
+                  <strong>In stock</strong>
                 ) : (
-                  <>Stock disponible : <strong>{product.stock} {product.stock > 1 ? 'clés' : 'clé'}</strong></>
+                  <>Available stock: <strong>{product.stock} {product.stock > 1 ? 'keys' : 'key'}</strong></>
                 )}
               </span>
             </div>
 
-            <button 
-              className="btn btn-primary add-to-cart-large" 
+            <button
+              className="btn btn-primary add-to-cart-large"
               onClick={handleAddToCart}
               disabled={adding || product.stock === 0}
               style={product.stock === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
-              <ShoppingCart size={20} /> {product.stock === 0 ? 'En rupture de stock' : adding ? 'Adding...' : 'Add to Cart'}
+              <ShoppingCart size={20} /> {product.stock === 0 ? 'Out of stock' : adding ? 'Adding...' : 'Add to Cart'}
             </button>
 
             <div className="delivery-info">
               <Info size={16} />
               <span>Instant digital delivery upon successful checkout. Check your inventory page.</span>
             </div>
+
+            {user?.is_admin && (
+              <div className="admin-key-generator">
+                <div className="admin-key-generator-head">
+                  <div>
+                    <h3>Admin key generation</h3>
+                    <p>Generate activation keys directly for this product.</p>
+                  </div>
+                </div>
+
+                <div className="admin-key-generator-row">
+                  <label className="form-group admin-key-generator-field">
+                    <span className="form-label">Quantity</span>
+                    <input
+                      className="form-input"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={keyQuantity}
+                      onChange={(e) => setKeyQuantity(e.target.value)}
+                    />
+                  </label>
+
+                  <button
+                    className="btn btn-secondary admin-key-generator-btn"
+                    onClick={handleGenerateKeys}
+                    disabled={generatingKeys}
+                  >
+                    {generatingKeys ? 'Generating...' : 'Generate keys'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {user?.is_admin && (
+              <div className="admin-product-actions">
+                <button className="btn btn-secondary" onClick={handleEditProduct}>
+                  Edit game
+                </button>
+                <button className="btn btn-danger" onClick={handleDeleteProduct}>
+                  Delete game
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

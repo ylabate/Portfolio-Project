@@ -118,7 +118,7 @@ export default function CartPage() {
             </div>
             {items.some(i => i.quantity > (i.stock ?? 0)) && (
               <div className="alert alert-error" style={{ fontSize: '0.85rem', padding: '8px 12px', marginBottom: 12 }}>
-                Certains articles dépassent le stock disponible. Veuillez ajuster les quantités.
+                Some items exceed available stock. Please adjust quantities.
               </div>
             )}
             <button 

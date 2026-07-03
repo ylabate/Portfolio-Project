@@ -8,6 +8,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
 
   useEffect(() => {
     api.get('/orders').then(({ data }) => {
@@ -21,6 +22,19 @@ export default function OrdersPage() {
       ...prev,
       [orderId]: !prev[orderId]
     }));
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Cancel this order?')) return;
+    setCancellingOrderId(orderId);
+    try {
+      await api.patch(`/orders/${orderId}`, { payment_status: 'cancelled' });
+      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, payment_status: 'cancelled' } : o));
+    } catch (err) {
+      alert(err.response?.data?.description ?? 'Unable to cancel the order');
+    } finally {
+      setCancellingOrderId(null);
+    }
   };
 
   if (loading) return <div className="page"><div className="loading-center"><div className="spinner" /></div></div>;
@@ -54,6 +68,21 @@ export default function OrdersPage() {
                         <span className="meta-sub-item">
                           <Calendar size={12} /> {order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
                         </span>
+                        <span className={`order-status-badge order-status-${order.payment_status || 'pending'}`}>
+                          {order.payment_status === 'paid' ? 'Paid' : order.payment_status === 'pending' ? 'Pending' : order.payment_status || 'Pending'}
+                        </span>
+                        {order.payment_status === 'pending' && (
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelOrder(order.id);
+                            }}
+                            disabled={cancellingOrderId === order.id}
+                          >
+                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                          </button>
+                        )}
                         <span className="meta-sub-item">• {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
                       </div>
                     </div>
