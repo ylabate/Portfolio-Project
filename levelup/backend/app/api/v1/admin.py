@@ -72,6 +72,12 @@ def delete_user(user_id):
     user = User.query.get(str(user_id))
     if not user:
         abort(404, description="user not found")
+    user.reviews.delete(synchronize_session=False)
+    user.transactions.delete(synchronize_session=False)
+    user.orders.delete(synchronize_session=False)
+    user.inventory_items.delete(synchronize_session=False)
+    if user.cart:
+        db.session.delete(user.cart)
     db.session.delete(user)
     db.session.commit()
     return {"message": "user deleted"}, 200

@@ -5,7 +5,7 @@ from app.models.BaseModel import BaseModel
 class Transaction(BaseModel):
     __tablename__ = "transactions"
 
-    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     amount_cents = db.Column(db.Integer, nullable=False)
     type = db.Column(db.String(50), nullable=False)
     reference_id = db.Column(db.String(36), nullable=True)

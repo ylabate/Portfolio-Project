@@ -6,7 +6,7 @@ from app.models.BaseModel import BaseModel
 class Cart(BaseModel):
     __tablename__ = "carts"
 
-    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     items = db.relationship(
         "CartItem", backref="cart", lazy=True, cascade="all, delete-orphan"
     )
