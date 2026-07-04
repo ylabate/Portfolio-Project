@@ -1,5 +1,6 @@
+import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 
 from flask import request, jsonify, abort
 from flask_jwt_extended import (
@@ -7,7 +8,7 @@ from flask_jwt_extended import (
     create_refresh_token,
     jwt_required,
     get_jwt_identity,
-    get_jwt
+    get_jwt,
 )
 from flask_mail import Message
 from app import db, mail
@@ -46,21 +47,25 @@ def register():
         abort(400, description=str(exc))
 
     access_token = create_access_token(
-        identity=str(user.id),
-        additional_claims={"is_admin": user.is_admin}
+        identity=str(user.id), additional_claims={"is_admin": user.is_admin}
     )
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    return jsonify({
-        "message": "user created successfully",
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-    }), 201
+    return (
+        jsonify(
+            {
+                "message": "user created successfully",
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+            }
+        ),
+        201,
+    )
 
 
 @v1_bp.route("/auth/login", methods=["POST"])
@@ -78,21 +83,25 @@ def login():
         abort(401, description="invalid credentials")
 
     access_token = create_access_token(
-        identity=str(user.id),
-        additional_claims={"is_admin": user.is_admin}
+        identity=str(user.id), additional_claims={"is_admin": user.is_admin}
     )
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    return jsonify({
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "user": {
-            "message": "log with succes",
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-    }), 200
+    return (
+        jsonify(
+            {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": {
+                    "message": "log with succes",
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+            }
+        ),
+        200,
+    )
 
 
 @v1_bp.route("/auth/logout", methods=["DELETE"])
@@ -108,7 +117,11 @@ def logout():
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
-    new_access_token = create_access_token(identity=identity)
+    user = User.query.get(identity)
+    new_access_token = create_access_token(
+        identity=identity,
+        additional_claims={"is_admin": user.is_admin if user else False},
+    )
     return jsonify({"access_token": new_access_token}), 200
 
 
@@ -123,28 +136,38 @@ def forgot_password():
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        return jsonify({
-            "message": "if this email exists, a reset link has been sent"
-            }), 200
+        return (
+            jsonify(
+                {"message": "if this email exists, a reset link has been sent"}
+            ),
+            200,
+        )
 
     reset = PasswordReset(user_id=user.id)
     db.session.add(reset)
     db.session.commit()
 
-    reset_url = f"http://localhost:3000/reset-password?token={reset.token}"
+    reset_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/reset-password?token={reset.token}"
     message = Message(
         subject="Reset your password",
         recipients=[user.email],
         html=(
             f"<p>Click <a href='{reset_url}'>here</a> to reset your "
             "password. This link expires in 30 minutes.</p>"
-        )
+        ),
     )
-    mail.send(message)
+    try:
+        mail.send(message)
+    except Exception as exc:
+        print(f"[MAIL ERROR] {exc}", flush=True)
+        abort(500, description="unable to send reset email")
 
-    return jsonify({
-        "message": "if this email exists, a reset link has been sent"
-        }), 200
+    return (
+        jsonify(
+            {"message": "if this email exists, a reset link has been sent"}
+        ),
+        200,
+    )
 
 
 @v1_bp.route("/auth/reset-password", methods=["POST"])

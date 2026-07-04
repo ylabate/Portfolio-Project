@@ -4,6 +4,7 @@ from factories.user_factory import UserFactory
 from factories.product_factory import ProductFactory
 from app.models.inventory import UserInventory
 
+
 def test_get_inventory(app, db_session):
     test_user = UserFactory()
     test_product = ProductFactory()
@@ -18,10 +19,11 @@ def test_get_inventory(app, db_session):
 
     service = InventoryService()
     inventory = service.get_inventory(test_user.id)
-    
+
     assert len(inventory) == 1
     assert inventory[0].user_id == test_user.id
     assert inventory[0].product_id == test_product.id
+
 
 def test_get_inventory_invalid_user(app, db_session):
     service = InventoryService()

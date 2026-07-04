@@ -28,10 +28,7 @@ def checkout():
     try:
         session = payment_service.prepare_checkout(user_id)
 
-        return jsonify({
-            "checkout_url": session.url,
-            "session_id": session.id
-        }), 200
+        return jsonify({"checkout_url": session.url, "session_id": session.id}), 200
     except ValueError as error:
         abort(400, description=str(error))
 
@@ -53,11 +50,7 @@ def add_cart():
     user_id = get_jwt_identity()
 
     try:
-        return cart_service.add_to_cart(
-            user_id,
-            product_id,
-            quantity
-        ).to_dict(), 201
+        return cart_service.add_to_cart(user_id, product_id, quantity).to_dict(), 201
     except ValueError as error:
         return abort(400, description=str(error))
 
@@ -67,12 +60,8 @@ def add_cart():
 def remove_from_cart(product_id):
     user_id = get_jwt_identity()
 
-    quantity_str = request.args.get('quantity')
-    quantity = (
-        int(quantity_str)
-        if quantity_str and quantity_str.isdigit()
-        else None
-    )
+    quantity_str = request.args.get("quantity")
+    quantity = int(quantity_str) if quantity_str and quantity_str.isdigit() else None
 
     cart = cart_service.remove_from_cart(user_id, product_id, quantity)
     if cart is None:

@@ -46,7 +46,7 @@ export default function ProductCard({ product, genresMap = {} }) {
               : '—'}
           </span>
           <span className={`card-stock-badge ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}>
-            {product.stock === 0 ? 'Rupture' : product.stock > 9 ? 'En stock' : `${product.stock} en stock`}
+            {product.stock === 0 ? 'Out of stock' : product.stock > 9 ? 'In stock' : `${product.stock} in stock`}
           </span>
         </div>
       </div>

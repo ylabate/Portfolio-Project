@@ -91,11 +91,10 @@ export default function StorePage() {
           </h1>
           <p>Discover, buy &amp; activate thousands of game keys instantly. Best prices guaranteed.</p>
           <div className="hero-cta">
-            <a href="#store" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Gamepad2 size={16} /> Explore Games
-            </a>
-            <a href="#store" className="btn btn-secondary">View All</a>
-          </div>
+              <a href="#store" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <Gamepad2 size={16} /> Explore Games
+              </a>
+            </div>
         </div>
       </section>
 

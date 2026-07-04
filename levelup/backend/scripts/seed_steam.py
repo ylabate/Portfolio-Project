@@ -2,34 +2,23 @@ import sys
 import os
 import requests
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.config import STEAM_API_BASE_URL
 from app.models import Product, Genre, ProductImage
 from app import create_app, db
 
-
 STEAM_GAMES = [
-    {"appid": 292030,  "name": "The Witcher 3: Wild Hunt",
-        "genres": ["RPG", "Action"]},
-    {"appid": 1245620, "name": "Elden Ring",
-        "genres": ["RPG", "Action"]},
-    {"appid": 1174180, "name": "Red Dead Redemption 2",
-        "genres": ["Action"]},
-    {"appid": 271590,  "name": "GTA V",
-        "genres": ["Action"]},
-    {"appid": 990080,  "name": "Hogwarts Legacy",
-        "genres": ["RPG", "Action"]},
-    {"appid": 1091500, "name": "Cyberpunk 2077",
-        "genres": ["RPG", "Action"]},
-    {"appid": 1593500, "name": "God of War",
-        "genres": ["Action"]},
-    {"appid": 1817070, "name": "Marvel's Spider-Man Remastered",
-        "genres": ["Action"]},
-    {"appid": 1086940, "name": "Baldur's Gate 3",
-        "genres": ["RPG", "Strategy"]},
-    {"appid": 1190460, "name": "Death Stranding",
-        "genres": ["Action", "Indie"]},
+    {"appid": 292030, "name": "The Witcher 3: Wild Hunt", "genres": ["RPG", "Action"]},
+    {"appid": 1245620, "name": "Elden Ring", "genres": ["RPG", "Action"]},
+    {"appid": 1174180, "name": "Red Dead Redemption 2", "genres": ["Action"]},
+    {"appid": 271590, "name": "GTA V", "genres": ["Action"]},
+    {"appid": 990080, "name": "Hogwarts Legacy", "genres": ["RPG", "Action"]},
+    {"appid": 1091500, "name": "Cyberpunk 2077", "genres": ["RPG", "Action"]},
+    {"appid": 1593500, "name": "God of War", "genres": ["Action"]},
+    {"appid": 1817070, "name": "Marvel's Spider-Man Remastered", "genres": ["Action"]},
+    {"appid": 1086940, "name": "Baldur's Gate 3", "genres": ["RPG", "Strategy"]},
+    {"appid": 1190460, "name": "Death Stranding", "genres": ["Action", "Indie"]},
 ]
 
 
@@ -73,10 +62,8 @@ def seed_steam():
             # Prix
             price_data = steam_data.get("price_overview")
             price = price_data["final"] / 100.0 if price_data else 19.99
-            initial_price = price_data["initial"] / \
-                100.0 if price_data else price
-            discount_percent = price_data["discount_percent"] \
-                if price_data else 0
+            initial_price = price_data["initial"] / 100.0 if price_data else price
+            discount_percent = price_data["discount_percent"] if price_data else 0
 
             # Description
             description = steam_data.get("short_description", "")
@@ -99,8 +86,8 @@ def seed_steam():
                     "initial_price": initial_price,
                     "discount_percent": discount_percent,
                     "pc_requirements_min": pc_requirements.get("minimum", ""),
-                    "pc_requirements_rec": pc_requirements.get("recommended", "")
-                }
+                    "pc_requirements_rec": pc_requirements.get("recommended", ""),
+                },
             )
 
             # Genres
@@ -120,7 +107,7 @@ def seed_steam():
                     product_id=product.id,
                     link=thumbnail,
                     alt_text=f"{game['name']} cover",
-                    is_thumbnail=True
+                    is_thumbnail=True,
                 )
                 db.session.add(image)
 

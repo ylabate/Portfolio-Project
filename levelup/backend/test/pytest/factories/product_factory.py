@@ -7,7 +7,7 @@ class ProductFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = Product
         sqlalchemy_session = None
 
-    name = factory.Faker('sentence', nb_words=3)
-    type = 'key'
+    name = factory.Faker("sentence", nb_words=3)
+    type = "key"
     price = 19.99
-    description = factory.Faker('paragraph')
+    description = factory.Faker("paragraph")

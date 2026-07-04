@@ -63,6 +63,7 @@ def test_add_invalid_product_to_cart(app, db_session):
 
     service = CartService()
     import pytest
+
     with pytest.raises(ValueError, match="Product with id invalid_id not found"):
         service.add_to_cart(test_user.id, "invalid_id", 1)
 
@@ -77,7 +78,10 @@ def test_add_inactive_product_to_cart(app, db_session):
 
     service = CartService()
     import pytest
-    with pytest.raises(ValueError, match=f"Product with id {test_product.id} is not active"):
+
+    with pytest.raises(
+        ValueError, match=f"Product with id {test_product.id} is not active"
+    ):
         service.add_to_cart(test_user.id, test_product.id, 1)
 
 
@@ -91,12 +95,12 @@ def test_remove_from_cart_service(app, db_session):
 
     service = CartService()
     service.add_to_cart(test_user.id, test_product.id, 2)
-    
+
     # Remove 1 quantity
     cart = service.remove_from_cart(test_user.id, test_product.id, quantity=1)
     assert len(cart.items) == 1
     assert cart.items[0].quantity == 1
-    
+
     # Remove full item
     cart = service.remove_from_cart(test_user.id, test_product.id)
     assert len(cart.items) == 0
