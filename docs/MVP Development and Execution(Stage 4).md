@@ -38,7 +38,7 @@ Organize team contributions into short cycles, each with explicit goals and assi
 
 ### Sprint Framework
 
-- **Timeframe:** 1 week per cycle.
+- **Timeframe:** ~1-2 week per cycle.
 - **Tools:** GitHub (versioning), Discord (communication and task tracking), Bruno (API verification).
 - **Roles:**
   - **Backend Engineer:** Flask, SQLAlchemy, JWT, Stripe.
