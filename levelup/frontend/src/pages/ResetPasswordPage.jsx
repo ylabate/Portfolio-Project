@@ -8,14 +8,14 @@ export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
   const navigate = useNavigate();
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!password.trim() || password.length < 8) {
-      alert('Password must be at least 8 characters');
+      error('Password must be at least 8 characters');
       return;
     }
     setLoading(true);
@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
       navigate('/login');
     } catch (err) {
       const msg = err.response?.data?.description ?? err.response?.data?.message ?? 'Unable to reset password';
-      alert(msg);
+      error(msg);
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import api from "../api/client";
+import { triggerToast } from "../context/ToastContext";
 
 interface Product {
     product_id: string;
@@ -110,10 +111,10 @@ function ProductDetailPage() {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             })
-            alert("Jeu ajouté au panier !")
+            triggerToast("Jeu ajouté au panier !", "success");
         } catch (error) {
-            console.error("Erreur ajout panier:", error)
-            alert("Erreur lors de l'ajout au panier")
+            console.error("Erreur ajout panier:", error);
+            triggerToast("Erreur lors de l'ajout au panier", "error");
         }
     }
     return (

@@ -5,7 +5,7 @@ import { Zap } from 'lucide-react';
 import api from '../api';
 
 export default function ForgotPasswordPage() {
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
       success('If this email exists, a reset link has been sent');
     } catch (err) {
       const msg = err.response?.data?.description ?? err.response?.data?.message ?? 'Unable to send reset link';
-      alert(msg);
+      error(msg);
     } finally {
       setLoading(false);
     }

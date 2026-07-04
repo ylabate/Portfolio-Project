@@ -31,7 +31,9 @@ export default function OrdersPage() {
       await api.patch(`/orders/${orderId}`, { payment_status: 'cancelled' });
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, payment_status: 'cancelled' } : o));
     } catch (err) {
-      alert(err.response?.data?.description ?? 'Unable to cancel the order');
+      import('../context/ToastContext.jsx').then(({ triggerToast }) => {
+        triggerToast(err.response?.data?.description ?? 'Unable to cancel the order', 'error');
+      });
     } finally {
       setCancellingOrderId(null);
     }

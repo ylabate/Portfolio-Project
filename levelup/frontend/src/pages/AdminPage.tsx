@@ -3,6 +3,7 @@ import { createPortal } from "react-dom"
 import { useLocation, useNavigate } from "react-router-dom"
 import api from "../api/client"
 import Navbar from "../components/Navbar"
+import { useToast } from "../context/ToastContext"
 
 interface AdminUser {
     id: string
@@ -90,11 +91,19 @@ const parseNumberInput = (value: string) => {
     return Number.isFinite(parsed) ? value : ""
 }
 
+const getErrorMessage = (error: any, fallback: string) => {
+    return error?.response?.data?.description ?? 
+           error?.response?.data?.error ?? 
+           error?.response?.data?.message ?? 
+           fallback;
+}
+
 function getAuthToken() {
     return localStorage.getItem("access_token") || localStorage.getItem("token")
 }
 
 function AdminPage() {
+    const { success, error: showToastError } = useToast() as any
     const location = useLocation()
     const navigate = useNavigate()
     const [users, setUsers] = useState<AdminUser[]>([])
@@ -283,7 +292,7 @@ function AdminPage() {
         }
 
         if (!userForm.username.trim() || !userForm.email.trim()) {
-            alert("Username and email are required")
+            showToastError("Username and email are required")
             return
         }
 
@@ -305,7 +314,7 @@ function AdminPage() {
             setSelectedUserId(null)
         } catch (requestError) {
             console.error("Error updating user:", requestError)
-            alert("Unable to update the user")
+            showToastError(getErrorMessage(requestError, "Unable to update the user"))
         } finally {
             setSavingUserId(null)
         }
@@ -324,7 +333,7 @@ function AdminPage() {
             }
         } catch (requestError) {
             console.error("Error deleting user:", requestError)
-            alert("Unable to delete the user")
+            showToastError(getErrorMessage(requestError, "Unable to delete the user"))
         }
     }
 
@@ -352,15 +361,7 @@ function AdminPage() {
         setSelectedProductId(null)
     }
 
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
-    useEffect(() => {
-        if (!toast) {
-            return
-        }
-        const timer = setTimeout(() => setToast(null), 3000)
-        return () => clearTimeout(timer)
-    }, [toast])
 
     const [productCreateOpen, setProductCreateOpen] = useState(false)
 
@@ -370,18 +371,18 @@ function AdminPage() {
         }
 
         if (!productForm.product_name.trim()) {
-            alert("Product name is required")
+            showToastError("Product name is required")
             return
         }
 
         if (!productForm.price.trim()) {
-            alert("Price is required")
+            showToastError("Price is required")
             return
         }
 
         const priceValue = Number(productForm.price)
         if (!Number.isFinite(priceValue) || priceValue < 0) {
-            alert("Price must be a valid positive number")
+            showToastError("Price must be a valid positive number")
             return
         }
 
@@ -431,7 +432,7 @@ function AdminPage() {
             setSelectedProductId(null)
         } catch (requestError) {
             console.error("Error updating product:", requestError)
-            alert("Unable to update the product")
+            showToastError(getErrorMessage(requestError, "Unable to update the product"))
         } finally {
             setSavingProductId(null)
         }
@@ -451,13 +452,13 @@ function AdminPage() {
             }
         } catch (requestError) {
             console.error("Error deleting product:", requestError)
-            alert("Unable to delete the product")
+            showToastError(getErrorMessage(requestError, "Unable to delete the product"))
         }
     }
 
     const handleGenerateActivationKey = async () => {
         if (!activationForm.product_id.trim()) {
-            alert("product_id is required")
+            showToastError("Product ID is required")
             return
         }
 
@@ -483,16 +484,13 @@ function AdminPage() {
 
             const activationItem = response.data?.activation_item
             setActivationForm(emptyActivationForm)
-            setToast({
-                message: activationItem?.activation_code
-                    ? `Key created: ${activationItem.activation_code}`
-                    : "Key created successfully",
-                type: 'success',
-            })
+            success(activationItem?.activation_code
+                ? `Key created: ${activationItem.activation_code}`
+                : "Key created successfully")
             await refreshDashboard()
         } catch (requestError) {
             console.error("Error generating activation key:", requestError)
-            setToast({ message: 'Unable to generate the activation key', type: 'error' })
+            showToastError(getErrorMessage(requestError, "Unable to generate the activation key"))
         } finally {
             setActivationLoading(false)
         }
@@ -501,13 +499,13 @@ function AdminPage() {
     const loadSteamProduct = async () => {
         const steamAppId = productForm.steam_appid.trim()
         if (!steamAppId) {
-            alert("Steam appid is required")
+            showToastError("Steam appid is required")
             return
         }
 
         const steamAppIdNumber = Number(steamAppId)
         if (!Number.isInteger(steamAppIdNumber) || steamAppIdNumber < 1) {
-            alert("Steam appid must be a valid number")
+            showToastError("Steam appid must be a valid number")
             return
         }
 
@@ -544,10 +542,10 @@ function AdminPage() {
                 })).filter((image: ProductImageState) => Boolean(image.link)),
             }))
 
-            setToast({ message: `Loaded ${steamData.name ?? "Steam game"} from Steam.`, type: "success" })
+            success(`Loaded ${steamData.name ?? "Steam game"} from Steam.`)
         } catch (requestError) {
             console.error("Error loading Steam product:", requestError)
-            alert("Unable to load this Steam game. Double-check the appid.")
+            showToastError("Unable to load this Steam game. Double-check the appid.")
         } finally {
             setSteamLoading(false)
         }
@@ -564,12 +562,12 @@ function AdminPage() {
 
     const handleCreateProduct = async () => {
         if (!productForm.product_name.trim()) {
-            alert("Product name is required")
+            showToastError("Product name is required")
             return
         }
 
         if (!productForm.steam_appid.trim()) {
-            alert("Steam appid is required")
+            showToastError("Steam appid is required")
             return
         }
 
@@ -588,12 +586,12 @@ function AdminPage() {
             }
 
             if (!productForm.price.trim()) {
-                alert("Price is required")
+                showToastError("Price is required")
                 return
             }
 
             if (!Number.isFinite(Number(productForm.price)) || Number(productForm.price) <= 0) {
-                alert("Price must be a valid positive number greater than 0")
+                showToastError("Price must be a valid positive number greater than 0")
                 return
             }
 
@@ -601,11 +599,11 @@ function AdminPage() {
 
             setProductForm(emptyProductForm)
             setProductCreateOpen(false)
-            setToast({ message: `${payload.product_name} was added to the store.`, type: 'success' })
+            success(`${payload.product_name} was added to the store.`)
             await refreshDashboard()
         } catch (requestError) {
             console.error("Error creating product:", requestError)
-            setToast({ message: 'Unable to create the product', type: 'error' })
+            showToastError(getErrorMessage(requestError, "Unable to create the product"))
         } finally {
             setProductSaving(false)
         }
@@ -625,7 +623,7 @@ function AdminPage() {
                         <button
                             onClick={() => refreshDashboard().catch((requestError) => {
                                 console.error("Error refreshing dashboard:", requestError)
-                                alert("Unable to refresh the dashboard")
+                                showToastError(getErrorMessage(requestError, "Unable to refresh the dashboard"))
                             })}
                             className="btn btn-secondary btn-sm"
                         >
@@ -1164,7 +1162,7 @@ function AdminPage() {
                                             <div className="admin-panel-header">
                                                 <div>
                                                     <h2 className="section-title">Activation key</h2>
-                                                    <p className="section-subtitle">POST /admin/products/:product_id/activation-keys</p>
+                                                    <p className="section-subtitle">Generate a new activation key for a game</p>
                                                 </div>
                                             </div>
 
@@ -1205,12 +1203,6 @@ function AdminPage() {
                     </div>
                 </section>
 
-                {toast && createPortal(
-                    <div className={`admin-toast admin-toast-${toast.type}`}>
-                        {toast.message}
-                    </div>,
-                    document.body
-                )}
             </div>
 
         )
