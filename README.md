@@ -16,6 +16,7 @@ make dev
 ```
 
 Then open:
+
 - Frontend: http://localhost:5173
 - API: http://localhost:5000/api/v1
 
@@ -56,11 +57,11 @@ MAIL_PASSWORD="your-app-password"
 
 ## Make Commands
 
-| Command | Description |
-|---------|-------------|
-| `make dev` | Start backend and frontend in development mode |
-| `make showcase` | Start with showcase mode (pre-seeded data) |
-| `make kill` | Stop containers and remove volumes |
+| Command           | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| `make dev`      | Start backend and frontend in development mode |
+| `make showcase` | Start with showcase mode (pre-seeded data)     |
+| `make kill`     | Stop containers and remove volumes             |
 
 ## Frontend Scripts
 
@@ -84,6 +85,200 @@ npm run preview  # Preview production build
 - `POST /api/v1/cart/checkout` — create Stripe checkout session
 - `GET /api/v1/orders` — order history
 - `POST /api/v1/admin/products/<id>/activation-keys` — generate keys (admin)
+
+## Architecture
+
+### Backend
+
+LevelUp follows a layered Flask architecture:
+
+- **App factory** — `create_app()` in `app/__init__.py` initializes extensions (SQLAlchemy, Bcrypt, JWT, Mail) and registers the API blueprint.
+- **API layer** — `app/api/v1/` contains route blueprints (auth, products, cart, orders, payments, inventory, admin, users).
+- **Service layer** — `app/services/` holds business logic (cart, inventory, order, payment, and Stripe integration).
+- **Persistence layer** — `app/persistence/repository.py` implements the repository pattern with a base `Repository` class and specialized repositories (User, Product, Order, etc.).
+- **Models** — `app/models/` defines SQLAlchemy entities and their relationships.
+
+### Frontend
+
+The frontend is a React SPA built with Vite and React Router:
+
+- **API client** — `src/api/` centralizes Axios calls and interceptors (JWT injection, error handling).
+- **Context** — `src/context/` provides React contexts (e.g., `AuthContext`).
+- **Pages** — `src/pages/` contains route-level views (Catalogue, Product Page, Cart, Login, Admin).
+- **Components** — `src/components/` holds reusable UI blocks (cards, forms, modals, admin modules).
+
+### Data Flow
+
+```
+Browser
+  │
+  ▼
+React Router
+  │
+  ├─► Context (Auth)
+  │
+  ├─► API Client (Axios + JWT)
+  │     │
+  │     ▼
+  │   Flask API (v1)
+  │     │
+  │     ├─► Routes (views)
+  │     │     │
+  │     │     ▼
+  │     │   Services (business logic)
+  │     │     │
+  │     │     ▼
+  │     │   Repository (CRUD)
+  │     │     │
+  │     │     ▼
+  │     │   SQLAlchemy Models
+  │     │     │
+  │     │     ▼
+  │     │   SQLite / PostgreSQL
+  │     │
+  │     └─► Stripe Webhook / Session
+  │
+  └─► UI components (render state)
+```
+
+## Database Diagram
+
+```mermaid
+erDiagram
+    users ||--o| carts : has
+    users ||--o{ orders : places
+    users ||--o{ transactions : records
+    users ||--o{ reviews : writes
+    users ||--o{ user_inventories : owns
+
+    products ||--o{ cart_items : "added to"
+    products ||--o{ order_items : "contained in"
+    products ||--o{ reviews : "receives"
+    products ||--o{ product_images : "has"
+    products ||--o{ inventory_items : "provides"
+    products ||--o{ user_inventories : "owned in"
+
+    products }|--|| genres : classified_by
+    products }|--|{ genres : "via product_genres"
+
+    carts ||--o{ cart_items : contains
+    orders ||--o{ order_items : includes
+
+    inventory_items ||--o| user_inventories : "linked to"
+    inventory_items ||--|| user_inventories : "owned via"
+
+    users {
+        string id PK
+        string username UK
+        string email UK
+        string password_hash
+        string profile_picture_url
+        boolean is_admin
+        boolean is_active
+    }
+
+    carts {
+        string id PK
+        string user_id FK
+    }
+
+    cart_items {
+        string id PK
+        string cart_id FK
+        string product_id FK
+        int quantity
+    }
+
+    products {
+        string id PK
+        string type
+        string name
+        text description
+        int price_cents
+        boolean is_active
+        json metadata_json
+    }
+
+    genres {
+        string id PK
+        string name UK
+    }
+
+    product_genres {
+        string product_id FK
+        string genre_id FK
+    }
+
+    product_images {
+        string id PK
+        string product_id FK
+        string link
+        string alt_text
+        boolean is_thumbnail
+    }
+
+    orders {
+        string id PK
+        string user_id FK
+        int total_cents
+        datetime created_at
+        datetime updated_at
+    }
+
+    order_items {
+        string id PK
+        string order_id FK
+        string product_id FK
+        int quantity
+        int price_at_purchase_cents
+    }
+
+    inventory_items {
+        string id PK
+        string product_id FK
+        string activation_code
+        boolean is_used
+        datetime used_at
+    }
+
+    user_inventories {
+        string id PK
+        string user_id FK
+        string product_id FK
+        string inventory_item_id FK
+        string state
+    }
+
+    reviews {
+        string id PK
+        string user_id FK
+        string product_id FK
+        text text
+        int rating
+    }
+
+    transactions {
+        string id PK
+        string user_id FK
+        int amount_cents
+        string type
+        string reference_id
+    }
+
+    password_resets {
+        int id PK
+        string user_id
+        string token UK
+        datetime expires_at
+        boolean used
+    }
+
+    token_blocklist {
+        int id PK
+        string jti
+        datetime created_at
+    }
+```
 
 ## License
 

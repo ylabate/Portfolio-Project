@@ -51,25 +51,31 @@ This documentation aims to provide a clear and structured vision for the MVP dev
 
 ```mermaid
 flowchart LR
- subgraph frontend["Frontend"]
-        webapp["React WebApp"]
-  end
- subgraph backend["Backend Python flask"]
-        api["API"]
-        facade["Facade"]
-        Models["Business Models"]
-  end
- subgraph database["Database"]
-        sqlite[("SQLite database")]
-  end
- subgraph external["External Services"]
-        stripe["Stripe"]
-  end
-    webapp -- https --> api
-    api --> facade
-    api -- https --> stripe
-    facade --> Models
-    facade -- SQLAlchemy --> sqlite
+     subgraph frontend["Frontend"]
+            webapp["React + Vite + React Router"]
+            apiclient["Axios API Client"]
+            context["AuthContext"]
+    end
+     subgraph backend["Backend Python Flask"]
+            api["API Routes (v1)"]
+            services["Service Layer"]
+            repo["Repository Layer"]
+            models["SQLAlchemy Models"]
+      end
+     subgraph database["Database"]
+            sqlite[("SQLite / SQLAlchemy")]
+    end
+     subgraph external["External Services"]
+            stripe["Stripe"]
+            mail["SMTP / Flask-Mail"]
+    end
+       webapp -- https --> api
+       api --> services
+       api -- https --> stripe
+       api --> mail
+       services --> repo
+       repo -- ORM --> models
+       models --> sqlite
 ```
 
 ## 2 Components, Classes and Database design
@@ -80,17 +86,18 @@ This table summarizes the pages and components to define the UI scope and clarif
 
 | Component / Page   | Type        | Purpose                                                                 |
 |--------------------|-------------|-------------------------------------------------------------------------|
-| `HomePage`         | Page        | Main page with popular game                                            |
-| `Card`             | Page        | Displays card with optional filter                                     |
-| `LoginPage`        | Page        | User login with email and password                                     |
-| `RegisterPage`     | Page        | User can create an account                                             |
-| `AdminDashboard`   | Page        | Panel to manage website                                                |
-| `Cart`             | Page        | Check added game and purchase                                          |
-| `Filter`           | UI Component| Filter game                                                            |
-| `Card`             | UI Component| Game picture with price                                                |
-| `Cart`             | UI Component| Shopping cart                                                          |
-| `AdminPanel`       | UI Component| add/delete/update game card                                            |
-| `Header`           | UI Component| Login, navigation links, Logo                                          |
+| `CataloguePage`    | Page        | Main game listing with search, filters, and sorting                     |
+| `ProductPage`      | Page        | Detailed product view with add-to-cart and quantity selection           |
+| `CartPage`         | Page        | Review cart items and initiate checkout                                 |
+| `LoginPage`        | Page        | User login with email and password                                      |
+| `RegisterPage`     | Page        | Create a new account                                                   |
+| `AdminPage`        | Page        | Manage products, inventory keys, and users                              |
+| `Header`           | UI Component| Navigation, login state, cart badge                                     |
+| `ProductCard`      | UI Component| Game card with thumbnail, price, and genres                             |
+| `CartItem`         | UI Component| Cart row with quantity controls and remove action                      |
+| `GenreFilter`      | UI Component| Sidebar or dropdown to filter catalogue by genre                       |
+| `AdminProductForm` | UI Component| Create or edit a product (admin only)                                  |
+| `AdminKeyManager`  | UI Component| Generate and assign activation keys (admin only)                       |
 
 **Interactions :**
 
@@ -100,132 +107,217 @@ This table summarizes the pages and components to define the UI scope and clarif
 
 ### 2.2 Database diagram (ER)
 
-This ER diagram helps visualize entities and relationships to validate keys and the data structure.
+This ER diagram reflects the actual SQLAlchemy models used in the application.
 
 ```mermaid
 erDiagram
     direction TB
 
     USER {
-        uuid id PK
-        string username
-        string profile_picture_url "nullable"
+        string id PK
+        string username UK
         string email UK
-        string password
+        string password_hash
+        string profile_picture_url "nullable"
         boolean is_admin
+        boolean is_active
         timestamp created_at
         timestamp updated_at
     }
 
-    REVIEW {
-        uuid id PK
-        uuid user_id FK
-        uuid product_id FK
-        string text "nullable"
-        int rating "1-10"
-        timestamp created_at
-        timestamp updated_at
+    GENRE {
+        string id PK
+        string name UK
     }
 
-    TRANSACTION {
-        uuid id PK
-        uuid user_id FK
-        int amount_cents
-        string type "deposit|product_buy|crate_open"
-        string reference_id "nullable - order_id|crate_id"
-        timestamp created_at
+    PRODUCT_GENRES {
+        string product_id FK
+        string genre_id FK
     }
 
     PRODUCT {
-        uuid id PK
+        string id PK
         string type "key|crate"
         string name
-        string description "nullable"
+        text description "nullable"
         int price_cents
-        jsonb metadata "nullable - steam_appid, cover_url"
+        json metadata_json "nullable"
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    PRODUCT_IMAGE {
+        string id PK
+        string product_id FK
+        string link
+        string alt_text "nullable"
+        boolean is_thumbnail
     }
 
     CART {
-        uuid id PK
-        uuid user_id FK
+        string id PK
+        string user_id FK
     }
 
     CART_ITEM {
-        uuid id PK
-        uuid cart_id FK
-        uuid product_id FK
+        string id PK
+        string cart_id FK
+        string product_id FK
         int quantity
-        timestamp added_at
     }
 
     ORDER {
-        uuid id PK
-        uuid user_id FK
+        string id PK
+        string user_id FK
         int total_cents
         timestamp created_at
+        timestamp updated_at
     }
 
     ORDER_ITEM {
-        uuid id PK
-        uuid order_id FK
-        uuid product_id FK
+        string id PK
+        string order_id FK
+        string product_id FK
         int quantity
         int price_at_purchase_cents
     }
 
-    USER_INVENTORY {
-        uuid id PK
-        uuid user_id FK
-        uuid product_id FK
-        string state "in_inventory|activated|opened"
-        timestamp acquired_at
+    REVIEW {
+        string id PK
+        string user_id FK
+        string product_id FK
+        text text "nullable"
+        int rating
+        timestamp created_at
+        timestamp updated_at
     }
 
     INVENTORY_ITEM {
-        uuid id PK
-        uuid product_id FK
-        uuid user_inventory_id FK "nullable"
+        string id PK
+        string product_id FK
         string activation_code "nullable"
         boolean is_used
-        timestamp used_at "nullable"
+        datetime used_at "nullable"
     }
 
-    USER ||--|| CART : "has"
-    USER ||--o{ ORDER : "places"
-    USER ||--o{ USER_INVENTORY : "owns"
-    USER ||--o{ TRANSACTION : "executes"
-    
-    CART ||--o{ CART_ITEM : "contains"
-    PRODUCT ||--o{ CART_ITEM : "is_in"
-    
-    ORDER ||--o{ ORDER_ITEM : "contains"
-    PRODUCT ||--o{ ORDER_ITEM : "is_in"
-    ORDER ||--|| TRANSACTION : "paid_by"
-    
-    PRODUCT ||--o{ USER_INVENTORY : "referenced_by"
-    PRODUCT ||--o{ INVENTORY_ITEM : "contains_stock_of"
-    USER_INVENTORY ||--o{ INVENTORY_ITEM : "links_to"
+    USER_INVENTORY {
+        string id PK
+        string user_id FK
+        string product_id FK
+        string inventory_item_id FK "nullable"
+        string state "in_inventory|activated|opened"
+    }
+
+    TRANSACTION {
+        string id PK
+        string user_id FK
+        int amount_cents
+        string type
+        string reference_id "nullable"
+    }
+
+    PASSWORD_RESET {
+        int id PK
+        string user_id
+        string token UK
+        datetime expires_at
+        boolean used
+    }
+
+    TOKEN_BLOCKLIST {
+        int id PK
+        string jti
+        datetime created_at
+    }
+
+    USER ||--o| CART : "has"
+    USER ||--o{ ORDERS : "places"
+    USER ||--o{ REVIEWS : "writes"
+    USER ||--o{ TRANSACTIONS : "records"
+    USER ||--o{ USER_INVENTORIES : "owns"
+
+    PRODUCT ||--o{ CART_ITEMS : "in"
+    PRODUCT ||--o{ ORDER_ITEMS : "in"
+    PRODUCT ||--o{ REVIEWS : "receives"
+    PRODUCT ||--o{ PRODUCT_IMAGES : "has"
+    PRODUCT ||--o{ INVENTORY_ITEMS : "provides"
+    PRODUCT ||--o{ USER_INVENTORIES : "referenced_by"
+    PRODUCT }|--|{ GENRES : "classified_by"
+
+    CART ||--o{ CART_ITEMS : "contains"
+    ORDER ||--o{ ORDER_ITEMS : "includes"
+    INVENTORY_ITEM ||--o| USER_INVENTORY : "linked_to"
 ```
 
-### 2.3 Back-end classes
+### 2.3 Back-end architecture
 
-This flowchart shows service separation and dependencies to validate flows and responsibilities.
+This flowchart shows the actual layered architecture: API routes, services, repository pattern, and SQLAlchemy models.
 
 ```mermaid
 graph LR
-    subgraph API["Backend API"]
-        AuthService["Auth Service"]
-        MenuService["Menu Service"]
-        OrderService["Order Service"]
-        PaymentService["Payment Service"]
-
-        OrderService -->|Calls| PaymentService
+    subgraph API["API Layer"]
+        AuthRoutes["auth.py"]
+        ProductRoutes["products.py"]
+        CartRoutes["cart.py"]
+        OrderRoutes["orders.py"]
+        PaymentRoutes["payments.py"]
+        InventoryRoutes["inventory.py"]
+        AdminRoutes["admin.py"]
+        UserRoutes["users.py"]
     end
 
-    AuthService --> UserDB[("Users Table")]
-    MenuService --> GamesDB[("Product")]
-    OrderService --> OrderDB[("Orders Table")]
-    PaymentService --> PaymentDB[("Payments Table")]
+    subgraph Services["Service Layer"]
+        CartService["cart_service.py"]
+        OrderService["order_service.py"]
+        PaymentService["payment_service.py"]
+        StripeService["stripe_service.py"]
+        InventoryService["inventory_service.py"]
+    end
+
+    subgraph Persistence["Persistence Layer"]
+        Repository["Repository (generic)"]
+        CartRepo["CartRepository"]
+        ProductRepo["ProductRepository"]
+        OrderRepo["OrderRepository"]
+        UserRepo["UserRepository"]
+        UserInventoryRepo["UserInventoryRepository"]
+        TransactionRepo["TransactionRepository"]
+    end
+
+    subgraph Models["SQLAlchemy Models"]
+        UserModel["User"]
+        ProductModel["Product"]
+        CartModel["Cart / CartItem"]
+        OrderModel["Order / OrderItem"]
+        InventoryModel["UserInventory / InventoryItem"]
+        ReviewModel["Review"]
+        TransactionModel["Transaction"]
+        GenreModel["Genre / product_genres"]
+        ImageModel["ProductImage"]
+        TokenModel["TokenBlocklist"]
+        PasswordModel["PasswordReset"]
+    end
+
+    subgraph External["External"]
+        Stripe["Stripe API"]
+        Mail["SMTP / Flask-Mail"]
+    end
+
+    AuthRoutes --> Services
+    ProductRoutes --> Services
+    CartRoutes --> Services
+    OrderRoutes --> Services
+    PaymentRoutes --> Services
+    InventoryRoutes --> Services
+    AdminRoutes --> Services
+    UserRoutes --> Services
+
+    Services --> Persistence
+    Persistence --> Models
+
+    PaymentRoutes --> Stripe
+    AuthRoutes --> Mail
 ```
 
 ## 3 High-Level Sequence Diagrams
@@ -310,9 +402,7 @@ sequenceDiagram
 
 ### 4.1 AUTH
 
-- **POST /api/auth/register**
-
-Simple register
+- **POST /api/v1/auth/register**
 
 ```json
 input
@@ -323,18 +413,16 @@ input
 }
 output
 {
-	"id": "uuid",
-	"username": "string",
-	"token": "jwt_token"
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "token": "jwt_token"
 }
 ```
 
-- **POST /api/auth/login**
-
-Simple login
+- **POST /api/v1/auth/login**
 
 ```json
-
 input
 {
     "email": "string",
@@ -342,316 +430,375 @@ input
 }
 output
 {
-	"id": "uuid",
-	"username": "string",
-	"token": "jwt_token"
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "token": "jwt_token"
 }
 ```
 
-- **POST /api/auth/logout**  
+- **POST /api/v1/auth/logout**
 
-Invalidate the jwt
+Invalidate the JWT.
 
 ```json
 {
-	"token": "jwt_token"
+    "token": "jwt_token"
 }
 output
 {
-	"message": "int"
+    "message": "Token successfully revoked"
+}
+```
+
+- **POST /api/v1/auth/refresh**
+
+Refresh access token.
+
+```json
+output
+{
+    "token": "jwt_token"
 }
 ```
 
 ### 4.2 PRODUCTS
 
-- **GET /api/products**  
-Browse from the store  
+- **GET /api/v1/products**
 
-*?page=**int***  
-*?limit=**int***  
-*?price_max=**int***  
-*?price_min=**int***  
-*?sort=**string***  
-*?search=**string***
-```json
-output
-{
-	[
-		{
-			"id": "int", // for the order
-			"product_name": "string",
-			"product_id": "uuid",
-			"product_thumbnail_link": "string",
-			"product_genres": [
-				"uuid"
-			]
-		}
-	]
-}
-```
-- **GET /api/products/:id**  
+Browse from the store.
 
-Get the data from one product
+Query params: `?page=int&limit=int&price_max=int&price_min=int&sort=string&search=string`
 
 ```json
 output
+[
+    {
+        "id": "uuid",
+        "product_name": "string",
+        "product_id": "uuid",
+        "product_thumbnail_link": "string",
+        "product_genres": ["uuid"],
+        "price": "float",
+        "type": "key|crate",
+        "stock": "int"
+    }
+]
+```
+
+- **GET /api/v1/products/<id>**
+
+Get details for one product.
+
+```json
+output
 {
-	"product_name": "string",
-	"product_id": "uuid",
-	"product_thumbnail_link": "string",
-	"product_genres": [
-		"uuid"
-	]
-	"product_images": [
-		{
-			"id": "int",
-			"link": "string",
-			"alt": "string"
-		}
-	]
+    "id": "uuid",
+    "product_name": "string",
+    "description": "text",
+    "price": "float",
+    "type": "key|crate",
+    "product_thumbnail_link": "string",
+    "product_genres": [
+        {"id": "uuid", "name": "string"}
+    ],
+    "product_images": [
+        {"id": "uuid", "link": "string", "alt": "string", "is_thumbnail": "boolean"}
+    ],
+    "stock": "int",
+    "steam_appid": "string|null"
 }
 ```
-- **POST /api/products** *(Admin Only)*  
 
-Add a product to the store
+- **POST /api/v1/admin/products** *(Admin Only)*
+
+Add a product to the store.
 
 ```json
 input
 {
-	"product_name": "string",
-	"product_thumbnail_link": "string",
-	"product_images": [
-		{
-			"id": "int",
-			"link": "string",
-			"alt": "string"
-		}
-	]
+    "type": "key|crate",
+    "name": "string",
+    "description": "text",
+    "price": "float",
+    "metadata_json": "object",
+    "genre_ids": ["uuid"]
 }
 output
 {
-	"product_id": "int"
+    "id": "uuid"
 }
 ```
-- **PATCH /api/products/:id** *(Admin Only)*  
 
-Update the data from one product
+- **PATCH /api/v1/admin/products/<id>** *(Admin Only)*
+
+Update a product.
 
 ```json
 input
 {
-	"product_name": "string",
-	"product_id": "int",
-	"product_thumbnail_link": "string",
-	"product_images": [
-		{
-			"id": "int",
-			"link": "string",
-			"alt": "string"
-		}
-	]
+    "name": "string",
+    "description": "text",
+    "price": "float",
+    "metadata_json": "object",
+    "genre_ids": ["uuid"]
 }
 output
 {
-	"message": "Successfully updated"
+    "message": "Product updated"
 }
 ```
 
 ### 4.3 CART
 
-- **GET /api/v1/cart** *(JWT required)*  
+- **GET /api/v1/cart** *(JWT required)*
 
-Get all items from the cart
+Get the current user's cart.
 
 ```json
 output
 {
-	"id": "uuid",
-	"user_id": "uuid",
-	"items": [
-		{
-			"id": "uuid",
-			"product_name": "string",
-			"product_id": "string",
-			"quantity": "int",
-			"price": "float",
-			"product_thumbnail_link": "string",
-			"product_genres": [
-				{
-					"id": "uuid",
-					"name": "string"
-				}
-			]
-		}
-	]
+    "id": "uuid",
+    "user_id": "uuid",
+    "items": [
+        {
+            "id": "uuid",
+            "product_id": "uuid",
+            "quantity": "int",
+            "product_name": "string",
+            "price": "float",
+            "product_thumbnail_link": "string",
+            "product_thumbnail_alt": "string",
+            "product_genres": [
+                {"id": "uuid", "name": "string"}
+            ],
+            "stock": "int",
+            "steam_appid": "string|null"
+        }
+    ]
 }
 ```
 
-- **POST /api/v1/cart/items** *(JWT required)*  
+- **POST /api/v1/cart/items** *(JWT required)*
 
-Add product to the cart
+Add a product to the cart.
 
 ```json
 input
 {
-	"product_id": "string",
-	"quantity": "int"
+    "product_id": "uuid",
+    "quantity": "int"
 }
 output
 {
-	"id": "uuid",
-	"user_id": "uuid",
-	"items": "Array"
+    "id": "uuid",
+    "user_id": "uuid",
+    "items": "Array"
 }
 ```
 
-- **DELETE /api/v1/cart/items/:product_id** *(JWT required)*  
-Delete a product from the cart
+- **DELETE /api/v1/cart/items/<product_id>** *(JWT required)*
+
+Remove a product from the cart.
+
 ```json
-input
-{
-	"quantity": "int" // optional query param
-}
 output
 {
-	"id": "uuid",
-	"user_id": "uuid",
-	"items": "Array"
+    "id": "uuid",
+    "user_id": "uuid",
+    "items": "Array"
 }
 ```
 
 ### 4.4 ORDERS
 
-- **POST /api/v1/cart/checkout** *(JWT required)*  
-Initialization of the Stripe Checkout Session.
+- **POST /api/v1/cart/checkout** *(JWT required)*
+
+Create a Stripe Checkout Session.
 
 ```json
 output
 {
-	"checkout_url": "string",
-	"session_id": "string"
+    "checkout_url": "string",
+    "session_id": "string"
 }
 ```
 
-- **GET /api/checkout/:session_id/status** *(JWT required)*  
-Get the status of the Stripe Checkout session payment.
+- **GET /api/v1/checkout/<session_id>/status** *(JWT required)*
+
+Poll the payment and fulfillment status.
 
 ```json
 output
 {
-	"success": "bool",
-	"payment_status": "string", 
-	"fulfillment": {
-		"items_provisioned": "bool"
-	}
+    "success": "boolean",
+    "payment_status": "string",
+    "fulfillment": {
+        "items_provisioned": "boolean"
+    }
 }
 ```
 
-- **GET /api/orders** *(JWT required)*  
-Get the history of orders  
+- **GET /api/v1/orders** *(JWT required)*
 
-*?page=**int***  
-*?limit=**int***  
+Get order history.
+
+Query params: `?page=int&limit=int`
+
 ```json
 output
-{
-	[
-		{
-			"id": "int", // for the order
-			"product_name": "string",
-			"product_id": "uuid",
-			"product_thumbnail_link": "string",
-			"product_genres": [
-				"uuid"
-			]
-		}
-	]
-}
+[
+    {
+        "id": "uuid",
+        "user_id": "uuid",
+        "total": "float",
+        "total_cents": "int",
+        "items": [
+            {
+                "id": "uuid",
+                "product_id": "uuid",
+                "product_name": "string",
+                "quantity": "int",
+                "price_at_purchase": "float",
+                "product_thumbnail_link": "string",
+                "product_thumbnail_alt": "string",
+                "product_genres": [
+                    {"id": "uuid", "name": "string"}
+                ],
+                "steam_appid": "string|null"
+            }
+        ]
+    }
+]
 ```
 
 ### 4.5 INVENTORY
 
-- **GET /api/inventory** *(JWT required)*  
-Get the inventory  
+- **GET /api/v1/inventory** *(JWT required)*
 
-?page=**int**  
-?limit=**int**  
-```json
-output
-{
-	[
-		{
-			"id": "int", // for the order
-			"status": "string",
-			"product_name": "string",
-			"product_id": "uuid",
-			"product_thumbnail_link": "string",
-			"product_genres": [
-				"uuid"
-			]
-		}
-	]
-}
-```
+Get the current user's inventory.
 
-- **GET /api/inventory/:id** *(JWT required)*  
-Get the data from one item of the inventory  
+Query params: `?page=int&limit=int`
 
 ```json
 output
+[
+    {
+        "id": "uuid",
+        "product_id": "uuid",
+        "state": "in_inventory|activated|opened",
+        "product_details": {
+            "id": "uuid",
+            "product_name": "string",
+            "price": "float",
+            "product_thumbnail_link": "string",
+            "product_images": ["object"]
+        },
+        "details": {
+            "id": "uuid",
+            "activation_code": "string|null",
+            "is_used": "boolean",
+            "used_at": "datetime|null"
+        }
+    }
+]
+```
+
+- **POST /api/v1/admin/products/<id>/activation-keys** *(Admin Only)*
+
+Generate activation keys for a product.
+
+```json
+input
 {
-	"status": "string",
-	"product_name": "string",
-	"product_id": "uuid",
-	"product_thumbnail_link": "string",
-	"product_genres": [
-		"uuid"
-	],
-	"product_images": [
-		{
-			"id": "int",
-			"link": "string",
-			"alt": "string"
-		}
-	]
+    "count": "int"
+}
+output
+{
+    "message": "string",
+    "keys_created": "int"
 }
 ```
 
-- **GET /api/inventory/:id/activate**
-Activate one item of the inventory  
+### 4.6 USERS
+
+- **GET /api/v1/users/me** *(JWT required)*
+
+Get current user profile.
 
 ```json
+output
 {
-	"metadata": "json" // example: activation key
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "profile_picture_url": "string|null",
+    "is_admin": "boolean",
+    "is_active": "boolean"
 }
+```
+
+- **PATCH /api/v1/users/me** *(JWT required)*
+
+Update profile.
+
+```json
+input
+{
+    "username": "string",
+    "profile_picture_url": "string"
+}
+output
+{
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "profile_picture_url": "string|null"
+}
+```
+
+### 4.7 GENRES
+
+- **GET /api/v1/genres**
+
+List all genres.
+
+```json
+output
+[
+    {
+        "id": "uuid",
+        "name": "string"
+    }
+]
 ```
 ## 5 Plan SCM and QA Strategies
 
 ### 5.1 SCM Processes (Source Control Management)
 
-Git is the version control tool that we are using with the following major branches:
+Git is the version control tool used with the following major branches:
 
-- Main -> for final production
-- dev -> Test all the project before main
-- Developer name -> All feature depending on task allocation
+- `main` — production-ready code
+- `dev` — integration branch for testing before merging to main
+- `feature/*` — individual features allocated per developer
 
-**Commit blueprint:** feat, fix, update, etc...
+**Commit convention:** `feat`, `fix`, `update`, etc.
 
 ### 5.2 Quality assurance (QA)
 
 **Testing strategy:**
 
-- Api tests -> Check endpoint
-- Unit tests -> Try different scenarios to see the code's reliability
+- API tests — validate endpoints with Bruno
+- Unit tests — cover Flask routes and critical frontend flows
 
-**Tools:**  
+**Tools:**
 
-- ESlint -> keep the code formatted
-- Bruno -> Test API
-- pytest -> One the most famous framework for python 
+- `oxlint` — frontend linting
+- `Bruno` — API testing
+- `pytest` — Python backend tests
 
 **Deployment pipeline:**
 
-- Development -> Local computer
-- Staging -> test environment in preproduction like API, auth, etc...
-- Production -> Deployment and host on a website, every user can use it
+- Development — local Docker Compose (`make dev`)
+- Showcase — seeded data mode (`make showcase`)
+- Production — containerized deployment with build artifacts
