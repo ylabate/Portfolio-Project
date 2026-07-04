@@ -205,7 +205,11 @@ def update_product(product_id):
         if "metadata_json" in data:
             metadata.update(data["metadata_json"] or {})
         if "steam_appid" in data:
-            metadata["steam_appid"] = data["steam_appid"]
+            val = data["steam_appid"]
+            if val is None or val == "":
+                metadata.pop("steam_appid", None)
+            else:
+                metadata["steam_appid"] = val
         product.metadata_json = metadata
         from sqlalchemy.orm.attributes import flag_modified
 

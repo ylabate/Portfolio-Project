@@ -385,19 +385,45 @@ function AdminPage() {
             return
         }
 
+        const patchData: Record<string, any> = {}
+
+        if (productForm.product_name.trim() !== (selectedProduct.product_name ?? "")) {
+            patchData.product_name = productForm.product_name.trim()
+        }
+        if (productForm.description.trim() !== (selectedProduct.description ?? "")) {
+            patchData.description = productForm.description.trim()
+        }
+        if (priceValue !== selectedProduct.price) {
+            patchData.price = priceValue
+        }
+
+        const currentSteamAppIdStr = selectedProduct.steam_appid ? String(selectedProduct.steam_appid) : ""
+        if (productForm.steam_appid.trim() !== currentSteamAppIdStr) {
+            patchData.steam_appid = productForm.steam_appid.trim() ? Number(productForm.steam_appid) : null
+        }
+
+        const currentGenres = (selectedProduct.product_genres ?? []).map((genreId: string) => {
+            const genre = availableGenres.find((entry: { id: string; name: string }) => entry.id === genreId)
+            return genre?.name ?? genreId
+        })
+        const genresChanged =
+            productForm.genres.length !== currentGenres.length ||
+            !productForm.genres.every((g: string) => currentGenres.includes(g))
+
+        if (genresChanged) {
+            patchData.genres = productForm.genres
+        }
+
+        if (productForm.product_thumbnail_link.trim() !== (selectedProduct.product_thumbnail_link ?? "")) {
+            patchData.product_thumbnail_link = productForm.product_thumbnail_link.trim()
+        }
+
         setSavingProductId(selectedProductId)
 
         try {
             await api.patch(
                 `/products/${selectedProductId}`,
-                {
-                    product_name: productForm.product_name.trim(),
-                    description: productForm.description.trim(),
-                    price: priceValue,
-                    steam_appid: productForm.steam_appid.trim() ? Number(productForm.steam_appid) : undefined,
-                    genres: productForm.genres,
-                    product_thumbnail_link: productForm.product_thumbnail_link.trim(),
-                },
+                patchData,
                 { headers: authHeaders },
             )
 
