@@ -2,6 +2,8 @@ services:
   backend:
     build:
       context: ./backend
+      args:
+        - MODE=dev
     ports:
       - "5000:5000"
     volumes:
