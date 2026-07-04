@@ -34,6 +34,7 @@ export default function Navbar() {
           <Link to="/" className={isActive('/')}>Store</Link>
           {user && <Link to="/inventory" className={isActive('/inventory')}>Inventory</Link>}
           {user && <Link to="/orders" className={isActive('/orders')}>Orders</Link>}
+          {user?.is_admin && <Link to="/admin" className={isActive('/admin')}>Admin</Link>}
         </div>
 
         <div className="nav-actions">

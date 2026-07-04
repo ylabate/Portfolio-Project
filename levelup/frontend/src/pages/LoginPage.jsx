@@ -48,6 +48,9 @@ export default function LoginPage() {
         </form>
         <p className="form-alt">
           No account? <Link to="/register">Create one</Link>
+          <span style={{ marginLeft: 8 }}>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </span>
         </p>
       </div>
     </div>

@@ -4,11 +4,14 @@ from app.models.BaseModel import BaseModel
 
 
 class Order(BaseModel):
-    __tablename__ = 'orders'
+    __tablename__ = "orders"
 
-    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     total_cents = db.Column(db.Integer, nullable=False)
-    items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete-orphan")
+    payment_status = db.Column(db.String(32), nullable=False, default="pending")
+    items = db.relationship(
+        "OrderItem", backref="order", lazy=True, cascade="all, delete-orphan"
+    )
 
     @property
     def total(self):
@@ -24,18 +27,19 @@ class Order(BaseModel):
             "user_id": self.user_id,
             "total_cents": self.total_cents,
             "total": self.total,
+            "payment_status": self.payment_status,
             "items": [item.to_dict() for item in self.items],
         }
 
 
 class OrderItem(BaseModel):
-    __tablename__ = 'order_items'
+    __tablename__ = "order_items"
 
-    order_id = db.Column(db.String(36), db.ForeignKey('orders.id'), nullable=False)
-    product_id = db.Column(db.String(36), db.ForeignKey('products.id'), nullable=False)
+    order_id = db.Column(db.String(36), db.ForeignKey("orders.id"), nullable=False)
+    product_id = db.Column(db.String(36), db.ForeignKey("products.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price_at_purchase_cents = db.Column(db.Integer, nullable=False)
-    product = db.relationship('Product', lazy='joined')
+    product = db.relationship("Product", lazy="joined")
 
     @property
     def price_at_purchase(self):
@@ -45,7 +49,7 @@ class OrderItem(BaseModel):
     def price_at_purchase(self, value):
         self.price_at_purchase_cents = int(round(value * 100))
 
-    @validates('quantity')
+    @validates("quantity")
     def validate_quantity(self, key, value):
         if value <= 0:
             raise ValueError("Quantity must be greater than 0")
@@ -58,7 +62,7 @@ class OrderItem(BaseModel):
             if self.product.images:
                 thumbnail = next(
                     (img for img in self.product.images if img.is_thumbnail),
-                    self.product.images[0]
+                    self.product.images[0],
                 )
             if self.product.genres:
                 genres = [{"id": g.id, "name": g.name} for g in self.product.genres]
@@ -71,5 +75,9 @@ class OrderItem(BaseModel):
             "price_at_purchase": self.price_at_purchase,
             "product_thumbnail_link": thumbnail.link if thumbnail else None,
             "product_genres": genres,
-            "steam_appid": self.product.metadata_json.get("steam_appid") if (self.product and self.product.metadata_json) else None
+            "steam_appid": (
+                self.product.metadata_json.get("steam_appid")
+                if (self.product and self.product.metadata_json)
+                else None
+            ),
         }

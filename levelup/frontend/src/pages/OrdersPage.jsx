@@ -8,12 +8,24 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
 
   useEffect(() => {
-    api.get('/orders').then(({ data }) => {
-      setOrders(Array.isArray(data) ? data : []);
+    const fetchOrders = async () => {
+      const startTime = Date.now();
+      try {
+        const { data } = await api.get('/orders');
+        setOrders(Array.isArray(data) ? data : []);
+      } catch {
+        setOrders([]);
+      }
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 300) {
+        await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
+      }
       setLoading(false);
-    }).catch(() => setLoading(false));
+    };
+    fetchOrders();
   }, []);
 
   const toggleOrder = (orderId) => {
@@ -23,22 +35,57 @@ export default function OrdersPage() {
     }));
   };
 
-  if (loading) return <div className="page"><div className="loading-center"><div className="spinner" /></div></div>;
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Cancel this order?')) return;
+    setCancellingOrderId(orderId);
+    try {
+      await api.patch(`/orders/${orderId}`, { payment_status: 'cancelled' });
+      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, payment_status: 'cancelled' } : o));
+    } catch (err) {
+      import('../context/ToastContext.jsx').then(({ triggerToast }) => {
+        triggerToast(err.response?.data?.description ?? 'Unable to cancel the order', 'error');
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
 
   return (
     <div className="page">
       <div className="container" style={{ paddingTop: 40 }}>
         <h1 className="page-title">Order <span>History</span></h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>{orders.length} order{orders.length !== 1 ? 's' : ''}</p>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>
+          {loading ? (
+            <span className="skeleton-pulse" style={{ width: '80px', height: '16px', display: 'inline-block', borderRadius: '4px' }} />
+          ) : (
+            `${orders.length} order${orders.length !== 1 ? 's' : ''}`
+          )}
+        </p>
 
-        {orders.length === 0 ? (
-          <div className="empty-state">
+        {loading ? (
+          <div className="items-list">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="order-card-wrapper">
+                <div className="order-header-clickable skeleton-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="order-meta-info" style={{ flex: 1 }}>
+                    <div className="skeleton-pulse" style={{ width: '120px', height: '18px', borderRadius: '4px', marginBottom: '8px' }} />
+                    <div className="skeleton-pulse" style={{ width: '200px', height: '14px', borderRadius: '4px' }} />
+                  </div>
+                  <div className="order-total-block">
+                    <span className="skeleton-pulse" style={{ width: '60px', height: '20px', display: 'inline-block', borderRadius: '4px' }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="empty-state animate-fade-in">
             <ShoppingBag size={48} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
             <h3>No orders yet</h3>
             <p>Your purchase history will appear here</p>
           </div>
         ) : (
-          <div className="items-list">
+          <div className="items-list animate-fade-in">
             {orders.map((order) => {
               const totalItems = order.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
               const isExpanded = expandedOrders[order.id];
@@ -54,6 +101,21 @@ export default function OrdersPage() {
                         <span className="meta-sub-item">
                           <Calendar size={12} /> {order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
                         </span>
+                        <span className={`order-status-badge order-status-${order.payment_status || 'pending'}`}>
+                          {order.payment_status === 'paid' ? 'Paid' : order.payment_status === 'pending' ? 'Pending' : order.payment_status || 'Pending'}
+                        </span>
+                        {order.payment_status === 'pending' && (
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelOrder(order.id);
+                            }}
+                            disabled={cancellingOrderId === order.id}
+                          >
+                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                          </button>
+                        )}
                         <span className="meta-sub-item">• {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
                       </div>
                     </div>

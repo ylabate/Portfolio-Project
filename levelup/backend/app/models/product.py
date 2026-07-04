@@ -5,7 +5,7 @@ from app.models.genre import product_genres
 
 
 class Product(BaseModel):
-    __tablename__ = 'products'
+    __tablename__ = "products"
 
     type = db.Column(db.String(20), nullable=False)  # 'key' or 'crate'
     name = db.Column(db.String(255), nullable=False, index=True)
@@ -15,14 +15,17 @@ class Product(BaseModel):
 
     metadata_json = db.Column(db.JSON, nullable=True)
 
-    genres = db.relationship('Genre', secondary=product_genres, backref=db.backref(
-        'products', lazy='dynamic'))
+    genres = db.relationship(
+        "Genre",
+        secondary=product_genres,
+        backref=db.backref("products", lazy="dynamic"),
+    )
     images = db.relationship(
-        'ProductImage', backref='product', lazy='joined', cascade="all, delete-orphan")
-    reviews = db.relationship('Review', backref='product', lazy='dynamic')
+        "ProductImage", backref="product", lazy="joined", cascade="all, delete-orphan"
+    )
+    reviews = db.relationship("Review", backref="product", lazy="dynamic")
 
-    stock_items = db.relationship(
-        'InventoryItem', backref='product', lazy='dynamic')
+    stock_items = db.relationship("InventoryItem", backref="product", lazy="dynamic")
 
     @property
     def price(self):
@@ -39,17 +42,18 @@ class Product(BaseModel):
         thumb = next((img for img in self.images if img.is_thumbnail), None)
         return thumb.link if thumb else None
 
-    @validates('type')
+    @validates("type")
     def validate_type(self, key, value):
-        if value not in ['key', 'crate']:
+        if value not in ["key", "crate"]:
             raise ValueError("Type must be either 'key' or 'crate'")
         return value
 
     def __repr__(self):
-        return f'<Product {self.name}>'
+        return f"<Product {self.name}>"
 
     def to_dict_list(self):
         from app.models.inventory import InventoryItem
+
         stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
             "id": self.id,
@@ -62,11 +66,14 @@ class Product(BaseModel):
             "description": self.description,
             "type": self.type,
             "stock": stock,
-            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None
+            "steam_appid": (
+                self.metadata_json.get("steam_appid") if self.metadata_json else None
+            ),
         }
 
     def to_dict(self):
         from app.models.inventory import InventoryItem
+
         stock = InventoryItem.query.filter_by(product_id=self.id, is_used=False).count()
         return {
             "id": self.id,
@@ -79,7 +86,9 @@ class Product(BaseModel):
             "description": self.description,
             "type": self.type,
             "stock": stock,
-            "steam_appid": self.metadata_json.get("steam_appid") if self.metadata_json else None,
+            "steam_appid": (
+                self.metadata_json.get("steam_appid") if self.metadata_json else None
+            ),
             "product_images": [
                 {
                     "id": image.id,
@@ -87,5 +96,5 @@ class Product(BaseModel):
                     "alt": image.alt_text,
                 }
                 for image in self.images
-            ]
+            ],
         }

@@ -12,8 +12,7 @@ class OrderService:
             raise ValueError("user_id not found")
 
         orders = (
-            Order.query
-            .filter_by(user_id=user_id)
+            Order.query.filter_by(user_id=user_id)
             .order_by(Order.created_at.desc())
             .paginate(page=page, per_page=limit, error_out=False)
         )

@@ -32,6 +32,7 @@ export default function StorePage() {
       } else {
         setLoadingMore(true);
       }
+      const startTime = Date.now();
       try {
         const params = new URLSearchParams({ page, limit: 20 });
         if (search) params.set('search', search);
@@ -47,6 +48,10 @@ export default function StorePage() {
         setHasMore(list.length === 20);
       } catch {
         if (page === 1) setProducts([]);
+      }
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 300) {
+        await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
       }
       setLoading(false);
       setLoadingMore(false);
@@ -91,11 +96,10 @@ export default function StorePage() {
           </h1>
           <p>Discover, buy &amp; activate thousands of game keys instantly. Best prices guaranteed.</p>
           <div className="hero-cta">
-            <a href="#store" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Gamepad2 size={16} /> Explore Games
-            </a>
-            <a href="#store" className="btn btn-secondary">View All</a>
-          </div>
+              <a href="#store" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <Gamepad2 size={16} /> Explore Games
+              </a>
+            </div>
         </div>
       </section>
 
@@ -131,7 +135,24 @@ export default function StorePage() {
           </div>
 
           {loading ? (
-            <div className="loading-center"><div className="spinner" /></div>
+            <div className="products-grid">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="product-card skeleton-card">
+                  <div className="skeleton-thumbnail skeleton-pulse" />
+                  <div className="card-body">
+                    <div className="skeleton-genres">
+                      <span className="skeleton-genre-badge skeleton-pulse" />
+                      <span className="skeleton-genre-badge skeleton-pulse" />
+                    </div>
+                    <div className="skeleton-title skeleton-pulse" />
+                    <div className="card-footer">
+                      <span className="skeleton-price skeleton-pulse" />
+                      <span className="skeleton-stock skeleton-pulse" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : products.length === 0 ? (
             <div className="empty-state">
               <Search size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
@@ -139,7 +160,7 @@ export default function StorePage() {
               <p>Try a different search or filter</p>
             </div>
           ) : (
-            <div className="products-grid">
+            <div className="products-grid animate-fade-in">
               {products.map((p) => (
                 <ProductCard key={p.product_id} product={p} genresMap={genresMap} />
               ))}

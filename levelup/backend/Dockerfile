@@ -14,6 +14,6 @@ COPY . .
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-ENTRYPOINT ["./showcase.sh"]
+ENTRYPOINT ["./init.sh"]
 
 CMD ["python", "run.py"]

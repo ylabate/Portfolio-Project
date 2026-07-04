@@ -13,11 +13,7 @@ def me():
     user = User.query.get(user_id)
     if not user:
         abort(404, description="user not found")
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-    }), 200
+    return jsonify({"id": user.id, "username": user.username, "email": user.email}), 200
 
 
 @v1_bp.route("/users/me", methods=["PUT"])
@@ -43,11 +39,7 @@ def update_me():
         user.email = email
 
     db.session.commit()
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-    }), 200
+    return jsonify({"id": user.id, "username": user.username, "email": user.email}), 200
 
 
 @v1_bp.route("/users/me", methods=["DELETE"])
