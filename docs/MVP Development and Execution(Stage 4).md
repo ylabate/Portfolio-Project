@@ -56,30 +56,48 @@ Organize team contributions into short cycles, each with explicit goals and assi
 - Authentication and session tracking leverage **JWT** with access and refresh tokens.
 - Passwords are encrypted via **Bcrypt** and account recovery is managed through **Flask-Mail**.
 - REST API endpoints are organized under `/api/v1`:
-  - `/auth/register`, `/auth/login`, `/auth/logout` — user authentication
-  - `/products`, `/products/<id>` — game catalogue and details
-  - `/genres` — genre classification
-  - `/cart`, `/cart/items`, `/cart/checkout` — cart handling and payment
-  - `/orders` — order history
-  - `/admin/products/<id>/activation-keys` — activation key issuance (restricted to admins)
-  - `/payments/webhook` — Stripe transaction confirmation
-- Product records support digital formats, Steam metadata, imagery, reviews, and soft deletion.
-- The payment flow assigns inventory items only after Stripe confirmation.
+  - `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/refresh` — JWT authentication with access and refresh tokens
+  - `/auth/forgot-password`, `/auth/reset-password` — email-based password recovery
+  - `/products`, `/products/<id>` — product catalogue and details
+  - `/products/<id>/reviews` — product reviews
+  - `/products/steam-proxy/<steam_appid>` — live Steam metadata proxy
+  - `/genres` — genre listing and creation
+  - `/cart`, `/cart/items`, `/cart/checkout` — cart management and Stripe checkout
+  - `/orders`, `/orders/<id>` — order history and cancellation
+  - `/inventory`, `/inventory/<id>`, `/inventory/<id>/activate` — user inventory and key activation
+  - `/users/me` — profile read, update, and deletion
+  - `/admin/users` — user administration (list, read, update, delete)
+  - `/admin/stats` — platform statistics
+  - `/admin/products/<id>/activation-keys` — activation key bulk generation
+  - `/payments/webhook` — Stripe payment confirmation and session expiry handling
+- Product entities support soft deletion, Steam metadata, multiple images, genres, and reviews.
+- Inventory management through `inventory_items` and `user_inventories` links stock codes to purchases.
+- The payment flow provisions inventory items only after Stripe confirmation via webhook.
 
 ### Frontend
 
 - Developed with **React**, **Vite**, **JSX**, and **React Router**.
 - Routes currently exposed:
-  - `/` — Catalogue
-  - `/product/:id` — Product details
+  - `/` — Store
+  - `/products/:id` — Product details
   - `/cart` — Cart
-  - `/login` — Authentication
+  - `/login` — Login
+  - `/register` — Register
+  - `/forgot-password` — Password reset request
+  - `/reset-password` — Password reset confirmation
+  - `/inventory` — User inventory
+  - `/orders` — Order history
+  - `/success` — Checkout success
   - `/admin` — Administration panel
 - Functionalities:
   - Search, genre filtering, and sorting within the catalogue.
   - Product detail screen with quantity picker and cart addition workflow.
-  - Authenticated API calls secured by JWT.
-  - Admin capabilities for creating, modifying, and removing products.
+  - Steam metadata proxy for live assets.
+  - Authenticated API calls secured by JWT (access + refresh tokens).
+  - Admin capabilities for creating, modifying, and removing products and images.
+  - User profile management and account deletion.
+  - Password reset flow via email.
+- State management handled by React contexts (`AuthContext`, `CartContext`, `ToastContext`).
 
 ### SCM & QA
 
@@ -126,18 +144,22 @@ At the beginning of each new sprint, the group re-examined the work produced dur
 ### Full Integration
 
 - Communication between client and server was verified for:
-  - `/products`
-  - `/cart`
-  - `/orders`
-  - `/inventory`
-  - `/admin/users`
+  - `/products`, `/products/<id>`, `/products/<id>/reviews`
+  - `/cart`, `/cart/items`, `/cart/checkout`
+  - `/orders`, `/orders/<id>`
+  - `/inventory`, `/inventory/<id>`, `/inventory/<id>/activate`
+  - `/admin/users`, `/admin/stats`, `/admin/products/<id>/activation-keys`
+  - `/users/me`
   - `/checkout/<session_id>/status`
 - **Stripe Sandbox**:
-  - Checkout session generation, webhook processing, and payment confirmation.
-- **Admin Panel**:
-  - Inventory key assignment and activation procedure.
-  - Add and update product
-  - User management and statistics viewing.
+  - Checkout session creation, webhook handling (`checkout.session.completed`, `checkout.session.expired`), and payment confirmation.
+- **Admin Dashboard**:
+  - Live product list and CRUD operations.
+  - Inventory key assignment and activation workflow.
+  - User management and statistics.
+- **User Flows**:
+  - Password reset via email (forgot-password / reset-password).
+  - Account deletion.
 
 ### Implemented Fixes
 
@@ -151,12 +173,15 @@ At the beginning of each new sprint, the group re-examined the work produced dur
 
 | Feature                     | Status | Description                                                        |
 | --------------------------- | ------ | ------------------------------------------------------------------ |
-| Auth                        | ✅     | Registration, login, logout, token refresh, and password recovery. |
-| Product Catalogue           | ✅     | Searchable, filterable, and sortable game listings.                |
-| Shopping Cart               | ✅     | User-specific cart managed via authenticated API calls.            |
-| Checkout / Payment          | ✅     | Stripe integration with webhook confirmation.                      |
-| Admin Dashboard             | ✅     | Product, user, and inventory administration.                       |
-| Inventory / Activation Keys | ✅     | Issuance and activation flow for digital goods.                    |
+| Authentication              | ✅     | Registration, login, logout, token refresh, and password recovery. |
+| Product Catalogue           | ✅     | Search, filter, sort, pagination, genre classification.            |
+| Steam Integration           | ✅     | Live app metadata proxy and Steam app ID handling.                 |
+| Shopping Cart               | ✅     | User-specific cart with stock validation and quantity controls.    |
+| Checkout / Payment          | ✅     | Stripe checkout sessions, webhooks, and order cancellation.        |
+| Admin Dashboard             | ✅     | Product CRUD, user management, platform statistics, key issuance.  |
+| Inventory / Activation Keys | ✅     | Stock provisioning, key activation, and state tracking.            |
+| User Profile                | ✅     | Profile read, update, and account self-deletion.                   |
+| Reviews                     | ✅     | Product reviews with 1–10 rating support.                          |
 
 ---
 

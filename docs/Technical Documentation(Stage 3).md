@@ -84,26 +84,35 @@ flowchart LR
 
 This table summarizes the pages and components to define the UI scope and clarify major interactions.
 
-| Component / Page   | Type        | Purpose                                                                 |
-|--------------------|-------------|-------------------------------------------------------------------------|
-| `CataloguePage`    | Page        | Main game listing with search, filters, and sorting                     |
-| `ProductPage`      | Page        | Detailed product view with add-to-cart and quantity selection           |
-| `CartPage`         | Page        | Review cart items and initiate checkout                                 |
-| `LoginPage`        | Page        | User login with email and password                                      |
-| `RegisterPage`     | Page        | Create a new account                                                   |
-| `AdminPage`        | Page        | Manage products, inventory keys, and users                              |
-| `Header`           | UI Component| Navigation, login state, cart badge                                     |
-| `ProductCard`      | UI Component| Game card with thumbnail, price, and genres                             |
-| `CartItem`         | UI Component| Cart row with quantity controls and remove action                      |
-| `GenreFilter`      | UI Component| Sidebar or dropdown to filter catalogue by genre                       |
-| `AdminProductForm` | UI Component| Create or edit a product (admin only)                                  |
-| `AdminKeyManager`  | UI Component| Generate and assign activation keys (admin only)                       |
+| Component / Page        | Type         | Purpose                                                                 |
+| ---------------------- | ------------ | ----------------------------------------------------------------------- |
+| `StorePage`            | Page         | Main catalogue with search, filters, and sorting                        |
+| `GameDetailsPage`      | Page         | Detailed product view with add-to-cart and quantity selection           |
+| `CartPage`             | Page         | Review cart items and initiate checkout                                 |
+| `LoginPage`            | Page         | User login with email and password                                      |
+| `RegisterPage`         | Page         | Create a new account                                                   |
+| `ForgotPasswordPage`   | Page         | Request password reset email                                            |
+| `ResetPasswordPage`    | Page         | Confirm password reset with token                                       |
+| `InventoryPage`        | Page         | View purchased keys and activate them                                   |
+| `OrdersPage`           | Page         | View order history and cancel pending orders                            |
+| `SuccessPage`          | Page         | Checkout success confirmation                                           |
+| `AdminPage`            | Page         | Manage products, inventory keys, and users                              |
+| `Header`               | UI Component | Navigation, login state, cart badge                                     |
+| `ProductCard`          | UI Component | Game card with thumbnail, price, and genres                             |
+| `CartItem`             | UI Component | Cart row with quantity controls and remove action                      |
+| `GenreFilter`          | UI Component | Sidebar or dropdown to filter catalogue by genre                       |
+| `AdminProductForm`     | UI Component | Create or edit a product (admin only)                                  |
+| `AdminKeyManager`      | UI Component | Generate and assign activation keys (admin only)                       |
 
 **Interactions :**
 
-- Register/login -> Use /auth route API from backend
-- Admin add card -> Call "PUT" method from backend API
-- Filter -> Check all item category id and only display the one filter
+- Register/login -> `POST /api/v1/auth/register` and `/api/v1/auth/login`
+- Admin add product -> `POST /api/v1/products` and `/api/v1/genres`
+- Cart add -> `POST /api/v1/cart/items`
+- Checkout -> `POST /api/v1/cart/checkout` -> Stripe redirect -> webhook
+- Inventory activation -> `GET /api/v1/inventory/<id>/activate`
+- Order cancellation -> `PATCH /api/v1/orders/<id>`
+- Password reset -> `POST /api/v1/auth/forgot-password` + `POST /api/v1/auth/reset-password`
 
 ### 2.2 Database diagram (ER)
 
@@ -404,6 +413,8 @@ sequenceDiagram
 
 - **POST /api/v1/auth/register**
 
+Register a new user.
+
 ```json
 input
 {
@@ -413,15 +424,21 @@ input
 }
 output
 {
-    "id": "uuid",
-    "username": "string",
-    "email": "string",
-    "token": "jwt_token"
+    "message": "user created successfully",
+    "access_token": "jwt_token",
+    "refresh_token": "jwt_token",
+    "user": {
+        "id": "uuid",
+        "username": "string",
+        "email": "string"
+    }
 }
 ```
 
 - **POST /api/v1/auth/login**
 
+Login and receive JWT pair.
+
 ```json
 input
 {
@@ -430,35 +447,66 @@ input
 }
 output
 {
-    "id": "uuid",
-    "username": "string",
-    "email": "string",
-    "token": "jwt_token"
+    "access_token": "jwt_token",
+    "refresh_token": "jwt_token",
+    "user": {
+        "id": "uuid",
+        "username": "string",
+        "email": "string"
+    }
 }
 ```
 
-- **POST /api/v1/auth/logout**
+- **DELETE /api/v1/auth/logout** *(JWT required)*
 
-Invalidate the JWT.
+Invalidate the current JWT.
 
 ```json
-{
-    "token": "jwt_token"
-}
 output
 {
-    "message": "Token successfully revoked"
+    "message": "logged out"
 }
 ```
 
-- **POST /api/v1/auth/refresh**
+- **POST /api/v1/auth/refresh** *(JWT refresh required)*
 
 Refresh access token.
 
 ```json
 output
 {
-    "token": "jwt_token"
+    "access_token": "jwt_token"
+}
+```
+
+- **POST /api/v1/auth/forgot-password**
+
+Request a password reset email.
+
+```json
+input
+{
+    "email": "string"
+}
+output
+{
+    "message": "if this email exists, a reset link has been sent"
+}
+```
+
+- **POST /api/v1/auth/reset-password**
+
+Reset password using a token.
+
+```json
+input
+{
+    "token": "string",
+    "password": "string"
+}
+output
+{
+    "message": "password reset successfully"
 }
 ```
 
@@ -466,86 +514,197 @@ output
 
 - **GET /api/v1/products**
 
-Browse from the store.
+Browse the store with filters.
 
-Query params: `?page=int&limit=int&price_max=int&price_min=int&sort=string&search=string`
+Query params: `genre=string&type=string&price_min=float&price_max=float&search=string&sort=string&page=int&limit=int`
 
 ```json
 output
-[
-    {
-        "id": "uuid",
-        "product_name": "string",
-        "product_id": "uuid",
-        "product_thumbnail_link": "string",
-        "product_genres": ["uuid"],
-        "price": "float",
-        "type": "key|crate",
-        "stock": "int"
-    }
-]
+{
+    "products": [
+        {
+            "id": "uuid",
+            "product_name": "string",
+            "product_id": "uuid",
+            "product_thumbnail_link": "string",
+            "product_genres": ["uuid"],
+            "price": "float",
+            "type": "key|crate",
+            "stock": "int"
+        }
+    ]
+}
 ```
 
-- **GET /api/v1/products/<id>**
+- **GET /api/v1/products/<product_id>**
 
 Get details for one product.
 
 ```json
 output
 {
-    "id": "uuid",
-    "product_name": "string",
-    "description": "text",
-    "price": "float",
-    "type": "key|crate",
-    "product_thumbnail_link": "string",
-    "product_genres": [
-        {"id": "uuid", "name": "string"}
-    ],
-    "product_images": [
-        {"id": "uuid", "link": "string", "alt": "string", "is_thumbnail": "boolean"}
-    ],
-    "stock": "int",
-    "steam_appid": "string|null"
+    "product": {
+        "id": "uuid",
+        "product_name": "string",
+        "description": "text",
+        "price": "float",
+        "type": "key|crate",
+        "product_thumbnail_link": "string",
+        "product_genres": [
+            {"id": "uuid", "name": "string"}
+        ],
+        "product_images": [
+            {"id": "uuid", "link": "string", "alt": "string", "is_thumbnail": "boolean"}
+        ],
+        "stock": "int",
+        "steam_appid": "string|null"
+    }
 }
 ```
 
-- **POST /api/v1/admin/products** *(Admin Only)*
+- **GET /api/v1/products/<product_id>/reviews**
 
-Add a product to the store.
+Get all reviews for a product.
+
+```json
+output
+{
+    "reviews": [
+        {
+            "id": "uuid",
+            "user_id": "uuid",
+            "product_id": "uuid",
+            "text": "string",
+            "rating": "int"
+        }
+    ]
+}
+```
+
+- **GET /api/v1/products/steam-proxy/<steam_appid>**
+
+Proxy Steam app details (bypasses CORS).
+
+```json
+output
+Steam API JSON response
+```
+
+- **POST /api/v1/products** *(Admin Only)*
+
+Create a product.
 
 ```json
 input
 {
-    "type": "key|crate",
-    "name": "string",
+    "product_name": "string",
     "description": "text",
     "price": "float",
-    "metadata_json": "object",
-    "genre_ids": ["uuid"]
+    "type": "key|crate",
+    "steam_appid": "string",
+    "genres": ["string"],
+    "product_thumbnail_link": "string",
+    "product_images": [
+        {"link": "string", "alt": "string"}
+    ],
+    "is_active": "boolean"
 }
 output
 {
-    "id": "uuid"
+    "product_id": "uuid"
 }
 ```
 
-- **PATCH /api/v1/admin/products/<id>** *(Admin Only)*
+- **PATCH /api/v1/products/<product_id>** *(Admin Only)*
 
 Update a product.
 
 ```json
 input
 {
-    "name": "string",
+    "product_name": "string",
     "description": "text",
     "price": "float",
-    "metadata_json": "object",
-    "genre_ids": ["uuid"]
+    "type": "key|crate",
+    "genres": ["string"],
+    "steam_appid": "string",
+    "product_thumbnail_link": "string",
+    "is_active": "boolean"
 }
 output
 {
-    "message": "Product updated"
+    "message": "Successfully updated"
+}
+```
+
+- **DELETE /api/v1/products/<product_id>** *(Admin Only)*
+
+Soft delete a product.
+
+```json
+output
+{
+    "message": "Product deleted"
+}
+```
+
+- **POST /api/v1/products/<product_id>/images** *(Admin Only)*
+
+Add an image to a product.
+
+```json
+input
+{
+    "link": "string",
+    "alt": "string"
+}
+output
+{
+    "image": {
+        "id": "uuid",
+        "link": "string",
+        "alt_text": "string",
+        "is_thumbnail": "boolean"
+    }
+}
+```
+
+- **DELETE /api/v1/products/<product_id>/images/<image_id>** *(Admin Only)*
+
+Remove an image from a product.
+
+```json
+output
+{
+    "message": "Image deleted"
+}
+```
+
+- **GET /api/v1/genres**
+
+List all genres.
+
+```json
+output
+{
+    "genres": [
+        {"id": "uuid", "name": "string"}
+    ]
+}
+```
+
+- **POST /api/v1/genres** *(Admin Only)*
+
+Create a genre.
+
+```json
+input
+{
+    "name": "string"
+}
+output
+{
+    "genre": {"id": "uuid", "name": "string"}
 }
 ```
 
@@ -593,7 +752,7 @@ output
 {
     "id": "uuid",
     "user_id": "uuid",
-    "items": "Array"
+    "items": [ ... ]
 }
 ```
 
@@ -606,7 +765,7 @@ output
 {
     "id": "uuid",
     "user_id": "uuid",
-    "items": "Array"
+    "items": [ ... ]
 }
 ```
 
@@ -641,9 +800,7 @@ output
 
 - **GET /api/v1/orders** *(JWT required)*
 
-Get order history.
-
-Query params: `?page=int&limit=int`
+Get order history (paginated).
 
 ```json
 output
@@ -672,13 +829,28 @@ output
 ]
 ```
 
+- **PATCH /api/v1/orders/<order_id>** *(JWT required)*
+
+Cancel a pending order.
+
+```json
+input
+{
+    "payment_status": "cancelled"
+}
+output
+{
+    "id": "uuid",
+    "payment_status": "cancelled",
+    ...
+}
+```
+
 ### 4.5 INVENTORY
 
 - **GET /api/v1/inventory** *(JWT required)*
 
-Get the current user's inventory.
-
-Query params: `?page=int&limit=int`
+Get the current user's inventory (paginated).
 
 ```json
 output
@@ -704,27 +876,112 @@ output
 ]
 ```
 
-- **POST /api/v1/admin/products/<id>/activation-keys** *(Admin Only)*
+- **GET /api/v1/inventory/<item_id>** *(JWT required)*
 
-Generate activation keys for a product.
+Get a single inventory item.
 
 ```json
-input
-{
-    "count": "int"
-}
 output
 {
-    "message": "string",
-    "keys_created": "int"
+    "id": "uuid",
+    "product_id": "uuid",
+    "state": "in_inventory|activated|opened",
+    "product_details": { ... },
+    "details": { ... }
 }
 ```
 
-### 4.6 USERS
+- **GET /api/v1/inventory/<item_id>/activate** *(JWT required)*
+
+Activate an inventory item to reveal its code.
+
+```json
+output
+{
+    "metadata": {
+        "id": "uuid",
+        "activation_code": "string",
+        "is_used": "boolean",
+        "used_at": "datetime|null"
+    }
+}
+```
+
+### 4.6 PAYMENTS
+
+- **POST /api/v1/payments/webhook**
+
+Stripe webhook endpoint (public, no JWT).
+
+Handles `checkout.session.completed` and `checkout.session.expired` events. Provisions inventory items and creates transactions automatically.
+
+### 4.7 USERS
 
 - **GET /api/v1/users/me** *(JWT required)*
 
 Get current user profile.
+
+```json
+output
+{
+    "id": "uuid",
+    "username": "string",
+    "email": "string"
+}
+```
+
+- **PUT /api/v1/users/me** *(JWT required)*
+
+Update current user profile.
+
+```json
+input
+{
+    "username": "string",
+    "email": "string"
+}
+output
+{
+    "id": "uuid",
+    "username": "string",
+    "email": "string"
+}
+```
+
+- **DELETE /api/v1/users/me** *(JWT required)*
+
+Delete current user account.
+
+```json
+output
+{
+    "message": "user deleted"
+}
+```
+
+### 4.8 ADMIN
+
+- **GET /api/v1/admin/users** *(JWT + Admin required)*
+
+List all users.
+
+```json
+output
+[
+    {
+        "id": "uuid",
+        "username": "string",
+        "email": "string",
+        "profile_picture_url": "string|null",
+        "is_admin": "boolean",
+        "is_active": "boolean"
+    }
+]
+```
+
+- **GET /api/v1/admin/users/<user_id>** *(JWT + Admin required)*
+
+Get single user details.
 
 ```json
 output
@@ -738,40 +995,76 @@ output
 }
 ```
 
-- **PATCH /api/v1/users/me** *(JWT required)*
+- **PUT /api/v1/admin/users/<user_id>** *(JWT + Admin required)*
 
-Update profile.
+Update user fields (admin only).
 
 ```json
 input
 {
     "username": "string",
-    "profile_picture_url": "string"
+    "email": "string",
+    "is_admin": "boolean",
+    "is_active": "boolean"
 }
 output
 {
     "id": "uuid",
     "username": "string",
     "email": "string",
-    "profile_picture_url": "string|null"
+    "is_admin": "boolean",
+    "is_active": "boolean"
 }
 ```
 
-### 4.7 GENRES
+- **DELETE /api/v1/admin/users/<user_id>** *(JWT + Admin required)*
 
-- **GET /api/v1/genres**
-
-List all genres.
+Delete a user and cascade related data.
 
 ```json
 output
-[
-    {
-        "id": "uuid",
-        "name": "string"
-    }
-]
+{
+    "message": "user deleted"
+}
 ```
+
+- **GET /api/v1/admin/stats** *(JWT + Admin required)*
+
+Get platform statistics.
+
+```json
+output
+{
+    "total_users": "int",
+    "total_admins": "int",
+    "total_active": "int",
+    "total_inactive:": "int"
+}
+```
+
+- **POST /api/v1/admin/products/<product_id>/activation-keys** *(Admin Only)*
+
+Generate activation keys for a product.
+
+```json
+input
+{
+    "quantity": "int",
+    "activation_code": "string"
+}
+output
+{
+    "activation_items": [
+        {
+            "id": "uuid",
+            "activation_code": "string",
+            "is_used": "boolean",
+            "used_at": "datetime|null"
+        }
+    ]
+}
+```
+
 ## 5 Plan SCM and QA Strategies
 
 ### 5.1 SCM Processes (Source Control Management)

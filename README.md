@@ -63,28 +63,87 @@ MAIL_PASSWORD="your-app-password"
 | `make showcase` | Start with showcase mode (pre-seeded data)     |
 | `make kill`     | Stop containers and remove volumes             |
 
-## Frontend Scripts
+## Frontend Pages
 
-```bash
-npm run dev      # Start dev server
-npm run build    # Production build
-npm run lint     # Run oxlint
-npm run preview  # Preview production build
-```
+| Route | Page |
+|-------|------|
+| `/` | StorePage |
+| `/products/:id` | GameDetailsPage |
+| `/cart` | CartPage |
+| `/login` | LoginPage |
+| `/register` | RegisterPage |
+| `/forgot-password` | ForgotPasswordPage |
+| `/reset-password` | ResetPasswordPage |
+| `/inventory` | InventoryPage |
+| `/orders` | OrdersPage |
+| `/success` | SuccessPage |
+| `/admin` | AdminPage |
+
+## Frontend Contexts
+
+- `AuthContext` — authentication state and JWT handling
+- `CartContext` — cart state management
+- `ToastContext` — notification toasts
 
 ## API Routes
 
-- `POST /api/v1/auth/register` — register
-- `POST /api/v1/auth/login` — login
-- `POST /api/v1/auth/logout` — logout
-- `POST /api/v1/auth/refresh` — refresh token
-- `GET /api/v1/products` — list products
+### Authentication
+
+- `POST /api/v1/auth/register` — register (returns `access_token`, `refresh_token`)
+- `POST /api/v1/auth/login` — login (returns `access_token`, `refresh_token`)
+- `DELETE /api/v1/auth/logout` — logout (revokes token)
+- `POST /api/v1/auth/refresh` — refresh access token
+- `POST /api/v1/auth/forgot-password` — request password reset email
+- `POST /api/v1/auth/reset-password` — reset password with token
+
+### Products
+
+- `GET /api/v1/products` — list products (supports `genre`, `type`, `price_min`, `price_max`, `search`, `sort`, `page`, `limit`)
 - `GET /api/v1/products/<id>` — product details
+- `GET /api/v1/products/<id>/reviews` — product reviews
+- `GET /api/v1/products/steam-proxy/<steam_appid>` — proxy Steam app details
+- `POST /api/v1/products` — create product (admin)
+- `PATCH /api/v1/products/<id>` — update product (admin)
+- `DELETE /api/v1/products/<id>` — soft delete product (admin)
+- `POST /api/v1/products/<id>/images` — add product image (admin)
+- `DELETE /api/v1/products/<id>/images/<image_id>` — delete product image (admin)
 - `GET /api/v1/genres` — list genres
-- `POST /api/v1/cart/items` — add to cart
+- `POST /api/v1/genres` — create genre (admin)
+
+### Cart & Checkout
+
+- `GET /api/v1/cart` — get user cart
+- `POST /api/v1/cart/items` — add item to cart
+- `DELETE /api/v1/cart/items/<product_id>` — remove item from cart
 - `POST /api/v1/cart/checkout` — create Stripe checkout session
-- `GET /api/v1/orders` — order history
-- `POST /api/v1/admin/products/<id>/activation-keys` — generate keys (admin)
+- `GET /api/v1/checkout/<session_id>/status` — poll payment status
+- `POST /api/v1/payments/webhook` — Stripe webhook handler
+
+### Orders
+
+- `GET /api/v1/orders` — get order history
+- `PATCH /api/v1/orders/<order_id>` — cancel pending order
+
+### Inventory
+
+- `GET /api/v1/inventory` — get user inventory
+- `GET /api/v1/inventory/<item_id>` — get inventory item
+- `GET /api/v1/inventory/<item_id>/activate` — activate key
+
+### Users
+
+- `GET /api/v1/users/me` — get current user profile
+- `PUT /api/v1/users/me` — update current user profile
+- `DELETE /api/v1/users/me` — delete current user account
+
+### Admin
+
+- `GET /api/v1/admin/users` — list all users
+- `GET /api/v1/admin/users/<user_id>` — get user details
+- `PUT /api/v1/admin/users/<user_id>` — update user (admin fields)
+- `DELETE /api/v1/admin/users/<user_id>` — delete user
+- `GET /api/v1/admin/stats` — get platform statistics
+- `POST /api/v1/admin/products/<id>/activation-keys` — generate activation keys
 
 ## Architecture
 
