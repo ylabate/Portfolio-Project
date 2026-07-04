@@ -18,21 +18,29 @@ export default function InventoryPage() {
   const loaderRef = useRef(null);
 
   useEffect(() => {
-    if (page > 1) setLoadingMore(true);
-    api.get(`/inventory?page=${page}&limit=10`).then(({ data }) => {
-      const newItems = Array.isArray(data) ? data : [];
-      if (page === 1) {
-        setItems(newItems);
-      } else {
-        setItems((prev) => [...prev, ...newItems]);
+    const fetchInventory = async () => {
+      if (page > 1) setLoadingMore(true);
+      const startTime = Date.now();
+      try {
+        const { data } = await api.get(`/inventory?page=${page}&limit=10`);
+        const newItems = Array.isArray(data) ? data : [];
+        if (page === 1) {
+          setItems(newItems);
+        } else {
+          setItems((prev) => [...prev, ...newItems]);
+        }
+        setHasMore(newItems.length === 10);
+      } catch {
+        if (page === 1) setItems([]);
       }
-      setHasMore(newItems.length === 10);
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 300) {
+        await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
+      }
       setLoading(false);
       setLoadingMore(false);
-    }).catch(() => {
-      setLoading(false);
-      setLoadingMore(false);
-    });
+    };
+    fetchInventory();
   }, [page]);
 
   useEffect(() => {
@@ -77,22 +85,43 @@ export default function InventoryPage() {
     setVisibleKeys((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
   };
 
-  if (loading) return <div className="page"><div className="loading-center"><div className="spinner" /></div></div>;
-
   return (
     <div className="page">
       <div className="container" style={{ paddingTop: 40 }}>
         <h1 className="page-title">My <span>Inventory</span></h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>{items.length} game key{items.length !== 1 ? 's' : ''}</p>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>
+          {loading ? (
+            <span className="skeleton-pulse" style={{ width: '80px', height: '16px', display: 'inline-block', borderRadius: '4px' }} />
+          ) : (
+            `${items.length} game key${items.length !== 1 ? 's' : ''}`
+          )}
+        </p>
 
-        {items.length === 0 ? (
-          <div className="empty-state">
+        {loading ? (
+          <div className="items-list">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="inventory-card-wrapper">
+                <div className="inventory-card skeleton-card">
+                  <div className="inventory-card-img skeleton-pulse" />
+                  <div className="inventory-card-info" style={{ flex: 1 }}>
+                    <div className="skeleton-pulse" style={{ width: '150px', height: '18px', borderRadius: '4px', marginBottom: '8px' }} />
+                    <div className="skeleton-pulse" style={{ width: '80px', height: '14px', borderRadius: '4px' }} />
+                  </div>
+                  <div className="inventory-card-actions">
+                    <div className="skeleton-pulse" style={{ width: '90px', height: '32px', borderRadius: '6px' }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="empty-state animate-fade-in">
             <Gamepad2 size={48} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
             <h3>Your inventory is empty</h3>
             <p>Purchase games from the store to see your keys here</p>
           </div>
         ) : (
-          <div className="items-list">
+          <div className="items-list animate-fade-in">
             {items.map((item) => {
               const product = item.product_details;
               const thumbnail = getProductThumbnail(product);

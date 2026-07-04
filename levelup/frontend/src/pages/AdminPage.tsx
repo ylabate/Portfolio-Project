@@ -206,6 +206,7 @@ function AdminPage() {
         const fetchDashboard = async () => {
             setLoading(true)
             setError(null)
+            const startTime = Date.now()
 
             try {
                 await Promise.all([refreshDashboard(), refreshGenres()])
@@ -213,6 +214,10 @@ function AdminPage() {
                 console.error("Error fetching admin dashboard:", requestError)
                 setError("Unable to load the admin dashboard. Make sure you are signed in with an admin account.")
             } finally {
+                const elapsed = Date.now() - startTime
+                if (elapsed < 300) {
+                    await new Promise((resolve) => setTimeout(resolve, 300 - elapsed))
+                }
                 setLoading(false)
             }
         }
@@ -636,60 +641,46 @@ function AdminPage() {
                     <div className="container">
                         {error && <div className="alert alert-error admin-alert">{error}</div>}
 
-                        {loading ? (
-                            <div className="loading-center"><div className="spinner" /></div>
-                        ) : (
-                            <div className="admin-shell">
-                                <aside className="admin-shell-nav">
-                                    <button className={`admin-nav-item ${selectedSection === "overview" ? "active" : ""}`} onClick={() => handleSectionChange("overview")}>Overview</button>
-                                    <button className={`admin-nav-item ${selectedSection === "users" ? "active" : ""}`} onClick={() => handleSectionChange("users")}>Users</button>
-                                    <button className={`admin-nav-item ${selectedSection === "products" ? "active" : ""}`} onClick={() => handleSectionChange("products")}>Games</button>
-                                    <button className={`admin-nav-item ${selectedSection === "keys" ? "active" : ""}`} onClick={() => handleSectionChange("keys")}>Keys</button>
-                                </aside>
+                        <div className="admin-shell">
+                            <aside className="admin-shell-nav">
+                                <button className={`admin-nav-item ${selectedSection === "overview" ? "active" : ""}`} onClick={() => handleSectionChange("overview")}>Overview</button>
+                                <button className={`admin-nav-item ${selectedSection === "users" ? "active" : ""}`} onClick={() => handleSectionChange("users")}>Users</button>
+                                <button className={`admin-nav-item ${selectedSection === "products" ? "active" : ""}`} onClick={() => handleSectionChange("products")}>Games</button>
+                                <button className={`admin-nav-item ${selectedSection === "keys" ? "active" : ""}`} onClick={() => handleSectionChange("keys")}>Keys</button>
+                            </aside>
 
-                                <div className="admin-shell-content">
-                                    {selectedSection === "overview" && (
+                            <div className="admin-shell-content">
+                                    {(selectedSection === "overview" || selectedSection === "users") && (
                                         <div className="admin-stats-grid">
                                             <article className="admin-stat-card">
                                                 <span className="admin-stat-label">Total users</span>
-                                                <strong className="admin-stat-value">{stats.total_users}</strong>
+                                                <strong className={`admin-stat-value ${!loading ? "animate-fade-in" : ""}`}>
+                                                    {loading ? <span className="skeleton-pulse" style={{ width: '40px', height: '24px', display: 'inline-block', borderRadius: '4px' }} /> : stats.total_users}
+                                                </strong>
                                             </article>
                                             <article className="admin-stat-card">
                                                 <span className="admin-stat-label">Admins</span>
-                                                <strong className="admin-stat-value">{stats.total_admins}</strong>
+                                                <strong className={`admin-stat-value ${!loading ? "animate-fade-in" : ""}`}>
+                                                    {loading ? <span className="skeleton-pulse" style={{ width: '40px', height: '24px', display: 'inline-block', borderRadius: '4px' }} /> : stats.total_admins}
+                                                </strong>
                                             </article>
                                             <article className="admin-stat-card">
                                                 <span className="admin-stat-label">Active</span>
-                                                <strong className="admin-stat-value">{stats.total_active}</strong>
+                                                <strong className={`admin-stat-value ${!loading ? "animate-fade-in" : ""}`}>
+                                                    {loading ? <span className="skeleton-pulse" style={{ width: '40px', height: '24px', display: 'inline-block', borderRadius: '4px' }} /> : stats.total_active}
+                                                </strong>
                                             </article>
                                             <article className="admin-stat-card">
                                                 <span className="admin-stat-label">Inactive</span>
-                                                <strong className="admin-stat-value">{stats.total_inactive}</strong>
+                                                <strong className={`admin-stat-value ${!loading ? "animate-fade-in" : ""}`}>
+                                                    {loading ? <span className="skeleton-pulse" style={{ width: '40px', height: '24px', display: 'inline-block', borderRadius: '4px' }} /> : stats.total_inactive}
+                                                </strong>
                                             </article>
                                         </div>
                                     )}
 
                                     {selectedSection === "users" && (
                                         <>
-                                            <div className="admin-stats-grid">
-                                                <article className="admin-stat-card">
-                                                    <span className="admin-stat-label">Total users</span>
-                                                    <strong className="admin-stat-value">{stats.total_users}</strong>
-                                                </article>
-                                                <article className="admin-stat-card">
-                                                    <span className="admin-stat-label">Admins</span>
-                                                    <strong className="admin-stat-value">{stats.total_admins}</strong>
-                                                </article>
-                                                <article className="admin-stat-card">
-                                                    <span className="admin-stat-label">Active</span>
-                                                    <strong className="admin-stat-value">{stats.total_active}</strong>
-                                                </article>
-                                                <article className="admin-stat-card">
-                                                    <span className="admin-stat-label">Inactive</span>
-                                                    <strong className="admin-stat-value">{stats.total_inactive}</strong>
-                                                </article>
-                                            </div>
-
                                             <section id="admin-users-panel" className="admin-panel admin-table-panel">
                                                 <div className="admin-panel-header">
                                                     <div>
@@ -724,42 +715,61 @@ function AdminPage() {
                                                                 <th className="align-right">Actions</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            {paginatedUsers.map((user) => (
-                                                                <tr key={user.id}>
-                                                                    <td>
-                                                                        <div className="admin-user-main">{user.username}</div>
-                                                                        <div className="admin-user-id">{user.id}</div>
-                                                                    </td>
-                                                                    <td>{user.email}</td>
-                                                                    <td>
-                                                                        <span className={`admin-badge ${user.is_admin ? 'admin-badge-admin' : 'admin-badge-user'}`}>
-                                                                            {user.is_admin ? 'Admin' : 'User'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span className={`admin-badge ${user.is_active ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
-                                                                            {user.is_active ? 'Active' : 'Inactive'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="admin-actions align-right">
-                                                                             <button
-                                                                                 onClick={(event) => openUserModal(event, user.id)}
-                                                                                 className="btn btn-secondary btn-sm"
-                                                                             >
-                                                                                Edit
-                                                                            </button>
-                                                                            <button
-                                                                                onClick={() => handleDeleteUser(user.id)}
-                                                                                className="btn btn-danger btn-sm"
-                                                                            >
-                                                                                Delete
-                                                                            </button>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
+                                                        <tbody className={!loading ? "animate-fade-in" : ""}>
+                                                            {loading ? (
+                                                                Array.from({ length: 5 }).map((_, i) => (
+                                                                    <tr key={i}>
+                                                                        <td>
+                                                                            <div className="skeleton-pulse" style={{ width: '80px', height: '14px', borderRadius: '4px', marginBottom: '6px' }} />
+                                                                            <div className="skeleton-pulse" style={{ width: '120px', height: '12px', borderRadius: '4px' }} />
+                                                                        </td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '120px', height: '14px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '50px', height: '18px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '50px', height: '18px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td>
+                                                                            <div className="admin-actions align-right">
+                                                                                <span className="skeleton-pulse" style={{ width: '100px', height: '30px', display: 'inline-block', borderRadius: '6px' }} />
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            ) : (
+                                                                paginatedUsers.map((user) => (
+                                                                    <tr key={user.id}>
+                                                                        <td>
+                                                                            <div className="admin-user-main">{user.username}</div>
+                                                                            <div className="admin-user-id">{user.id}</div>
+                                                                        </td>
+                                                                        <td>{user.email}</td>
+                                                                        <td>
+                                                                            <span className={`admin-badge ${user.is_admin ? 'admin-badge-admin' : 'admin-badge-user'}`}>
+                                                                                {user.is_admin ? 'Admin' : 'User'}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span className={`admin-badge ${user.is_active ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
+                                                                                {user.is_active ? 'Active' : 'Inactive'}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="admin-actions align-right">
+                                                                                 <button
+                                                                                     onClick={(event) => openUserModal(event, user.id)}
+                                                                                     className="btn btn-secondary btn-sm"
+                                                                                 >
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeleteUser(user.id)}
+                                                                                    className="btn btn-danger btn-sm"
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -903,28 +913,47 @@ function AdminPage() {
                                                                 <th className="align-right">Actions</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            {paginatedProducts.map((product) => (
-                                                                <tr key={product.product_id}>
-                                                                    <td>
-                                                                        <div className="admin-user-main">{product.product_name}</div>
-                                                                        <div className="admin-user-id">{product.product_id}</div>
-                                                                    </td>
-                                                                    <td>€{Number(product.price ?? 0).toFixed(2)}</td>
-                                                                    <td>{product.stock ?? 0}</td>
-                                                                    <td>
-                                                                        <span className={`admin-badge ${product.stock > 0 ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
-                                                                            {product.stock > 0 ? 'Available' : 'Out of stock'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="admin-actions align-right">
-                                                                            <button onClick={(event) => openProductModal(event, product.product_id)} className="btn btn-secondary btn-sm">Edit</button>
-                                                                            <button onClick={() => handleDeleteProduct(product.product_id)} className="btn btn-danger btn-sm">Delete</button>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
+                                                        <tbody className={!loading ? "animate-fade-in" : ""}>
+                                                            {loading ? (
+                                                                Array.from({ length: 5 }).map((_, i) => (
+                                                                    <tr key={i}>
+                                                                        <td>
+                                                                            <div className="skeleton-pulse" style={{ width: '120px', height: '14px', display: 'block', borderRadius: '4px', marginBottom: '6px' }} />
+                                                                            <div className="skeleton-pulse" style={{ width: '80px', height: '12px', display: 'block', borderRadius: '4px' }} />
+                                                                        </td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '50px', height: '14px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '30px', height: '14px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td><span className="skeleton-pulse" style={{ width: '70px', height: '18px', display: 'inline-block', borderRadius: '4px' }} /></td>
+                                                                        <td>
+                                                                            <div className="admin-actions align-right">
+                                                                                <span className="skeleton-pulse" style={{ width: '100px', height: '30px', display: 'inline-block', borderRadius: '6px' }} />
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            ) : (
+                                                                paginatedProducts.map((product) => (
+                                                                    <tr key={product.product_id}>
+                                                                        <td>
+                                                                            <div className="admin-user-main">{product.product_name}</div>
+                                                                            <div className="admin-user-id">{product.product_id}</div>
+                                                                        </td>
+                                                                        <td>€{Number(product.price ?? 0).toFixed(2)}</td>
+                                                                        <td>{product.stock ?? 0}</td>
+                                                                        <td>
+                                                                            <span className={`admin-badge ${product.stock > 0 ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
+                                                                                {product.stock > 0 ? 'Available' : 'Out of stock'}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="admin-actions align-right">
+                                                                                <button onClick={(event) => openProductModal(event, product.product_id)} className="btn btn-secondary btn-sm">Edit</button>
+                                                                                <button onClick={() => handleDeleteProduct(product.product_id)} className="btn btn-danger btn-sm">Delete</button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -1199,7 +1228,6 @@ function AdminPage() {
                                     )}
                                 </div>
                             </div>
-                        )}
                     </div>
                 </section>
 
