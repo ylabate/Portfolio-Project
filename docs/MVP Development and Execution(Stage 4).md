@@ -1,166 +1,186 @@
-# LevelUp — Documentation MVP & Sprint
+# LevelUp — MVP & Sprints Documentation
 
-##  Project Overview
+## Project Presentation
 
-**LevelUp** is a full-stack marketplace for selling digital games and activation keys.  
-The project includes:
-- A **back-end API** built with **Flask**, **SQLAlchemy**, **Flask-JWT-Extended**, **Flask-Bcrypt**, **Flask-Mail**, and **Stripe**.
-- A **front-end web app** built with **React**, **Vite**, **JSX**, **React Router**, and **Axios**.
-- A **catalogue interface** with genre filters, search, sorting, and detailed product pages.
-- An **admin dashboard** for product management, inventory activation keys, and user administration.
+**LevelUp** is a complete web marketplace dedicated to digital game sales and activation keys.The initiative comprises:
 
----
-
-## MVP Goal
-
-The goal of this MVP is to:
-- Deliver a working storefront where users can browse games, add them to cart, and complete checkout.
-- Provide an admin interface to manage products, stock, and users.
-- Establish a scalable architecture for future features such as reviews, inventory expansion, and automated email flows.
+- A **server API** developed with **Flask**, **SQLAlchemy**, **Flask-JWT-Extended**, **Flask-Bcrypt**, **Flask-Mail**, and **Stripe**.
+- A **client web application** developed with **React**, **Vite**, **JSX**, **React Router**, and **Axios**.
+- A **browsable catalogue** equipped with genre filters, a search engine, sorting options, and dedicated product pages.
+- An **administration panel** allowing product handling, inventory key management, and user oversight.
 
 ---
 
-## 0. Plan and Define Sprints
+## MVP Objective
 
-###  Objective
-Distribute the work among team members into short iterations with clear objectives and defined responsibilities.
+This MVP aims to:
 
-###  Methodology: MoSCoW
-| Priority | Description |
-|-----------|--------------|
-| **Must Have** | Authentication, product catalogue, cart system, Stripe checkout, admin dashboard. |
-| **Should Have** | Password reset by email, order history, inventory management, statistics. |
-| **Could Have** | Reviews, richer product media, UI animations, Steam metadata integration. |
-| **Won’t Have** | Multi-store support or marketplace features outside the single-project scope. |
+- Offer a functional storefront where visitors can browse titles, populate a cart, and finalize their purchase.
+- Supply administrators with an interface to supervise products, stock levels, and user accounts.
+- Lay down a scalable foundation for upcoming capabilities like reviews, extended inventory, and automated messaging.
 
-###  Sprint Structure
-- **Duration:** 1 week per sprint.
-- **Tools:** GitHub for version control, Discord for team communication and task tracking, Bruno for API testing.
+---
+
+## 0. Planning and Sprint Definition
+
+### Target
+
+Organize team contributions into short cycles, each with explicit goals and assigned responsibilities.
+
+### Methodology: MoSCoW
+
+| Priority              | Description                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| **Must Have**   | Authentication system, game catalogue, cart feature, Stripe billing, admin panel.     |
+| **Should Have** | Email-based password recovery, purchase history, inventory handling, analytics.       |
+| **Could Have**  | Ratings system, advanced media support, interface animations, Steam data importation. |
+| **Won’t Have** | Multi-vendor support or marketplace functionalities beyond the project scope.         |
+
+### Sprint Framework
+
+- **Timeframe:** 1 week per cycle.
+- **Tools:** GitHub (versioning), Discord (communication and task tracking), Bruno (API verification).
 - **Roles:**
-  - **Backend Dev:** Flask, SQLAlchemy, JWT, Stripe.
-  - **Frontend Dev:** React, Vite, JSX, API integration.
-  - **QA:** Manual checks via Bruno and browser testing.
-  - **SCM:** Branching, code reviews, and merges.
+  - **Backend Engineer:** Flask, SQLAlchemy, JWT, Stripe.
+  - **Frontend Engineer:** React, Vite, JSX, API consumption.
+  - **QA Lead:** Manual verification via Bruno and browser checks.
+  - **SCM Officer:** Branch management, code audits, and merge operations.
 
 ---
 
-##  1. Execute Development Tasks
+## 1. Development Task Execution
 
-###  Backend
-- Built with **Flask** and **SQLAlchemy**.
-- Authentication and session management rely on **JWT** with access and refresh tokens.
-- Passwords are hashed with **Bcrypt** and account recovery is handled through **Flask-Mail**.
-- REST API endpoints are grouped under `/api/v1`:
+### Backend
+
+- Implemented using **Flask** and **SQLAlchemy**.
+- Authentication and session tracking leverage **JWT** with access and refresh tokens.
+- Passwords are encrypted via **Bcrypt** and account recovery is managed through **Flask-Mail**.
+- REST API endpoints are organized under `/api/v1`:
   - `/auth/register`, `/auth/login`, `/auth/logout` — user authentication
-  - `/products`, `/products/<id>` — product catalog and details
-  - `/genres` — genre listing
-  - `/cart`, `/cart/items`, `/cart/checkout` — cart management and payment
+  - `/products`, `/products/<id>` — game catalogue and details
+  - `/genres` — genre classification
+  - `/cart`, `/cart/items`, `/cart/checkout` — cart handling and payment
   - `/orders` — order history
-  - `/admin/products/<id>/activation-keys` — activation key generation (admin only)
-  - `/payments/webhook` — Stripe payment confirmation
-- Product data supports digital formats, Steam metadata, product images, reviews, and soft deletion.
-- The payment flow provisions inventory items after Stripe confirmation.
+  - `/admin/products/<id>/activation-keys` — activation key issuance (restricted to admins)
+  - `/payments/webhook` — Stripe transaction confirmation
+- Product records support digital formats, Steam metadata, imagery, reviews, and soft deletion.
+- The payment flow assigns inventory items only after Stripe confirmation.
 
 ### Frontend
-- Developed using **React**, **Vite**, **JSX**, and **React Router**.
-- Main screens exposed by the current routing layer:
+
+- Developed with **React**, **Vite**, **JSX**, and **React Router**.
+- Routes currently exposed:
   - `/` — Catalogue
   - `/product/:id` — Product details
   - `/cart` — Cart
   - `/login` — Authentication
-  - `/admin` — Admin dashboard
-- Features:
-  - Search, genre filtering, and sorting in the catalogue.
-  - Product detail view with quantity selection and add-to-cart flow.
-  - JWT-based authenticated requests through the API client.
-  - Admin product creation, edition, and deletion.
+  - `/admin` — Administration panel
+- Functionalities:
+  - Search, genre filtering, and sorting within the catalogue.
+  - Product detail screen with quantity picker and cart addition workflow.
+  - Authenticated API calls secured by JWT.
+  - Admin capabilities for creating, modifying, and removing products.
 
-###  SCM & QA
-- **Branch strategy:** `main`, `dev`, `feature/*`
+### SCM & QA
+
+- **Branch model:** `main`, `dev`, `feature/*`
 - **Testing:**
-  - Bruno for API testing.
-  - Front-end validation through the browser and console.
-- **Reviews:** Pull requests reviewed before merging.
+  - Bruno for API validation.
+  - Front-end validation executed via browser and console inspection.
+- **Reviews:** Pull requests inspected before merging.
 
 ---
 
-##  2. Monitor Progress and Adjust
+## 2. Progress Tracking and Adaptation
 
-### Weekly Stand-ups
-At the beginning of each week, the team reviewed completed tasks, identified blockers, and planned the work to be done for the upcoming week.
+### Weekly Syncs
 
-###  Tools
-- **GitHub** for version control and code tracking.
-- **Discord** for team communication and task follow-up.
-- **Bruno** for API testing.
+Each Monday, the group assessed finished work, flagged obstacles, and scheduled the following week's tasks.
 
----
+### Tools
 
-##  3. Conduct Sprint Reviews & Retrospectives
-
-###  End of Sprint
-At the beginning of each week, the team reviewed the work completed during the previous week, identified blockers, planned the upcoming tasks, and ensured everything was working as expected.
-
-###  Retrospective
-| Topic | Notes |
-|--------|-------|
-| ✅ What went well | Clear front/back separation, working JWT flow, and solid Stripe integration. |
-| What didn’t | CORS setup, token persistence edge cases, and manual fallback data in some UI states. |
-|  What to improve | Automated tests, richer admin analytics, image upload workflow, and UX polish. |
+- **GitHub** for versioning and progress monitoring.
+- **Discord** for team coordination and task follow-up.
+- **Bruno** for API validation.
 
 ---
 
-##  4. Final Integration and QA Testing
+## 3. Sprint Reviews and Retrospectives
 
-###  Full Integration
-- Verified communication between front-end and back-end for:
-  - `/products`, `/cart`, `/orders`, `/inventory`, `/admin/users`, and `/checkout/<session_id>/status`
+### Cycle Close-out
+
+At the beginning of each new sprint, the group re-examined the work produced during the prior cycle, spotted any blockers, mapped out the next batch of tasks, and confirmed that the integration remained stable.
+
+### Retrospective
+
+| Topic        | Notes                                                                                                                                                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Positives    | Clean separation between API and frontend. JWT authentication and Stripe sandbox worked reliably once configured. Admin CRUD loop reached a usable state quickly.                                                |
+| Blockers     | CORS policy needed repeated adjustments. Token persistence showed issues during session refreshes after inactivity. Some UI components still relied on local fallback data instead of live API calls.            |
+| Improvements | Add automated tests for backend routes and key frontend flows. Include basic sales and inventory metrics in the admin panel. Complete product image upload and storage. Improve UX with clearer error messages. |
+
+---
+
+## 4. Final Integration and QA Validation
+
+### Full Integration
+
+- Communication between client and server was verified for:
+  - `/products`
+  - `/cart`
+  - `/orders`
+  - `/inventory`
+  - `/admin/users`
+  - `/checkout/<session_id>/status`
 - **Stripe Sandbox**:
-  - Checkout session creation, webhook handling, and payment confirmation.
-- **Admin Dashboard**:
-  - Live product list and CRUD operations.
-  - Inventory key assignment and activation workflow.
-  - User management and statistics.
+  - Checkout session generation, webhook processing, and payment confirmation.
+- **Admin Panel**:
+  - Inventory key assignment and activation procedure.
+  - Add and update product
+  - User management and statistics viewing.
 
-### Fixes Implemented
-- Unified front-end requests through a shared API client.
-- Connected the catalogue to live backend data instead of mock-only content.
-- Added role-based access control for admin endpoints.
+### Implemented Fixes
 
----
-
-## MVP Delivery Summary
-
-| Feature | Status | Description |
-|----------|--------|--------------|
-| Authentication | ✅ | Register, login, logout, refresh, and password reset. |
-| Product Catalogue | ✅ | Searchable, filterable, and sortable game listings. |
-| Dynamic Cart | ✅ | User-specific cart managed through authenticated API calls. |
-| Checkout / Payment | ✅ | Stripe integration with webhook confirmation. |
-| Admin Dashboard | ✅ | Product, user, and inventory management. |
-| Inventory / Activation Keys | ✅ | Allocation and activation flow for digital items. |
+- Standardized client requests through a shared API connector.
+- Linked the catalogue to live backend data rather than mock-only sources.
+- Introduced role-based restrictions for admin endpoints.
 
 ---
 
-##  Next Steps
+## MVP Delivery Report
 
-1. ⚙️ Finalize the public review system in the frontend.
-2. ⚙️ Improve the admin inventory screens.
-3. ⚙️ Add richer media and product metadata handling.
-4. 🚀 Deploy to production and document the release flow.
+| Feature                     | Status | Description                                                        |
+| --------------------------- | ------ | ------------------------------------------------------------------ |
+| Auth                        | ✅     | Registration, login, logout, token refresh, and password recovery. |
+| Product Catalogue           | ✅     | Searchable, filterable, and sortable game listings.                |
+| Shopping Cart               | ✅     | User-specific cart managed via authenticated API calls.            |
+| Checkout / Payment          | ✅     | Stripe integration with webhook confirmation.                      |
+| Admin Dashboard             | ✅     | Product, user, and inventory administration.                       |
+| Inventory / Activation Keys | ✅     | Issuance and activation flow for digital goods.                    |
 
 ---
 
-## Installation & Setup
+## Road Ahead
 
-###  Requirements
+1. ⚙️ Complete the public review module in the frontend.
+2. ⚙️ Enhance the admin inventory interfaces.
+3. ⚙️ Incorporate richer media and product metadata processing.
+4. 🚀 Deploy to production and document the release procedure.
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
 - Python 3.10+
 - Node.js 18+
-- A database for SQLAlchemy (`sqlite:///levelup.db` works by default)
-- Stripe account for checkout testing
-- SMTP credentials for password reset emails
+- A database compatible with SQLAlchemy (`sqlite:///levelup.db` is the default)
+- Stripe account for payment testing
+- SMTP credentials for password recovery emails
 
-###  Environment Variables
+### Environment Variables
+
 ```env
 SQLALCHEMY_DATABASE_URI="sqlite:///levelup.db"
 SECRET_KEY="change-me"
@@ -172,14 +192,16 @@ MAIL_USERNAME="you@example.com"
 MAIL_PASSWORD="your-app-password"
 ```
 
-###  Launch Commands
+### Launch Commands
+
 ```bash
-# Start both backend and frontend with Docker Compose
+# Start both backend and frontend using Docker Compose
 cd ../levelup
 make dev
 ```
 
-If you want to run the services manually:
+For manual execution:
+
 ```bash
 # 1. Backend
 cd ../levelup/backend
@@ -194,13 +216,14 @@ npm install
 npm run dev
 ```
 
-###  URLs
-| **Service** | **URL** | **Description** |
-|----------|-----|-------------|
-| API Health | http://localhost:5000/health | Checks that the Flask server is running |
-| API Base | http://localhost:5000/api/v1 | Entry point for all API routes |
-| Frontend | http://localhost:5173 | User interface - game catalogue |
-| Admin Dashboard | http://localhost:5173/admin | Admin dashboard - product and key management |
+### URLs
+
+| **Service** | **URL**                | **Description**                    |
+| ----------------- | ---------------------------- | ---------------------------------------- |
+| API Health        | http://localhost:5000/health | Verifies Flask server status             |
+| API Base          | http://localhost:5000/api/v1 | Entry point for all API routes           |
+| Frontend          | http://localhost:5173        | User interface - game catalogue          |
+| Admin Dashboard   | http://localhost:5173/admin  | Admin panel - product and key management |
 
 ---
 
@@ -216,6 +239,6 @@ npm run dev
 
 ---
 
-**© 2026 — LevelUp**  
-Developed by **Alexandre Mouysset** **Ylan Labare Bekate** **Théo Caulet**  
-*"Your digital game marketplace, built for fast access and instant activation."*
+**© 2026 — LevelUp**
+Developed by **Alexandre Mouysset** **Ylan Labare Bekate** **Théo Caulet**
+*"Your digital game marketplace, built for fast access and instant activation.""
