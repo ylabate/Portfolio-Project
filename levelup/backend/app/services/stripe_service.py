@@ -24,6 +24,14 @@ class StripeService:
 
     def verify_webhook(self, payload, sig_header):
         endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+        if not endpoint_secret:
+            secret_filepath = "/app/shared/.stripe_webhook_secret"
+            if os.path.exists(secret_filepath):
+                try:
+                    with open(secret_filepath, "r") as f:
+                        endpoint_secret = f.read().strip()
+                except Exception as e:
+                    print(f"Error reading webhook secret file: {e}")
         try:
             event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
             return event

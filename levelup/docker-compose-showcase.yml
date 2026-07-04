@@ -9,6 +9,12 @@ services:
     volumes:
       - ./backend:/app
       - /app/venv
+      - stripe-secret:/app/shared
+    environment:
+      - STRIPE_SECRET_KEY=${STRIPE_API_KEY}
+      - FRONTEND_URL=http://localhost:5173
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - MODE=showcase
 
   frontend:
     build:
@@ -22,3 +28,27 @@ services:
       - NODE_ENV=development
     depends_on:
       - backend
+
+  stripe:
+    image: stripe/stripe-cli:latest
+    environment:
+      - STRIPE_SECRET_KEY=${STRIPE_API_KEY}
+    volumes:
+      - stripe-secret:/app/shared
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        stripe listen --api-key $$STRIPE_SECRET_KEY --forward-to http://backend:5000/api/v1/payments/webhook 2>&1 | tee /tmp/stripe.log &
+        while ! grep -q 'whsec_' /tmp/stripe.log; do
+          sleep 0.2
+        done
+        grep -o 'whsec_[a-zA-Z0-9_]*' /tmp/stripe.log | head -n 1 > /app/shared/.stripe_webhook_secret
+        echo "Extracted webhook signing secret:"
+        cat /app/shared/.stripe_webhook_secret
+        wait
+    depends_on:
+      - backend
+
+volumes:
+  stripe-secret:
