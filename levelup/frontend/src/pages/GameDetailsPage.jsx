@@ -14,7 +14,7 @@ import { getProductThumbnail, getProductGallery } from '../utils/assets';
 export default function GameDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { user } = useAuth();
   const { success } = useToast();
 
@@ -616,14 +616,30 @@ export default function GameDetailsPage() {
               </span>
             </div>
 
-            <button
-              className="btn btn-primary add-to-cart-large"
-              onClick={handleAddToCart}
-              disabled={adding || product.stock === 0}
-              style={product.stock === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-            >
-              <ShoppingCart size={20} /> {product.stock === 0 ? 'Out of stock' : adding ? 'Adding...' : 'Add to Cart'}
-            </button>
+            {(() => {
+              const cartItem = cart?.items?.find(item => item.product_id === product.product_id);
+              const quantityInCart = cartItem ? cartItem.quantity : 0;
+              const isLimitReached = quantityInCart >= product.stock;
+              const isOutOfStock = product.stock === 0;
+
+              return (
+                <button
+                  className="btn btn-primary add-to-cart-large"
+                  onClick={handleAddToCart}
+                  disabled={adding || isOutOfStock || isLimitReached}
+                  style={(isOutOfStock || isLimitReached) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                >
+                  <ShoppingCart size={20} />{' '}
+                  {isOutOfStock 
+                    ? 'Out of stock' 
+                    : isLimitReached 
+                    ? 'Max stock in cart' 
+                    : adding 
+                    ? 'Adding...' 
+                    : 'Add to Cart'}
+                </button>
+              );
+            })()}
 
             <div className="delivery-info">
               <Info size={16} />
