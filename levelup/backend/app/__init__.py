@@ -14,7 +14,7 @@ jwt = JWTManager()
 mail = Mail()
 
 
-def create_app():
+def create_app(config_overwrite=None):
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
@@ -30,6 +30,9 @@ def create_app():
     app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
     app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+
+    if config_overwrite:
+        app.config.update(config_overwrite)
 
     CORS(app)
     db.init_app(app)

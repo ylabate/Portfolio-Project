@@ -32,10 +32,24 @@ class PaymentService:
             print(f"Paiement déjà traité pour la session {getattr(session, 'id', None)}")
             return True
 
+        # Create transaction record first to track payment
+        try:
+            transaction = Transaction(
+                user_id=user_id,
+                amount_cents=amount_total,
+                type="stripe_payment",
+                reference_id=getattr(session, "id", None),
+            )
+            transaction_repo.add(transaction)
+            transaction_repo.save()
+        except Exception as e:
+            print(f"[PAYMENT] Error saving transaction for order {order_id}: {e}")
+            return False
+
         order = order_repo.get(order_id)
         if not order:
             print(f"Order {order_id} introuvable pour le webhook.")
-            return False
+            return True
 
         if order.payment_status != "pending":
             print(f"Order {order_id} déjà traitée (statut: {order.payment_status}).")
@@ -78,14 +92,7 @@ class PaymentService:
                 for cart_item in list(user.cart.items):
                     db.session.delete(cart_item)
 
-            transaction = Transaction(
-                user_id=user_id,
-                amount_cents=amount_total,
-                type="stripe_payment",
-                reference_id=getattr(session, "id", None),
-            )
-            transaction_repo.add(transaction)
-            transaction_repo.save()
+            db.session.commit()
 
             print(f"[PAYMENT] Order {order_id} paid successfully for user {user_id}")
             return True
