@@ -40,9 +40,7 @@ npm install
 npm run dev
 ```
 
-## Environment Variables
-
-Create a `.env` file in `levelup/backend/`:
+Create a `.env` file in `levelup/`:
 
 ```
 SQLALCHEMY_DATABASE_URI="sqlite:///levelup.db"
@@ -50,7 +48,7 @@ SECRET_KEY="change-me"
 JWT_SECRET_KEY="change-me-too"
 FRONTEND_URL="http://localhost:5173"
 STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
+# STRIPE_WEBHOOK_SECRET="whsec_..."  # Only in production! (Stripe CLI handles it dynamically in dev)
 MAIL_USERNAME="you@example.com"
 MAIL_PASSWORD="your-app-password"
 ```
@@ -62,6 +60,29 @@ MAIL_PASSWORD="your-app-password"
 | `make dev`      | Start backend and frontend in development mode |
 | `make showcase` | Start with showcase mode (pre-seeded data)     |
 | `make kill`     | Stop containers and remove volumes             |
+
+## Testing
+
+### Pytest (Backend)
+Run backend unit and integration tests locally:
+1. Navigate to backend directory and create/activate virtual environment:
+   ```bash
+   cd levelup/backend
+   python -m venv venv
+   source venv/bin/activate
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r test/pytest/requirements.txt
+   ```
+3. Run the tests:
+   ```bash
+   pytest
+   ```
+
+### Bruno (API Validation)
+Import the Bruno collections stored in `levelup/backend/test/bruno` into your Bruno API client to test all route contracts. The requests are pre-configured to execute on `http://127.0.0.1:5000/api/v1`.
 
 ## Frontend Pages
 
