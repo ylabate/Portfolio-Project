@@ -17,7 +17,7 @@ The **Level Up** MVP platform is built using a decoupled client-server architect
 ## 🤝 Project Management & Version Control
 
 To monitor progression and align team workflows:
-*   **Version Control & SCM**: We used **GitHub** exclusively for codebase hosting and branching. The flow enforced separate `feature/*` branches, pull-request validations, and clean integration into `dev` and `main` branches.
+*   **Version Control & SCM**: We used **Git** for local version control and **GitHub** for repository hosting. The workflow enforced separate `feature/*` branches, pull-request validations, and clean integration into `dev` and `main` branches.
 *   **Task & Project Tracking**: Rather than complex external management platforms, we simplified task allocation and daily discussions using **Discord** as our hub. Tasks were distributed, updated, and closed directly through team syncs on specialized Discord channels.
 
 ---
