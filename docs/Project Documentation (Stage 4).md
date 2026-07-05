@@ -95,8 +95,30 @@ We wrote unit tests targeting the service layer using pytest:
 *   [stripe_service_test.py](file:///home/moi/git/Work/Portfolio-Project/levelup/backend/test/pytest/stripe_service_test.py)
 *   [inventory_service_test.py](file:///home/moi/git/Work/Portfolio-Project/levelup/backend/test/pytest/inventory_service_test.py)
 
+#### Run Tests Locally:
+1. Navigate to the backend directory, create and activate the virtual environment:
+   ```bash
+   cd levelup/backend
+   python -m venv venv
+   source venv/bin/activate
+   ```
+2. Install application dependencies and test dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r test/pytest/requirements.txt
+   ```
+3. Run the test suite:
+   ```bash
+   pytest
+   ```
+
 ### 2. Manual Endpoint Testing (Bruno)
 We configured Bruno collections (stored in `levelup/backend/test/bruno`) to test all route schemas. These API specifications ensure no changes in data contract payloads break the React client side.
+
+#### How to Use:
+1. Open the [Bruno API Client](https://www.usebruno.com/).
+2. Select **Open Collection** and choose the `levelup/backend/test/bruno` folder.
+3. You can now execute and test routes (Authentication, Products, Cart, Orders, Admin panel, etc.) directly. The requests are pre-configured to point to `http://127.0.0.1:5000/api/v1`.
 
 ---
 
@@ -110,6 +132,7 @@ We configured Bruno collections (stored in `levelup/backend/test/bruno`) to test
 A root `.env` must be placed at the workspace root to inject credentials:
 ```env
 STRIPE_API_KEY=sk_test_... # Secret API Key from Stripe Dashboard
+# STRIPE_WEBHOOK_SECRET=whsec_... # Only define this in production! (In dev, Stripe CLI handles it automatically)
 ```
 
 Backend specific environment variables are stored in [levelup/backend/.env](file:///home/moi/git/Work/Portfolio-Project/levelup/backend/.env):
