@@ -4,6 +4,24 @@ This documentation presents the final delivery, validation processes, and engine
 
 ---
 
+## 🛠️ Technical Stack Overview
+
+The **Level Up** MVP platform is built using a decoupled client-server architecture:
+*   **Frontend**: Developed using **React**, **Vite**, **TailwindCSS**, and **React Router** for a responsive, single-page application experience.
+*   **Backend**: Powered by a **Python Flask** REST API structured in layers (API Routes, Service Layer, Repository Pattern).
+*   **Database**: Managed through **SQLite** and **SQLAlchemy ORM** for persistent local transactions.
+*   **Integrations**: Secured transactions via the **Stripe API** (Checkout Sessions and Webhooks) and email dispatches handled through **Flask-Mail**.
+
+---
+
+## 🤝 Project Management & Version Control
+
+To monitor progression and align team workflows:
+*   **Version Control & SCM**: We used **GitHub** exclusively for codebase hosting and branching. The flow enforced separate `feature/*` branches, pull-request validations, and clean integration into `dev` and `main` branches.
+*   **Task & Project Tracking**: Rather than complex external management platforms, we simplified task allocation and daily discussions using **Discord** as our hub. Tasks were distributed, updated, and closed directly through team syncs on specialized Discord channels.
+
+---
+
 ## 🚀 1. Feature Delivery & Release Registry
 
 The table below reflects the actual status of the application features at the end of the MVP phase compared to the requirements laid out in the initial stages.
@@ -22,6 +40,29 @@ The table below reflects the actual status of the application features at the en
 | **Administration** | CRUD Management | ✅ | Admin dashboard allows creating/editing products, updating prices, and tracking user lists. |
 | | Key Injection | ✅ | Endpoint allows administrators to generate batch activation codes to restock game products. |
 | **Bonus / Roadmap** | Lootbox / Gambling | ⚙️ | Schema prepared (`state: "opened"`, type: `"crate"`), UI logic designed but backend probability logic deferred. |
+
+---
+
+## 🔌 API Endpoint Registry
+
+Below is a simplified list of the primary REST endpoints serving the application:
+*   **Authentication**
+    *   `POST /api/v1/auth/register` : User registration
+    *   `POST /api/v1/auth/login` : Login & JWT issuance
+    *   `POST /api/v1/auth/forgot-password` / `reset-password` : Recovery flow
+*   **Products & Catalog**
+    *   `GET /api/v1/products` : Browse catalog with query parameters (search, filter, sort)
+    *   `GET /api/v1/products/<id>` : Product detail details
+    *   `POST /api/v1/products` : CRUD creation *(Admin only)*
+*   **Cart & Checkout**
+    *   `GET /api/v1/cart` : Get active user cart
+    *   `POST /api/v1/cart/items` : Add product to cart
+    *   `POST /api/v1/cart/checkout` : Instantiate Stripe payment session
+    *   `GET /api/v1/checkout/<session_id>/status` : Webhook state checking polling route
+*   **Inventory & Orders**
+    *   `GET /api/v1/inventory` : Retrieve user purchase history & keys
+    *   `GET /api/v1/inventory/<id>/activate` : Reveal activation key code
+    *   `POST /api/v1/payments/webhook` : Stripe webhook receiver endpoint
 
 ---
 
