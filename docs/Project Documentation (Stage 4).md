@@ -129,15 +129,17 @@ We configured Bruno collections (stored in `levelup/backend/test/bruno`) to test
 *   **Stripe API credentials** (Publishable and Secret keys for Test Mode)
 
 ### Configuration Variables (`.env`)
-A root `.env` must be placed at the workspace root to inject credentials:
-```env
-STRIPE_API_KEY=sk_test_... # Secret API Key from Stripe Dashboard
-# STRIPE_WEBHOOK_SECRET=whsec_... # Only define this in production! (In dev, Stripe CLI handles it automatically)
-```
+A `.env` file must be placed in the `levelup/` directory to inject credentials and configuration variables:
 
-Backend specific environment variables are stored in [levelup/backend/.env](file:///home/moi/git/Work/Portfolio-Project/levelup/backend/.env):
 ```env
-JWT_SECRET_KEY=your_jwt_secret_key_here
+SQLALCHEMY_DATABASE_URI="sqlite:///levelup.db"
+SECRET_KEY="change-me"
+JWT_SECRET_KEY="change-me-too"
+FRONTEND_URL="http://localhost:5173"
+STRIPE_SECRET_KEY="sk_test_..."
+# STRIPE_WEBHOOK_SECRET="whsec_..."  # -> Only define this in production! (In dev, Stripe CLI handles it automatically)
+MAIL_USERNAME="you@example.com"
+MAIL_PASSWORD="your-app-password"
 ```
 
 ### Launch Commands
