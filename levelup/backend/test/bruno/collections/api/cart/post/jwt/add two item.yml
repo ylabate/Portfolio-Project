@@ -1,0 +1,57 @@
+info:
+  name: add two item
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://127.0.0.1:5000/api/v1/cart/items
+  body:
+    type: json
+    data: |-
+      {
+        "product_id": "00000000-0000-0000-0000-000000000002",
+        "quantity": 2
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.id
+      operator: length
+      value: "36"
+    - expression: res.body.user_id
+      operator: length
+      value: "36"
+    - expression: res.body.items
+      operator: isArray
+    - expression: res.body.items[0].id
+      operator: length
+      value: "36"
+    - expression: res.body.items[0].price
+      operator: isNumber
+    - expression: res.body.items[0].product_id
+      operator: length
+      value: "36"
+    - expression: res.body.items[0].product_name
+      operator: isString
+    - expression: res.body.items[0].product_thumbnail_alt
+      operator: isString
+    - expression: res.body.items[0].product_thumbnail_link
+      operator: isString
+    - expression: res.body.items[0].quantity
+      operator: isNumber
+    - expression: res.body.items[0].product_genres[0].id
+      operator: length
+      value: "36"
+    - expression: res.body.items[0].product_genres[0].name
+      operator: isString
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,14 @@
+opencollection: 1.0.0
+info:
+  name: "levelup"
+  type: workspace
+
+collections:
+  - name: "api"
+    path: "collections/api"
+  - name: "Products"
+    path: "collections/Products"
+
+specs:
+
+docs: ''

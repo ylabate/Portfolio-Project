@@ -1,0 +1,15 @@
+info:
+  name: delete product
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://127.0.0.1:5000/api/v1/products/445df059-62ac-4e32-97f1-53c412d12b5d
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

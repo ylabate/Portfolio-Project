@@ -1,0 +1,21 @@
+info:
+  name: wrong id
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://127.0.0.1:5000/api/v1/inventory/00000000-0000-0000-0000-000000000000
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

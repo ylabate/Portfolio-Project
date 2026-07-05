@@ -1,21 +1,68 @@
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
+from flask_mail import Mail
+from dotenv import load_dotenv
+from werkzeug.exceptions import HTTPException
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
+jwt = JWTManager()
+mail = Mail()
 
 
-def create_app():
+def create_app(config_overwrite=None):
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///levelup.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "SQLALCHEMY_DATABASE_URI", "sqlite:///levelup.db"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key")
+
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+
+    if config_overwrite:
+        app.config.update(config_overwrite)
 
     CORS(app)
     db.init_app(app)
+    bcrypt.init_app(app)
+    jwt.init_app(app)
+    mail.init_app(app)
+
+    from app.models.token_blocklist import TokenBlocklist
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        return TokenBlocklist.query.filter_by(jti=jti).first() is not None
+
+    import app.models as models
+
+    with app.app_context():
+        _ = models
+        db.create_all()
+
+    from app.api.v1 import v1_bp
+
+    app.register_blueprint(v1_bp)
 
     @app.get("/health")
     def health_check():
         return jsonify({"status": "ok"})
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        return jsonify({"message": e.description}), e.code
 
     return app
