@@ -68,9 +68,14 @@ body {
   background: linear-gradient(135deg, var(--purple-light), var(--cyan));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   text-decoration: none;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
 }
-.nav-logo-icon { font-size: 1.6rem; -webkit-text-fill-color: initial; }
+.nav-logo-img {
+  height: 32px;
+  width: auto;
+  display: block;
+  -webkit-text-fill-color: initial;
+}
 
 .nav-links { display: flex; align-items: center; gap: 8px; }
 .nav-link {
