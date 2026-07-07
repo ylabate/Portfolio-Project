@@ -12,8 +12,6 @@
     </filter>
   </defs>
 
-  <rect width="500" height="500" rx="40" fill="#120E1A" />
-
   <g transform="translate(250, 250) scale(1.4) translate(-250, -230)">
     <g transform="translate(0, 10)" filter="url(#neonGlow)">
       <path d="M 150 340 L 250 240 L 350 340 L 310 370 L 250 310 L 190 370 Z"

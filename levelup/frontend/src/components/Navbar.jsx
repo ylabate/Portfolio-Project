@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logoSansFond.svg';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
