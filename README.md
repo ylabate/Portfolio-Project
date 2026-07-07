@@ -43,11 +43,15 @@ npm run dev
 Create a `.env` file in `levelup/`:
 
 ```
+STRIPE_API_KEY="sk_test_..."
+```
+
+Create a `.env` file in `levelup/backend`:
+
+```
 SQLALCHEMY_DATABASE_URI="sqlite:///levelup.db"
-SECRET_KEY="change-me"
 JWT_SECRET_KEY="change-me-too"
 FRONTEND_URL="http://localhost:5173"
-STRIPE_SECRET_KEY="sk_test_..."
 # STRIPE_WEBHOOK_SECRET="whsec_..."  # Only in production! (Stripe CLI handles it dynamically in dev)
 MAIL_USERNAME="you@example.com"
 MAIL_PASSWORD="your-app-password"
