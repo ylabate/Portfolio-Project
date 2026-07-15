@@ -1,8 +1,16 @@
 import axios from 'axios';
 import { triggerToast } from './context/ToastContext.jsx';
 
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  if (hostname.includes('preview.app.github.dev') || hostname.includes('github.dev') || hostname.includes('app.github.dev')) {
+    return `https://${hostname.replace('-5173', '-5000')}/api/v1`;
+  }
+  return 'http://127.0.0.1:5000/api/v1';
+};
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api/v1',
+  baseURL: getBaseURL(),
   headers: { 'Content-Type': 'application/json' },
 });
 
