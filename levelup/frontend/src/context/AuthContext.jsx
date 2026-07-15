@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
     const tokenClaims = decodeJwt(data.access_token);
     const isAdmin = data.user.is_admin ?? tokenClaims?.is_admin ?? false;
     localStorage.setItem('token', data.access_token);
+    localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('refresh_token', data.refresh_token);
     localStorage.setItem('user', JSON.stringify({
       id: data.user.id,
@@ -51,6 +52,7 @@ export function AuthProvider({ children }) {
     const tokenClaims = decodeJwt(data.access_token);
     const isAdmin = data.user.is_admin ?? tokenClaims?.is_admin ?? false;
     localStorage.setItem('token', data.access_token);
+    localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('refresh_token', data.refresh_token);
     localStorage.setItem('user', JSON.stringify({
       id: data.user.id,
@@ -63,6 +65,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     setUser(null);

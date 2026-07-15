@@ -17,7 +17,7 @@ function parseJwtPayload(token: string) {
 }
 
 function Navbar() {
-    const token = localStorage.getItem("access_token") || localStorage.getItem("token")
+    const token = localStorage.getItem("token") || localStorage.getItem("access_token")
     const isAdmin = Boolean(token && parseJwtPayload(token)?.is_admin)
     const [currentToken, setCurrentToken] = useState(token)
 

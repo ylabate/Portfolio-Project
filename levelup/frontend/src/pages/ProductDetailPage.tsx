@@ -99,7 +99,7 @@ function ProductDetailPage() {
         )
     }
     const handleAddToCart = async () => {
-        const token = localStorage.getItem("access_token")
+        const token = localStorage.getItem("token") || localStorage.getItem("access_token")
         if (!token) {
             navigate("/login")
             return

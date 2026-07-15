@@ -36,11 +36,13 @@ api.interceptors.response.use(
           );
           
           localStorage.setItem('token', data.access_token);
+          localStorage.setItem('access_token', data.access_token);
           originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
           return api(originalRequest);
         } catch (refreshErr) {
           // If refresh request fails, log out the user
           localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
           sessionStorage.setItem('toast_message', 'Session expired. Please sign in again.');
@@ -49,6 +51,7 @@ api.interceptors.response.use(
         }
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('user');
         sessionStorage.setItem('toast_message', 'Session expired. Please sign in again.');
         window.location.href = '/login';
