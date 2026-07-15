@@ -4,5 +4,17 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "postStartCommand": "cd levelup && (make dev &)",
+  "postAttachCommand": "cd levelup && (make dev &)",
+  "portsAttributes": {
+    "5173": {
+      "label": "LevelUp Frontend (React)",
+      "onAutoForward": "openBrowser"
+    },
+    "5000": {
+      "label": "LevelUp API (Flask)",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    }
+  },
+  "forwardPorts": [5173, 5000]
 }
