@@ -157,7 +157,7 @@
         <a href="#showcase" class="w-full sm:w-auto px-8 py-4 bg-brand-purple hover:bg-brand-purpleLight rounded-xl text-white font-bold transition-all duration-200 shadow-glowPurple hover:scale-[1.02] text-center">
           <i class="fa-solid fa-desktop mr-2"></i> Explorer l'Application
         </a>
-        <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-4 bg-[#238636] hover:bg-[#2ea043] rounded-xl text-white font-bold transition-all duration-200 shadow-[0_0_15px_rgba(46,160,67,0.3)] hover:scale-[1.02] text-center">
+        <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="hidden w-full sm:w-auto px-8 py-4 bg-[#238636] hover:bg-[#2ea043] rounded-xl text-white font-bold transition-all duration-200 shadow-[0_0_15px_rgba(46,160,67,0.3)] hover:scale-[1.02] text-center">
           <i class="fa-solid fa-cloud mr-2"></i> Lancer Codespace (1-Clic)
         </a>
         <a href="#quickstart" class="w-full sm:w-auto px-8 py-4 border border-brand-purple hover:border-brand-purpleLight hover:bg-brand-purple/15 rounded-xl text-white font-bold transition-all duration-200 text-center">
@@ -723,10 +723,10 @@
         </div>
 
         <p class="text-brand-textSecondary text-sm">
-          Lancez l'environnement complet de développement (Frontend + Backend + Base de données) en local ou instantanément dans le cloud :
+          Lancez l'environnement complet de développement (Frontend + Backend + Base de données) en local :
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
           <!-- Local Setup Card -->
           <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple flex flex-col justify-between">
             <div class="space-y-4">
@@ -745,15 +745,17 @@
                     <i class="fa-regular fa-copy"></i> Copier
                   </button>
                 </div>
-                <div><span class="text-brand-purple">git clone</span> https://github.com/ylabate/...</div>
+                <div><span class="text-brand-purple">git clone</span> https://github.com/ylabate/Portfolio-Project.git</div>
                 <div><span class="text-brand-purple">cd</span> Portfolio-Project/levelup</div>
+                <div><span class="text-brand-purple">echo</span> "STRIPE_API_KEY=sk_test_..." &gt; .env</div>
+                <div><span class="text-brand-purple">echo -e</span> "SECRET_KEY=dev\nJWT_SECRET_KEY=dev" &gt; backend/.env</div>
                 <div><span class="text-brand-purple">make dev</span></div>
               </div>
             </div>
           </div>
 
-          <!-- Cloud Startup (Codespaces) Card -->
-          <div class="glass-panel p-6 rounded-2xl border border-[#2ea043]/30 bg-[#2ea043]/5 flex flex-col justify-between">
+          <!-- Cloud Startup (Codespaces) Card (Hidden trace) -->
+          <div class="hidden glass-panel p-6 rounded-2xl border border-[#2ea043]/30 bg-[#2ea043]/5 flex flex-col justify-between">
             <div class="space-y-4">
               <h4 class="font-outfit font-bold text-white text-base flex items-center gap-2">
                 <i class="fa-solid fa-cloud text-[#2ea043]"></i> Lancer dans le Cloud
@@ -866,7 +868,7 @@
     }
 
     function copyCommands() {
-      const textToCopy = "git clone https://github.com/ylabate/Portfolio-Project.git\ncd Portfolio-Project/levelup";
+      const textToCopy = "git clone https://github.com/ylabate/Portfolio-Project.git\ncd Portfolio-Project/levelup\necho \"STRIPE_API_KEY=sk_test_...\" > .env\necho -e \"SECRET_KEY=dev\\nJWT_SECRET_KEY=dev\" > backend/.env\nmake dev";
       navigator.clipboard.writeText(textToCopy).then(() => {
         const copyBtn = document.getElementById('copy-btn');
         copyBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Copié !';
