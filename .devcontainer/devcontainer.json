@@ -1,0 +1,19 @@
+{
+  "name": "LevelUp Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postStartCommand": "cd levelup && make dev",
+  "portsAttributes": {
+    "5173": {
+      "label": "LevelUp Frontend (React)",
+      "onAutoForward": "openPreview"
+    },
+    "5000": {
+      "label": "LevelUp API (Flask)",
+      "onAutoForward": "ignore"
+    }
+  },
+  "forwardPorts": [5173, 5000]
+}
