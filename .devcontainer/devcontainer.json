@@ -1,6 +1,6 @@
 {
   "name": "LevelUp Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/python:3.9",
+  "image": "mcr.microsoft.com/devcontainers/python:3.10",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {}
   },
