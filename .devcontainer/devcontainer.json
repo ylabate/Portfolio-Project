@@ -1,14 +1,14 @@
 {
   "name": "LevelUp Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/python:3.10",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "postStartCommand": "bash levelup/start-codespace.sh",
+  "postStartCommand": "cd levelup && (make dev &)",
   "portsAttributes": {
     "5173": {
       "label": "LevelUp Frontend (React)",
-      "onAutoForward": "openPreview"
+      "onAutoForward": "openBrowser"
     },
     "5000": {
       "label": "LevelUp API (Flask)",
