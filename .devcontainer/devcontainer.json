@@ -4,7 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "postAttachCommand": "cd levelup && (make dev &)",
+  "postAttachCommand": "gh codespace ports visibility 5000:public & cd levelup && (make dev &)",
   "portsAttributes": {
     "5173": {
       "label": "LevelUp Frontend (React)",
