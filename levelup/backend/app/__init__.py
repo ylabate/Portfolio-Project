@@ -34,7 +34,7 @@ def create_app(config_overwrite=None):
     if config_overwrite:
         app.config.update(config_overwrite)
 
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
