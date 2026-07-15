@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LevelUp - La marketplace ultime pour acheter vos clés de jeux vidéo en toute sécurité et instantanément. Intégration Stripe et catalogue de clés Steam.">
+  <title>LevelUp | La Marketplace Premium de Clés de Jeux Vidéo</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              primary: '#08080f',
+              secondary: '#0e0e1a',
+              card: '#0e0e1a',
+              cardHover: '#16162a',
+              purple: '#4B0082',
+              purpleLight: '#560093',
+              purpleDark: '#4B0082',
+              cyan: '#33c2dc',
+              cyanLight: '#66d9ef',
+              textPrimary: '#e8e6e3',
+              textSecondary: '#b0aaa0',
+              borderPurple: 'rgba(157, 118, 253, 0.15)',
+              borderPurpleHover: 'rgba(157, 118, 253, 0.4)',
+            }
+          },
+          boxShadow: {
+            glowPurple: '0 0 25px rgba(157, 118, 253, 0.25)',
+            glowCyan: '0 0 25px rgba(51, 194, 220, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #08080f;
+      color: #e8e6e3;
+      overflow-x: hidden;
+    }
+    .glass-panel {
+      background: rgba(14, 14, 26, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(157, 118, 253, 0.15);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-panel:hover {
+      border-color: rgba(157, 118, 253, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(157, 118, 253, 0.15);
+      transform: translateY(-2px);
+    }
+    /* Animated Gradient Background behind Hero */
+    .bg-gradient-animated {
+      background-image: radial-gradient(circle at 10% 20%, rgba(157, 118, 253, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(51, 194, 220, 0.1) 0%, transparent 40%);
+    }
+    .tab-btn {
+      background: transparent;
+    }
+    .tab-btn.active {
+      background: rgba(157, 118, 253, 0.2);
+      border-color: #D8BFD8;
+      color: #e8e6e3;
+    }
+    .api-btn {
+      background: transparent;
+    }
+    .api-btn.active {
+      background: rgba(51, 194, 220, 0.15);
+      border-color: #33c2dc;
+      color: #66d9ef;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen bg-gradient-animated">
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 z-50 w-full glass-panel border-b border-brand-borderPurple px-6 py-4 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <!-- Official Logo SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" class="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]">
+          <defs>
+            <linearGradient id="purpleGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4B0082" />
+              <stop offset="50%" stop-color="#8A2BE2" />
+              <stop offset="100%" stop-color="#D8BFD8" />
+            </linearGradient>
+          </defs>
+          <g transform="translate(250, 250) scale(1.4) translate(-250, -230)">
+            <g transform="translate(0, 10)">
+              <path d="M 150 340 L 250 240 L 350 340 L 310 370 L 250 310 L 190 370 Z" fill="url(#purpleGrad)" opacity="0.6" />
+              <path d="M 150 250 L 250 150 L 350 250 L 310 280 L 250 220 L 190 280 Z" fill="url(#purpleGrad)" opacity="0.8" />
+              <path d="M 150 160 L 250 60 L 350 160 L 310 190 L 250 130 L 190 190 Z" fill="url(#purpleGrad)" />
+            </g>
+          </g>
+        </svg>
+        <span class="font-outfit font-extrabold text-2xl tracking-wider text-brand-textPrimary bg-clip-text bg-gradient-to-r from-white to-brand-purpleLight">LevelUp</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#features" class="text-brand-textSecondary hover:text-brand-textPrimary transition-colors font-medium">Fonctionnalités</a>
+        <a href="#showcase" class="text-brand-textSecondary hover:text-brand-textPrimary transition-colors font-medium">Captures d'Écran</a>
+        <a href="#architecture" class="text-brand-textSecondary hover:text-brand-textPrimary transition-colors font-medium">Architecture & Code</a>
+      </div>
+
+      <!-- GitHub Link -->
+      <div>
+        <a href="https://github.com/ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-purple hover:bg-brand-purpleLight text-white font-semibold transition-all duration-200 shadow-glowPurple hover:scale-[1.02]">
+          <i class="fa-brands fa-github text-lg"></i>
+          <span>Code Source</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="relative max-w-7xl mx-auto px-6 pt-16 pb-24 md:pt-24 md:pb-32 flex flex-col lg:flex-row items-center gap-12">
+    <!-- Left text -->
+    <div class="flex-1 text-center lg:text-left space-y-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purpleLight text-sm font-semibold tracking-wide uppercase">
+        <i class="fa-solid fa-code text-brand-cyan"></i> Projet Portfolio Full-Stack
+      </div>
+      <h1 class="font-outfit font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-tight text-white">
+        Le niveau supérieur du <span class="text-[#0B0082]">Jeu Vidéo</span> à prix réduit.
+      </h1>
+      <p class="text-brand-textSecondary text-lg sm:text-xl max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
+        Découvrez et achetez vos clés de jeu favorites instantanément et en toute sécurité. Une plateforme moderne, propulsée par Stripe, React et Flask.
+      </p>
+
+      <!-- Call to Actions -->
+      <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+        <a href="#showcase" class="w-full sm:w-auto px-8 py-4 bg-brand-purple hover:bg-brand-purpleLight rounded-xl text-white font-bold transition-all duration-200 shadow-glowPurple hover:scale-[1.02] text-center">
+          <i class="fa-solid fa-desktop mr-2"></i> Explorer l'Application
+        </a>
+        <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="hidden w-full sm:w-auto px-8 py-4 bg-[#238636] hover:bg-[#2ea043] rounded-xl text-white font-bold transition-all duration-200 shadow-[0_0_15px_rgba(46,160,67,0.3)] hover:scale-[1.02] text-center">
+          <i class="fa-solid fa-cloud mr-2"></i> Lancer Codespace (1-Clic)
+        </a>
+        <a href="#quickstart" class="w-full sm:w-auto px-8 py-4 border border-brand-purple hover:border-brand-purpleLight hover:bg-brand-purple/15 rounded-xl text-white font-bold transition-all duration-200 text-center">
+          Démarrage Rapide
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Graphic Mockup (Sleek constrained preview) -->
+    <div class="flex-1 w-full max-w-[340px] mx-auto">
+      <div class="relative rounded-2xl overflow-hidden border border-brand-borderPurpleHover shadow-2xl bg-brand-secondary p-2">
+        <!-- Mockup top bar -->
+        <div class="flex items-center justify-between pb-2 px-2 border-b border-brand-borderPurple mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+          </div>
+          <span class="text-[9px] text-brand-textMuted font-mono">levelup</span>
+          <i class="fa-solid fa-expand text-brand-textMuted text-[9px]"></i>
+        </div>
+
+        <!-- Mockup image -->
+        <div class="rounded-xl overflow-hidden bg-brand-primary">
+          <img class="w-full h-auto object-cover opacity-95" src="template/card_mockup.png" alt="Aperçu carte produit LevelUp">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Key Features Section -->
+  <section id="features" class="bg-brand-secondary py-20 border-y border-brand-borderPurple">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <h2 class="font-outfit font-extrabold text-3xl sm:text-4xl text-white">
+          Fonctionnalités Applicatives
+        </h2>
+        <p class="text-brand-textSecondary font-light">
+          Une plateforme conçue pour allier rapidité de transaction, sécurité maximale et interface utilisateur moderne.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Feature 1 -->
+        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between transition-all duration-300">
+          <div class="space-y-4">
+            <div class="h-12 w-12 rounded-xl bg-brand-purple/10 border border-brand-purple/30 flex items-center justify-center text-brand-purple text-xl">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <h3 class="font-outfit font-bold text-xl text-white">Livraison Instantanée</h3>
+            <p class="text-brand-textSecondary text-sm leading-relaxed">
+              Une fois votre paiement validé, la clé d'activation est instantanément disponible dans votre inventaire personnel.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between transition-all duration-300">
+          <div class="space-y-4">
+            <div class="h-12 w-12 rounded-xl bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan text-xl">
+              <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="font-outfit font-bold text-xl text-white">Inventaire de Clés</h3>
+            <p class="text-brand-textSecondary text-sm leading-relaxed">
+              Conservez, gérez et révélez vos clés d'activation achetées à tout moment depuis votre bibliothèque de jeux sécurisée.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between transition-all duration-300">
+          <div class="space-y-4">
+            <div class="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="font-outfit font-bold text-xl text-white">Paiement Stripe</h3>
+            <div class="space-y-2">
+              <p class="text-brand-textSecondary text-sm leading-relaxed">
+                Transactions chiffrées avec Stripe. Achat simple par carte bancaire avec redirection sécurisée.
+              </p>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-brand-purple/20 border border-brand-purple/30 text-[10px] font-bold text-brand-purpleLight">
+                <i class="fa-solid fa-circle-info"></i> Mode Test Actif
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between transition-all duration-300">
+          <div class="space-y-4">
+            <div class="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="font-outfit font-bold text-xl text-white">Espace Admin</h3>
+            <p class="text-brand-textSecondary text-sm leading-relaxed">
+              Comprend un panneau d'administration complet pour la gestion des produits, de l'inventaire et des utilisateurs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Screenshot Showcase Section -->
+  <section id="showcase" class="py-24 max-w-7xl mx-auto px-6">
+    <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
+      <h2 class="font-outfit font-extrabold text-3xl sm:text-4xl text-white">
+        Découvrez l'Interface en Images
+      </h2>
+      <p class="text-brand-textSecondary font-light">
+        Aperçu des pages clés du site original en cours de fonctionnement.
+      </p>
+    </div>
+
+    <!-- Interface Tabs -->
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-10 max-w-4xl mx-auto">
+      <button onclick="showTab('store')" id="btn-store" class="tab-btn active px-4 py-2 border border-brand-borderPurple rounded-xl text-sm font-semibold text-brand-textSecondary transition-all duration-200">
+        <i class="fa-solid fa-store mr-2"></i>La Boutique
+      </button>
+      <button onclick="showTab('product')" id="btn-product" class="tab-btn px-4 py-2 border border-brand-borderPurple rounded-xl text-sm font-semibold text-brand-textSecondary transition-all duration-200">
+        <i class="fa-solid fa-gamepad mr-2"></i>Fiche Jeu
+      </button>
+      <button onclick="showTab('cart')" id="btn-cart" class="tab-btn px-4 py-2 border border-brand-borderPurple rounded-xl text-sm font-semibold text-brand-textSecondary transition-all duration-200">
+        <i class="fa-solid fa-shopping-cart mr-2"></i>Panier
+      </button>
+      <button onclick="showTab('inventory')" id="btn-inventory" class="tab-btn px-4 py-2 border border-brand-borderPurple rounded-xl text-sm font-semibold text-brand-textSecondary transition-all duration-200">
+        <i class="fa-solid fa-key mr-2"></i>Inventaire
+      </button>
+      <button onclick="showTab('admin')" id="btn-admin" class="tab-btn px-4 py-2 border border-brand-borderPurple rounded-xl text-sm font-semibold text-brand-textSecondary transition-all duration-200">
+        <i class="fa-solid fa-user-lock mr-2"></i>Admin Panel
+      </button>
+    </div>
+
+    <!-- Browser Mockup Box -->
+    <div class="glass-panel rounded-2xl overflow-hidden border border-brand-borderPurpleHover shadow-2xl bg-brand-secondary p-3 max-w-5xl mx-auto">
+      <!-- Top bar -->
+      <div class="flex items-center justify-between pb-3 px-3 border-b border-brand-borderPurple mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+        </div>
+        <span id="browser-url" class="text-xs text-brand-textMuted font-mono">levelup/catalog</span>
+        <i class="fa-solid fa-rotate-right text-brand-textMuted text-xs"></i>
+      </div>
+
+      <!-- Screenshot Display -->
+      <div class="rounded-lg overflow-hidden bg-brand-primary min-h-[300px] md:min-h-[500px]">
+        <img id="screenshot-img" class="w-full h-auto object-cover" src="template/store_exemple.png" alt="Boutique LevelUp">
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Showcase / Architecture -->
+  <section id="architecture" class="bg-brand-secondary py-20 border-t border-brand-borderPurple">
+    <div class="max-w-7xl mx-auto px-6 space-y-24">
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <h2 class="font-outfit font-extrabold text-3xl sm:text-4xl text-white">
+          Architecture & Organisation
+        </h2>
+        <p class="text-brand-textSecondary font-light">
+          Découvrez la répartition des composants et la structure des répertoires du projet.
+        </p>
+      </div>
+
+      <!-- Visual directory tree -->
+      <div class="max-w-4xl mx-auto glass-panel p-8 rounded-2xl border border-brand-borderPurple">
+        <!-- Root node -->
+        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-brand-borderPurple">
+          <div class="h-10 w-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purpleLight text-lg">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <div>
+            <h4 class="font-outfit font-bold text-white text-lg">/levelup</h4>
+            <p class="text-xs text-brand-textSecondary">Dossier racine du projet portfolio</p>
+          </div>
+        </div>
+
+        <!-- Tree branches -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Backend branch -->
+          <div class="space-y-4 relative">
+            <div class="flex items-center gap-2 pb-2 border-b border-brand-borderPurple/50">
+              <i class="fa-solid fa-folder text-brand-purpleLight text-lg"></i>
+              <span class="font-bold text-white font-outfit">backend/</span>
+              <span class="text-[10px] bg-brand-purple/20 border border-brand-purple/30 text-brand-purpleLight font-bold px-1.5 py-0.5 rounded">Flask API</span>
+            </div>
+
+            <div class="pl-4 border-l border-brand-purple/30 space-y-3">
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">app/models/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Modèles SQLAlchemy (Base de données SQLite)</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">app/services/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Stripe Integration et synchronisation des métadonnées avec l'API Steam</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">app/api/v1/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Contrôleurs, routes REST et authentification JWT</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-file-code text-brand-cyan mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">run.py</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Point d'entrée principal du serveur</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Frontend branch -->
+          <div class="space-y-4 relative">
+            <div class="flex items-center gap-2 pb-2 border-b border-brand-borderPurple/50">
+              <i class="fa-solid fa-folder text-brand-cyanLight text-lg"></i>
+              <span class="font-bold text-white font-outfit">frontend/</span>
+              <span class="text-[10px] bg-brand-cyan/20 border border-brand-cyan/30 text-brand-cyanLight font-bold px-1.5 py-0.5 rounded">React client</span>
+            </div>
+
+            <div class="pl-4 border-l border-brand-cyan/30 space-y-3">
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">src/components/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Composants réutilisables (Navbar, Cards)</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">src/context/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Contextes globaux d'état (Panier, Session Auth)</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-folder text-brand-textMuted mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">src/pages/</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Pages principales (Store, Produit, Admin, Inventaire)</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-file-code text-brand-cyan mt-1"></i>
+                <div>
+                  <div class="text-xs font-semibold text-brand-textPrimary font-mono">index.html</div>
+                  <p class="text-[11px] text-brand-textSecondary mt-0.5">Point d'ancrage HTML de l'application SPA</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW SECTION 1: Interactive API Explorer -->
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-brand-cyan/20 flex items-center justify-center text-brand-cyanLight text-lg">
+            <i class="fa-solid fa-network-wired"></i>
+          </div>
+          <h3 class="font-outfit font-bold text-xl text-white">Explorateur d'API REST</h3>
+        </div>
+
+        <p class="text-brand-textSecondary text-sm">
+          Sélectionnez un point de terminaison pour voir l'appel frontend Axios et le format de la réponse JSON du serveur :
+        </p>
+
+        <!-- API Explorer Component -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Left: selector buttons -->
+          <div class="flex flex-col gap-2.5">
+            <button onclick="selectApi('get-products')" id="api-get-products" class="api-btn active text-left p-3 border border-brand-borderPurple rounded-xl text-xs font-bold font-mono transition-all duration-200">
+              <span class="text-emerald-400">GET</span> /api/v1/products
+            </button>
+            <button onclick="selectApi('post-login')" id="api-post-login" class="api-btn text-left p-3 border border-brand-borderPurple rounded-xl text-xs font-bold font-mono transition-all duration-200">
+              <span class="text-brand-purpleLight">POST</span> /api/v1/auth/login
+            </button>
+            <button onclick="selectApi('get-inventory')" id="api-get-inventory" class="api-btn text-left p-3 border border-brand-borderPurple rounded-xl text-xs font-bold font-mono transition-all duration-200">
+              <span class="text-emerald-400">GET</span> /api/v1/inventory
+            </button>
+          </div>
+
+          <!-- Middle & Right: Code & JSON displays -->
+          <div class="lg:col-span-2 glass-panel p-4 rounded-xl flex flex-col gap-4">
+            <div>
+              <div class="text-[10px] text-brand-textMuted font-mono uppercase tracking-wider mb-1.5">Requête Frontend (Axios)</div>
+              <pre id="api-request-code" class="p-3 bg-brand-primary rounded-lg border border-brand-borderPurple font-mono text-[11px] text-brand-textSecondary overflow-x-auto whitespace-pre">axios.get('/api/v1/products');</pre>
+            </div>
+            <div>
+              <div class="text-[10px] text-brand-textMuted font-mono uppercase tracking-wider mb-1.5">Réponse Backend (JSON)</div>
+              <pre id="api-response-code" class="p-3 bg-brand-primary rounded-lg border border-brand-borderPurple font-mono text-[11px] text-brand-cyanLight overflow-x-auto whitespace-pre">[
+  {
+    "product_id": 1,
+    "product_name": "Elden Ring",
+    "price_cents": 3499,
+    "stock": 14
+  }
+]</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW SECTION 2: Database Schema Visual -->
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purpleLight text-lg">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <h3 class="font-outfit font-bold text-xl text-white">Schéma SQL de la Base de Données</h3>
+        </div>
+        <p class="text-brand-textSecondary text-sm">
+          Structure relationnelle SQLite modélisée avec l'ORM SQLAlchemy :
+        </p>
+
+        <!-- Relational Flow Grid Wrapper (Strict alignment and direction: Product -> Key -> Inventory <- Order <- User) -->
+        <div class="flex flex-col md:grid md:grid-cols-[250px_1fr_250px_1fr_250px] gap-y-6 md:gap-y-8 md:gap-x-1 items-center">
+
+          <!-- [1] User Table (Col 1, Row 1 on Desktop, order-9 on Mobile - at the bottom) -->
+          <div class="order-9 md:order-none md:col-start-1 md:row-start-1 glass-panel w-full md:w-[250px] rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-secondary/40">
+            <div class="bg-brand-purple/10 px-4 py-2 border-b border-brand-borderPurple font-bold text-white flex items-center justify-between font-outfit">
+              <span>User</span>
+              <span class="text-[9px] uppercase bg-brand-purple/25 text-brand-purpleLight px-1.5 py-0.5 rounded font-mono">Table</span>
+            </div>
+            <div class="p-4 space-y-1">
+              <div class="grid grid-cols-2 text-[10px] text-brand-textMuted uppercase border-b border-brand-borderPurple/50 pb-1 mb-2 font-bold font-sans">
+                <span>Champ</span>
+                <span>Type</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white font-semibold">user_id <span class="text-amber-400">🔑</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white">email</span>
+                <span class="text-brand-textMuted">VARCHAR</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center font-mono text-[11px]">
+                <span class="text-white">is_admin</span>
+                <span class="text-brand-textMuted">BOOLEAN</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [2] Connector User -> Order (Col 2, Row 1 on Desktop, order-8 on Mobile - points UP User -> Order) -->
+          <div class="order-8 md:order-none md:col-start-2 md:row-start-1 flex flex-col items-center justify-center text-brand-purple py-1">
+            <i class="fa-solid fa-arrow-right text-lg hidden md:block filter drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]"></i>
+            <i class="fa-solid fa-arrow-up text-lg md:hidden filter drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]"></i>
+            <span class="text-[9px] text-brand-textMuted font-mono mt-1">user_id</span>
+          </div>
+
+          <!-- [3] Order Table (Col 3, Row 1 on Desktop, order-7 on Mobile) -->
+          <div class="order-7 md:order-none md:col-start-3 md:row-start-1 glass-panel w-full md:w-[250px] rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-secondary/40">
+            <div class="bg-brand-purple/10 px-4 py-2 border-b border-brand-borderPurple font-bold text-white flex items-center justify-between font-outfit">
+              <span>Order</span>
+              <span class="text-[9px] uppercase bg-brand-purple/25 text-brand-purpleLight px-1.5 py-0.5 rounded font-mono">Table</span>
+            </div>
+            <div class="p-4 space-y-1">
+              <div class="grid grid-cols-2 text-[10px] text-brand-textMuted uppercase border-b border-brand-borderPurple/50 pb-1 mb-2 font-bold font-sans">
+                <span>Champ</span>
+                <span>Type</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white font-semibold">order_id <span class="text-amber-400">🔑</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-brand-purpleLight font-semibold">user_id <span class="text-brand-purpleLight">🔗</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center font-mono text-[11px]">
+                <span class="text-white">status</span>
+                <span class="text-brand-textMuted">VARCHAR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [4] Connector Order -> InventoryItem (Col 4, Row 1 on Desktop, order-6 on Mobile - points UP Order -> InventoryItem) -->
+          <div class="order-6 md:order-none md:col-start-4 md:row-start-1 flex flex-col items-center justify-center text-brand-purple py-1">
+            <i class="fa-solid fa-arrow-right text-lg hidden md:block filter drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]"></i>
+            <i class="fa-solid fa-arrow-up text-lg md:hidden filter drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]"></i>
+            <span class="text-[9px] text-brand-textMuted font-mono mt-1">user_id</span>
+          </div>
+
+          <!-- [5] Product Table (Col 1, Row 2 on Desktop, order-1 on Mobile - at the top) -->
+          <div class="order-1 md:order-none md:col-start-1 md:row-start-2 glass-panel w-full md:w-[250px] rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-secondary/40">
+            <div class="bg-brand-purple/10 px-4 py-2 border-b border-brand-borderPurple font-bold text-white flex items-center justify-between font-outfit">
+              <span>Product</span>
+              <span class="text-[9px] uppercase bg-brand-purple/25 text-brand-purpleLight px-1.5 py-0.5 rounded font-mono">Table</span>
+            </div>
+            <div class="p-4 space-y-1">
+              <div class="grid grid-cols-2 text-[10px] text-brand-textMuted uppercase border-b border-brand-borderPurple/50 pb-1 mb-2 font-bold font-sans">
+                <span>Champ</span>
+                <span>Type</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white font-semibold">product_id <span class="text-amber-400">🔑</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white">product_name</span>
+                <span class="text-brand-textMuted">VARCHAR</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center font-mono text-[11px]">
+                <span class="text-white">price_cents</span>
+                <span class="text-brand-textMuted">INT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [6] Connector Product -> ActivationKey (Col 2, Row 2 on Desktop, order-2 on Mobile - points DOWN Product -> Key) -->
+          <div class="order-2 md:order-none md:col-start-2 md:row-start-2 flex flex-col items-center justify-center text-brand-cyan py-1">
+            <i class="fa-solid fa-arrow-right text-lg hidden md:block filter drop-shadow-[0_0_5px_rgba(6,182,212,0.6)]"></i>
+            <i class="fa-solid fa-arrow-down text-lg md:hidden filter drop-shadow-[0_0_5px_rgba(6,182,212,0.6)]"></i>
+            <span class="text-[9px] text-brand-textMuted font-mono mt-1">product_id</span>
+          </div>
+
+          <!-- [7] ActivationKey Table (Col 3, Row 2 on Desktop, order-3 on Mobile) -->
+          <div class="order-3 md:order-none md:col-start-3 md:row-start-2 glass-panel w-full md:w-[250px] rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-secondary/40">
+            <div class="bg-brand-purple/10 px-4 py-2 border-b border-brand-borderPurple font-bold text-white flex items-center justify-between font-outfit">
+              <span>ActivationKey</span>
+              <span class="text-[9px] uppercase bg-brand-purple/25 text-brand-purpleLight px-1.5 py-0.5 rounded font-mono">Table</span>
+            </div>
+            <div class="p-4 space-y-1">
+              <div class="grid grid-cols-2 text-[10px] text-brand-textMuted uppercase border-b border-brand-borderPurple/50 pb-1 mb-2 font-bold font-sans">
+                <span>Champ</span>
+                <span>Type</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white font-semibold">key_id <span class="text-amber-400">🔑</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-brand-purpleLight font-semibold">product_id <span class="text-brand-purpleLight">🔗</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center font-mono text-[11px]">
+                <span class="text-white">is_used</span>
+                <span class="text-brand-textMuted">BOOLEAN</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [8] Connector ActivationKey -> InventoryItem (Col 4, Row 2 on Desktop, order-4 on Mobile - points DOWN Key -> InventoryItem) -->
+          <div class="order-4 md:order-none md:col-start-4 md:row-start-2 flex flex-col items-center justify-center text-brand-cyan py-1">
+            <i class="fa-solid fa-arrow-right text-lg hidden md:block filter drop-shadow-[0_0_5px_rgba(6,182,212,0.6)]"></i>
+            <i class="fa-solid fa-arrow-down text-lg md:hidden filter drop-shadow-[0_0_5px_rgba(6,182,212,0.6)]"></i>
+            <span class="text-[9px] text-brand-textMuted font-mono mt-1">product_id</span>
+          </div>
+
+          <!-- [9] InventoryItem Table (Col 5, Spans rows on Desktop, order-5 on Mobile - perfectly centered on mobile between both chains) -->
+          <div class="order-5 md:order-none md:col-start-5 md:row-start-1 md:row-span-2 glass-panel w-full md:w-[250px] rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-secondary/40 md:my-auto">
+            <div class="bg-brand-purple/10 px-4 py-2 border-b border-brand-borderPurple font-bold text-white flex items-center justify-between font-outfit">
+              <span>InventoryItem</span>
+              <span class="text-[9px] uppercase bg-brand-purple/25 text-brand-purpleLight px-1.5 py-0.5 rounded font-mono">Table</span>
+            </div>
+            <div class="p-4 space-y-1">
+              <div class="grid grid-cols-2 text-[10px] text-brand-textMuted uppercase border-b border-brand-borderPurple/50 pb-1 mb-2 font-bold font-sans">
+                <span>Champ</span>
+                <span>Type</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-white font-semibold">item_id <span class="text-amber-400">🔑</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center border-b border-brand-borderPurple/10 font-mono text-[11px]">
+                <span class="text-brand-purpleLight font-semibold">user_id <span class="text-brand-purpleLight">🔗</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+              <div class="grid grid-cols-2 py-1 items-center font-mono text-[11px]">
+                <span class="text-brand-purpleLight font-semibold">product_id <span class="text-brand-purpleLight">🔗</span></span>
+                <span class="text-brand-textSecondary">INT</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- NEW SECTION 3: Security & Best Practices Panel -->
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <h3 class="font-outfit font-bold text-xl text-white">Sécurité & Bonnes Pratiques</h3>
+        </div>
+        <p class="text-brand-textSecondary text-sm">
+          Protocoles implémentés dans l'architecture pour sécuriser les données et les transactions :
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple hover:border-brand-purple/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-brand-purple text-lg"><i class="fa-solid fa-key"></i></span>
+              <h4 class="font-outfit font-bold text-white">Authentification JWT à Double Niveau</h4>
+            </div>
+            <p class="text-brand-textSecondary text-xs leading-relaxed">
+              Utilisation de jetons d'accès (Access tokens) à durée de vie courte et de jetons de rafraîchissement (Refresh tokens) stockés de manière sécurisée pour renouveler les sessions de façon invisible.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple hover:border-brand-purple/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-brand-purple text-lg"><i class="fa-solid fa-lock"></i></span>
+              <h4 class="font-outfit font-bold text-white">Cryptage & Hachage Bcrypt</h4>
+            </div>
+            <p class="text-brand-textSecondary text-xs leading-relaxed">
+              Les mots de passe ne sont jamais stockés en clair. Ils subissent un hachage unidirectionnel hautement sécurisé via Flask-Bcrypt lors de l'inscription et de la vérification à la connexion.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple hover:border-brand-purple/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-brand-purple text-lg"><i class="fa-brands fa-stripe-s"></i></span>
+              <h4 class="font-outfit font-bold text-white">Sécurisation des Webhooks Stripe</h4>
+            </div>
+            <p class="text-brand-textSecondary text-xs leading-relaxed">
+              Le point de terminaison de validation de paiement (Webhook) vérifie la signature de la requête reçue avec la clé secrète Stripe pour bloquer toute tentative d'injection frauduleuse de commandes.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple hover:border-brand-purple/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-brand-purple text-lg"><i class="fa-solid fa-shield"></i></span>
+              <h4 class="font-outfit font-bold text-white">Protection Contre les Injections SQL</h4>
+            </div>
+            <p class="text-brand-textSecondary text-xs leading-relaxed">
+              Le backend utilise l'ORM SQLAlchemy. Les requêtes sont systématiquement préparées et paramétrées, ce qui neutralise complètement les failles classiques d'injections de scripts SQL.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Quick Start Section -->
+  <section id="quickstart" class="bg-brand-primary py-20 border-t border-brand-borderPurple">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <!-- Quick Start Guide Section (Portfolio Highlight) -->
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-brand-cyan/20 flex items-center justify-center text-brand-cyanLight text-lg">
+            <i class="fa-solid fa-terminal"></i>
+          </div>
+          <h3 class="font-outfit font-bold text-xl text-white">Démarrage Rapide</h3>
+        </div>
+
+        <p class="text-brand-textSecondary text-sm">
+          Lancez l'environnement complet de développement (Frontend + Backend + Base de données) en local :
+        </p>
+
+        <div class="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
+          <!-- Local Setup Card -->
+          <div class="glass-panel p-6 rounded-2xl border border-brand-borderPurple flex flex-col justify-between">
+            <div class="space-y-4">
+              <h4 class="font-outfit font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-desktop text-brand-purpleLight"></i> Configuration en Local
+              </h4>
+              <p class="text-brand-textSecondary text-xs leading-relaxed">
+                Cloner et lancer l'application en local via Docker Compose en quelques commandes bash :
+              </p>
+
+              <!-- Command Line Mockup -->
+              <div class="rounded-xl overflow-hidden border border-brand-borderPurple bg-brand-primary p-4 font-mono text-[11px] text-brand-textSecondary space-y-2 shadow-inner">
+                <div class="flex justify-between items-center text-brand-textMuted text-[10px] border-b border-brand-borderPurple pb-2 mb-2">
+                  <span>Terminal Bash</span>
+                  <button onclick="copyCommands()" id="copy-btn" class="hover:text-brand-textPrimary transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="fa-regular fa-copy"></i> Copier
+                  </button>
+                </div>
+                <div><span class="text-brand-purple">git clone</span> https://github.com/ylabate/Portfolio-Project.git</div>
+                <div><span class="text-brand-purple">cd</span> Portfolio-Project/levelup</div>
+                <div><span class="text-brand-purple">echo</span> "STRIPE_API_KEY=sk_test_..." &gt; .env</div>
+                <div><span class="text-brand-purple">echo -e</span> "SECRET_KEY=dev\nJWT_SECRET_KEY=dev" &gt; backend/.env</div>
+                <div><span class="text-brand-purple">make dev</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cloud Startup (Codespaces) Card (Hidden trace) -->
+          <div class="hidden glass-panel p-6 rounded-2xl border border-[#2ea043]/30 bg-[#2ea043]/5 flex flex-col justify-between">
+            <div class="space-y-4">
+              <h4 class="font-outfit font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-cloud text-[#2ea043]"></i> Lancer dans le Cloud
+              </h4>
+              <p class="text-brand-textSecondary text-xs leading-relaxed">
+                Ouvrez le projet en un clic dans GitHub Codespaces. Le conteneur se lancera et affichera l'application automatiquement grâce au configuration pre-définie.
+              </p>
+            </div>
+            <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="w-full mt-6 px-6 py-3.5 bg-[#238636] hover:bg-[#2ea043] rounded-xl text-white font-bold text-sm transition-all duration-200 shadow-[0_0_15px_rgba(46,160,67,0.3)] hover:scale-[1.02] flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play"></i> Ouvrir Codespace (1-Clic)
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-brand-borderPurple bg-brand-primary py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <!-- Logo SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" class="w-6 h-6 filter drop-shadow-[0_0_6px_rgba(139,92,246,0.6)]">
+          <defs>
+            <linearGradient id="purpleGradFooter" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4B0082" />
+              <stop offset="50%" stop-color="#8A2BE2" />
+              <stop offset="100%" stop-color="#D8BFD8" />
+            </linearGradient>
+          </defs>
+          <g transform="translate(250, 250) scale(1.4) translate(-250, -230)">
+            <g transform="translate(0, 10)">
+              <path d="M 150 340 L 250 240 L 350 340 L 310 370 L 250 310 L 190 370 Z" fill="url(#purpleGradFooter)" opacity="0.6" />
+              <path d="M 150 250 L 250 150 L 350 250 L 310 280 L 250 220 L 190 280 Z" fill="url(#purpleGradFooter)" opacity="0.8" />
+              <path d="M 150 160 L 250 60 L 350 160 L 310 190 L 250 130 L 190 190 Z" fill="url(#purpleGradFooter)" />
+            </g>
+          </g>
+        </svg>
+        <span class="font-outfit font-extrabold text-lg text-white">LevelUp</span>
+      </div>
+      <p class="text-brand-textMuted text-xs text-center">
+        &copy; 2026 LevelUp Portfolio Project.
+      </p>
+      <div class="flex items-center gap-6">
+        <a href="https://github.com/ylabate/Portfolio-Project" target="_blank" rel="noopener noreferrer" class="text-brand-textMuted hover:text-brand-textPrimary transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Tab Control & API Explorer Control Script -->
+  <script>
+    const tabs = {
+      store: {
+        img: 'template/store_exemple.png',
+        url: 'levelup/catalog'
+      },
+      product: {
+        img: 'template/product_exemple.png',
+        url: 'levelup/products/12'
+      },
+      cart: {
+        img: 'template/cart_exemple.png',
+        url: 'levelup/cart'
+      },
+      inventory: {
+        img: 'template/inventory_exemple.png',
+        url: 'levelup/inventory'
+      },
+      admin: {
+        img: 'template/admin_panel_exemple.png',
+        url: 'levelup/admin'
+      }
+    };
+
+    function showTab(tabKey) {
+      // Set image and url
+      document.getElementById('screenshot-img').src = tabs[tabKey].img;
+      document.getElementById('browser-url').innerText = tabs[tabKey].url;
+
+      // Update buttons style
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-' + tabKey).classList.add('active');
+    }
+
+    const apiRoutes = {
+      'get-products': {
+        request: "axios.get('/api/v1/products?limit=6');",
+        response: `[\n  {\n    "product_id": 1,\n    "product_name": "Elden Ring",\n    "price_cents": 3499,\n    "stock": 14\n  },\n  {\n    "product_id": 2,\n    "product_name": "Helldivers 2",\n    "price_cents": 1599,\n    "stock": 5\n  }\n]`
+      },
+      'post-login': {
+        request: "axios.post('/api/v1/auth/login', {\n  email: \"user@example.com\",\n  password: \"securePassword\"\n});",
+        response: `{\n  "access_token": "eyJhbGciOi...",\n  "refresh_token": "eyJhbGciOi...",\n  "user": {\n    "email": "user@example.com",\n    "is_admin": false,\n    "user_id": 4\n  }\n}`
+      },
+      'get-inventory': {
+        request: "axios.get('/api/v1/inventory', {\n  headers: { Authorization: \`Bearer \${token}\` }\n});",
+        response: `[\n  {\n    "item_id": 12,\n    "product_id": 1,\n    "product_name": "Elden Ring",\n    "key_code": "AAAA-BBBB-CCCC-DDDD",\n    "acquired_at": "2026-07-15T10:00:00Z"\n  }\n]`
+      }
+    };
+
+    function selectApi(apiKey) {
+      document.getElementById('api-request-code').innerText = apiRoutes[apiKey].request;
+      document.getElementById('api-response-code').innerText = apiRoutes[apiKey].response;
+
+      const buttons = document.querySelectorAll('.api-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      document.getElementById('api-' + apiKey).classList.add('active');
+    }
+
+    function copyCommands() {
+      const textToCopy = "git clone https://github.com/ylabate/Portfolio-Project.git\ncd Portfolio-Project/levelup\necho \"STRIPE_API_KEY=sk_test_...\" > .env\necho -e \"SECRET_KEY=dev\\nJWT_SECRET_KEY=dev\" > backend/.env\nmake dev";
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const copyBtn = document.getElementById('copy-btn');
+        copyBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Copié !';
+        setTimeout(() => {
+          copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copier';
+        }, 2000);
+      }).catch(err => {
+        console.error('Erreur lors de la copie : ', err);
+      });
+    }
+  </script>
+
+</body>
+</html>

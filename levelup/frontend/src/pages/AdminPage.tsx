@@ -99,7 +99,7 @@ const getErrorMessage = (error: any, fallback: string) => {
 }
 
 function getAuthToken() {
-    return localStorage.getItem("access_token") || localStorage.getItem("token")
+    return localStorage.getItem("token") || localStorage.getItem("access_token")
 }
 
 function AdminPage() {

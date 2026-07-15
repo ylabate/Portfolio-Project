@@ -23,7 +23,7 @@ function CartPage() {
     const [cart, setCart] = useState<Cart | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
 
     useEffect(() => {
         if (!token) {

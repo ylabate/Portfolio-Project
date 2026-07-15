@@ -1,8 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { Zap, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import logo from '../assets/logoSansFond.svg';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -26,7 +27,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="container">
         <Link to="/" className="nav-logo">
-          <Zap size={20} className="nav-logo-icon" fill="currentColor" style={{ stroke: 'none' }} />
+          <img src={logo} alt="LevelUp Logo" className="nav-logo-img" />
           LevelUp
         </Link>
 

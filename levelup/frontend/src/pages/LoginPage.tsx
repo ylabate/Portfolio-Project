@@ -12,7 +12,15 @@ function LoginPage() {
     const handleLogin = async () => {
         try {
             const response = await api.post("/auth/login", { email, password })
-            localStorage.setItem("access_token", response.data.access_token)
+            const data = response.data
+            localStorage.setItem("token", data.access_token)
+            localStorage.setItem("access_token", data.access_token)
+            localStorage.setItem("refresh_token", data.refresh_token)
+            localStorage.setItem("user", JSON.stringify({
+                id: data.user.id,
+                username: data.user.username,
+                is_admin: data.user.is_admin
+            }))
             navigate("/")
         } catch (err) {
             setError("Invalid email or password")

@@ -52,6 +52,7 @@ Create a `.env` file in `levelup/backend`:
 SQLALCHEMY_DATABASE_URI="sqlite:///levelup.db"
 JWT_SECRET_KEY="change-me-too"
 FRONTEND_URL="http://localhost:5173"
+STRIPE_SECRET_KEY="sk_test_..."
 # STRIPE_WEBHOOK_SECRET="whsec_..."  # Only in production! (Stripe CLI handles it dynamically in dev)
 MAIL_USERNAME="you@example.com"
 MAIL_PASSWORD="your-app-password"

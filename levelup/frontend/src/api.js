@@ -1,8 +1,16 @@
 import axios from 'axios';
 import { triggerToast } from './context/ToastContext.jsx';
 
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  if (hostname.includes('preview.app.github.dev') || hostname.includes('github.dev') || hostname.includes('app.github.dev')) {
+    return `https://${hostname.replace('-5173', '-5000')}/api/v1`;
+  }
+  return 'http://127.0.0.1:5000/api/v1';
+};
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api/v1',
+  baseURL: getBaseURL(),
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -36,11 +44,13 @@ api.interceptors.response.use(
           );
           
           localStorage.setItem('token', data.access_token);
+          localStorage.setItem('access_token', data.access_token);
           originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
           return api(originalRequest);
         } catch (refreshErr) {
           // If refresh request fails, log out the user
           localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
           sessionStorage.setItem('toast_message', 'Session expired. Please sign in again.');
@@ -49,6 +59,7 @@ api.interceptors.response.use(
         }
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('user');
         sessionStorage.setItem('toast_message', 'Session expired. Please sign in again.');
         window.location.href = '/login';
