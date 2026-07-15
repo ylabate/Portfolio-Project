@@ -1,6 +1,9 @@
 {
   "name": "LevelUp Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/python:3.9",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
   "postStartCommand": "bash levelup/start-codespace.sh",
   "portsAttributes": {
     "5173": {
