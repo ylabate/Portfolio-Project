@@ -4,7 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "postStartCommand": "cd levelup && make dev",
+  "postStartCommand": "cd levelup && (make dev &)",
   "portsAttributes": {
     "5173": {
       "label": "LevelUp Frontend (React)",
