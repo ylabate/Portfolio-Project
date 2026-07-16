@@ -8,7 +8,7 @@ class Transaction(BaseModel):
     user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     amount_cents = db.Column(db.Integer, nullable=False)
     type = db.Column(db.String(50), nullable=False)
-    reference_id = db.Column(db.String(36), nullable=True)
+    reference_id = db.Column(db.String(255), nullable=True)
 
     def __setattr__(self, name, value):
         if "id" in self.__dict__ and self.__dict__["id"] is not None:
