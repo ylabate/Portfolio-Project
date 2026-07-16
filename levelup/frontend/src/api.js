@@ -2,6 +2,9 @@ import axios from 'axios';
 import { triggerToast } from './context/ToastContext.jsx';
 
 const getBaseURL = () => {
+  if (import.meta.env.API_URL) {
+    return import.meta.env.API_URL;
+  }
   const hostname = window.location.hostname;
   if (hostname.includes('preview.app.github.dev') || hostname.includes('github.dev') || hostname.includes('app.github.dev')) {
     return `https://${hostname.replace('-5173', '-5000')}/api/v1`;
@@ -36,7 +39,7 @@ api.interceptors.response.use(
           // Request a new access token using the refresh token as Bearer authorization.
           // Note we bypass the normal request interceptor which adds the regular token.
           const { data } = await axios.post(
-            'http://127.0.0.1:5000/api/v1/auth/refresh',
+            `${getBaseURL()}/auth/refresh`,
             {},
             {
               headers: { Authorization: `Bearer ${refreshToken}` },
